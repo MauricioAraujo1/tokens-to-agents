@@ -1,0 +1,138 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: light;
+  --canvas: #f5f0e7;
+  --surface: #fbf8f1;
+  --surface-muted: #eee8dc;
+  --ink: #292820;
+  --muted: #817b70;
+  --line: #d8d0c2;
+  --green: #b9d99b;
+  --green-dark: #547b45;
+  --blue: #8db9de;
+  --purple: #b8a2d8;
+  --orange: #efb47d;
+  --red: #d96b65;
+  --yellow: #e9d58b;
+  --on-accent: #292820;
+  --grid-line: rgb(41 40 32 / 0.075);
+  --paper-shadow: 0 1px 2px rgb(41 40 32 / 0.08), 0 6px 14px -8px rgb(41 40 32 / 0.18);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --canvas: #1c1a15;
+  --surface: #25231d;
+  --surface-muted: #2d2a23;
+  --ink: #ece6d8;
+  --muted: #a39c8e;
+  --line: #413d32;
+  --green: #9cc27c;
+  --green-dark: #bcdca0;
+  --blue: #7aa6cc;
+  --purple: #a78ecb;
+  --orange: #d99a64;
+  --red: #e07f78;
+  --yellow: #d7c16e;
+  --grid-line: rgb(236 230 216 / 0.05);
+  --paper-shadow: 0 1px 2px rgb(0 0 0 / 0.35), 0 6px 14px -8px rgb(0 0 0 / 0.5);
+}
+
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-green: var(--green);
+  --color-green-dark: var(--green-dark);
+  --color-blue: var(--blue);
+  --color-purple: var(--purple);
+  --color-orange: var(--orange);
+  --color-red: var(--red);
+  --color-yellow: var(--yellow);
+  --color-on-accent: var(--on-accent);
+  --font-sans: "Inter Variable", Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --shadow-paper: var(--paper-shadow);
+}
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--canvas);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  .paper-grid {
+    background-color: var(--surface);
+    background-image:
+      repeating-linear-gradient(26.565deg, var(--grid-line) 0 1px, transparent 1px 20px),
+      repeating-linear-gradient(-26.565deg, var(--grid-line) 0 1px, transparent 1px 20px);
+  }
+
+  .flow-dot {
+    offset-rotate: 0deg;
+    animation: flow-travel 1.8s linear infinite;
+  }
+
+  .is-paused .flow-dot {
+    animation-play-state: paused;
+  }
+
+  .no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .rag-node:focus-visible {
+    outline: none;
+  }
+
+  .rag-node:focus-visible path {
+    stroke-width: 3.4;
+  }
+}
+
+@keyframes flow-travel {
+  from {
+    offset-distance: 0%;
+  }
+
+  to {
+    offset-distance: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flow-dot {
+    animation: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+  }
+}
