@@ -36,6 +36,16 @@ describe("Matrix", () => {
     ]);
   });
 
+  it("rótulos de coluna curtos ficam retos; longos ficam inclinados e ganham espaço na matriz", () => {
+    const short = renderPiece(attention).container;
+    const long = renderPiece({ ...attention, cols: ["cachorro", "dormiu", "telhado"] }).container;
+    const height = (container: Element) => Number(container.querySelector("svg")?.getAttribute("viewBox")?.split(" ")[3]);
+
+    expect(short.querySelector('[data-col-label="0"]')).not.toHaveAttribute("transform");
+    expect(long.querySelector('[data-col-label="0"]')?.getAttribute("transform")).toMatch(/^rotate\(-45 /);
+    expect(height(long)).toBeGreaterThan(height(short));
+  });
+
   it("mapeia cada valor na escala de cor declarada", () => {
     const { cell } = renderPiece(attention);
 

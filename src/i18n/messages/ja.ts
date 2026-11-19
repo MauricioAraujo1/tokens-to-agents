@@ -158,6 +158,7 @@ const ja: Messages = {
   "scene.piece.client-server": "クライアントとサーバー：{items}",
   "scene.piece.chart": "チャート：{items}",
   "scene.piece.metrics-panel": "指標：{items}",
+  "scene.piece.block-diagram": "ブロック図: {items}",
   "scene.highlight": "{description}（強調：{item}）",
   "scene.tokenStream.query": "クエリ",
   "scene.tokenStream.key": "キー",

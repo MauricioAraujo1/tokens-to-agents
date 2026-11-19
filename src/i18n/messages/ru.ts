@@ -169,6 +169,7 @@ const ru: Messages = {
   "scene.piece.client-server": "Клиент и сервер: {items}",
   "scene.piece.chart": "Диаграмма: {items}",
   "scene.piece.metrics-panel": "Метрики: {items}",
+  "scene.piece.block-diagram": "Блок-схема: {items}",
   "scene.highlight": "{description} (выделено: {item})",
   "scene.tokenStream.query": "запрос",
   "scene.tokenStream.key": "ключ",

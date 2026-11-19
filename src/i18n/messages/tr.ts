@@ -159,6 +159,7 @@ const tr: Messages = {
   "scene.piece.client-server": "İstemci ve sunucu: {items}",
   "scene.piece.chart": "Grafik: {items}",
   "scene.piece.metrics-panel": "Metrikler: {items}",
+  "scene.piece.block-diagram": "Blok diyagramı: {items}",
   "scene.highlight": "{description} (vurgulanan: {item})",
   "scene.tokenStream.query": "query",
   "scene.tokenStream.key": "key",

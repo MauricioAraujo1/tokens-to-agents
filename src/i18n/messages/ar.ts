@@ -171,6 +171,7 @@ const ar: Messages = {
   "scene.piece.client-server": "العميل والخادم: {items}",
   "scene.piece.chart": "مخطط: {items}",
   "scene.piece.metrics-panel": "المقاييس: {items}",
+  "scene.piece.block-diagram": "مخطط الكتل: {items}",
   "scene.highlight": "{description} (مميَّز: {item})",
   "scene.tokenStream.query": "الاستعلام",
   "scene.tokenStream.key": "المفتاح",

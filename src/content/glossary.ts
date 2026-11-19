@@ -13,7 +13,7 @@ export interface GlossaryEntry {
   lesson: LessonId;
 }
 
-export const glossary: GlossaryEntry[] = [
+const baseGlossary: GlossaryEntry[] = [
   // Módulo 03: Transformers Architecture.
   {
     id: "language-model",
@@ -348,3 +348,8 @@ export const glossary: GlossaryEntry[] = [
     lesson: "08-11",
   },
 ];
+
+// Cada módulo novo traz os seus termos em glossary/NN.ts, para que módulos escritos em paralelo não editem o mesmo arquivo.
+const moduleGlossaries = import.meta.glob<GlossaryEntry[]>("./glossary/*.ts", { eager: true, import: "default" });
+
+export const glossary: GlossaryEntry[] = [...baseGlossary, ...Object.values(moduleGlossaries).flat()];

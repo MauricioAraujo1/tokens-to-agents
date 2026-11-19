@@ -42,4 +42,14 @@ describe("motion do app (SCN-01.4)", () => {
 
     expect(block).toMatch(/\.flow-dot,\s*\.scene-transition \.scene-piece\s*\{\s*animation: none;\s*\}/);
   });
+
+  it("os blocos isométricos animam em loop, pausam com a cena e param com reduced motion", () => {
+    const block = reducedMotionBlock();
+
+    for (const name of ["iso-float", "iso-blink", "iso-wrench", "iso-search"]) {
+      expect(globalsCss).toContain(`@keyframes ${name} {`);
+      expect(block).toContain(`.${name},`);
+    }
+    expect(globalsCss).toMatch(/\.is-paused :is\(\.iso-float, \.iso-blink, \.iso-wrench, \.iso-search\)\s*\{\s*animation-play-state: paused;/);
+  });
 });

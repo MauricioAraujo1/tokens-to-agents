@@ -159,6 +159,7 @@ const el: Messages = {
   "scene.piece.client-server": "Πελάτης και διακομιστής: {items}",
   "scene.piece.chart": "Γράφημα: {items}",
   "scene.piece.metrics-panel": "Μετρικές: {items}",
+  "scene.piece.block-diagram": "Διάγραμμα μπλοκ: {items}",
   "scene.highlight": "{description} (επισήμανση: {item})",
   "scene.tokenStream.query": "ερώτημα",
   "scene.tokenStream.key": "κλειδί",

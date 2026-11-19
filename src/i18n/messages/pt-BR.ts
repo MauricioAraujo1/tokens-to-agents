@@ -161,6 +161,7 @@ const ptBR = {
   "scene.piece.client-server": "Cliente e servidor: {items}",
   "scene.piece.chart": "Gráfico: {items}",
   "scene.piece.metrics-panel": "Métricas: {items}",
+  "scene.piece.block-diagram": "Diagrama de blocos: {items}",
   "scene.highlight": "{description} (destaque: {item})",
   "scene.tokenStream.query": "query",
   "scene.tokenStream.key": "key",

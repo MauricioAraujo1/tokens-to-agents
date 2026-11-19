@@ -155,6 +155,7 @@ const zhHant: Messages = {
   "scene.piece.client-server": "用戶端與伺服器：{items}",
   "scene.piece.chart": "圖表：{items}",
   "scene.piece.metrics-panel": "指標：{items}",
+  "scene.piece.block-diagram": "方塊圖：{items}",
   "scene.highlight": "{description}（醒目標示：{item}）",
   "scene.tokenStream.query": "查詢",
   "scene.tokenStream.key": "鍵",

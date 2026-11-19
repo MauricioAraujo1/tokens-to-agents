@@ -12,6 +12,10 @@ const LEFT = 16;
 const LABEL_SPACE = 24;
 const EPSILON = 1e-9;
 const SHADOW_OFFSET = 2;
+const LABEL_CHAR_WIDTH = 6.8;
+/** Folga mínima entre o rótulo reto de uma barra e o da barra vizinha. */
+const LABEL_SLACK = 6;
+const TILTED_LABEL_ANGLE = -35;
 
 /** Índices das barras mantidas pela linha de corte; sem corte, todas. */
 function keptIndexes(spec: ChartSpec): Set<number> {
@@ -36,8 +40,12 @@ export function Chart({ spec, transition }: PieceProps<ChartSpec>) {
   const max = spec.max ?? Math.max(EPSILON, ...spec.series.map((point) => point.value));
   const heightOf = (value: number) => (Math.min(Math.max(value, 0), max) / max) * PLOT_HEIGHT;
   const baseline = TOP + PLOT_HEIGHT;
+  const labelWidth = Math.max(0, ...spec.series.map((point) => point.label.length)) * LABEL_CHAR_WIDTH;
+  // Rótulo que não cabe na largura da barra fica inclinado, para não encostar no vizinho.
+  const tiltLabels = labelWidth > SLOT - LABEL_SLACK;
+  const tiltedDrop = Math.ceil(labelWidth * Math.sin((-TILTED_LABEL_ANGLE * Math.PI) / 180));
   const width = LEFT * 2 + SLOT * spec.series.length;
-  const height = baseline + LABEL_SPACE;
+  const height = baseline + LABEL_SPACE + (tiltLabels ? tiltedDrop : 0);
   const color = sceneColor(spec.color ?? "brand");
   const kept = keptIndexes(spec);
   const animate = transition.animate ? "scene-animate" : undefined;
@@ -121,10 +129,12 @@ export function Chart({ spec, transition }: PieceProps<ChartSpec>) {
               )}
             </g>
             <text
+              data-label={index}
               x={centerX(index)}
               y={baseline + LABEL_SPACE / 2}
-              textAnchor="middle"
+              textAnchor={tiltLabels ? "end" : "middle"}
               dominantBaseline="central"
+              transform={tiltLabels ? `rotate(${TILTED_LABEL_ANGLE} ${centerX(index)} ${baseline + LABEL_SPACE / 2})` : undefined}
               className={cn("font-mono text-[11px]", highlighted && "font-bold")}
               style={{ fill: "var(--ink-muted)" }}
             >

@@ -14,6 +14,21 @@ export const validScenes: SceneSpec[] = [
       { piece: "metrics-panel", metrics: [{ id: "loss", label: "loss", value: "0.42" }], highlight: "loss" },
     ],
   },
+  {
+    kind: "pieces",
+    layout: "single",
+    pieces: [
+      {
+        piece: "block-diagram",
+        blocks: [
+          { id: "phone", kind: "phone", label: "celular", col: 0, row: 0 },
+          { id: "llm", kind: "llm", label: "llm", col: 1, row: 0 },
+        ],
+        edges: [{ from: "phone", to: "llm", label: "prompt" }],
+        active: "llm",
+      },
+    ],
+  },
 ];
 
 export const invalidScenes: SceneSpec[] = [
@@ -27,6 +42,8 @@ export const invalidScenes: SceneSpec[] = [
   { kind: "pieces", layout: "single", pieces: [{ piece: "token-stream", tokens: ["O"], arcs: [{ from: 0, to: 0, weight: "alto" }] }] },
   // @ts-expect-error cena custom inexistente.
   { kind: "custom", id: "no-such-scene" },
+  // @ts-expect-error bloco que não existe na página 05.
+  { kind: "pieces", layout: "single", pieces: [{ piece: "block-diagram", blocks: [{ id: "x", kind: "spaceship", label: "x", col: 0, row: 0 }] }] },
   // @ts-expect-error cor fora do tema.
   { kind: "pieces", layout: "single", pieces: [{ piece: "chart", kind: "bar", series: [], color: "#ff0000" }] },
 ];

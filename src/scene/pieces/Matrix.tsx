@@ -6,6 +6,10 @@ const LABEL_CHAR_WIDTH = 6.8;
 const LABEL_GAP = 8;
 const PADDING = 8;
 const SHADOW_OFFSET = 2;
+const COL_LABEL_HEIGHT = 20;
+/** Folga mínima entre um rótulo de coluna reto e a borda da célula. */
+const COL_LABEL_SLACK = 6;
+const TILTED_LABEL_ANGLE = -45;
 
 /** Matriz/heatmap com rótulos de linha e coluna, escala de cor, célula em destaque e máscara causal (SCN-01.2). */
 export function Matrix({ spec, transition }: PieceProps<MatrixSpec>) {
@@ -18,28 +22,37 @@ export function Matrix({ spec, transition }: PieceProps<MatrixSpec>) {
   const animate = transition.animate ? "scene-animate" : undefined;
 
   const rowLabelWidth = Math.max(0, ...spec.rows.map((label) => label.length)) * LABEL_CHAR_WIDTH + LABEL_GAP;
-  const colLabelHeight = 20;
+  const colLabelWidth = Math.max(0, ...spec.cols.map((label) => label.length)) * LABEL_CHAR_WIDTH;
+  // Rótulo de coluna que não cabe na célula fica inclinado, para não encostar no vizinho.
+  const tiltColLabels = colLabelWidth > CELL - COL_LABEL_SLACK;
+  const tiltedExtent = Math.ceil(colLabelWidth * Math.SQRT1_2);
+  const colLabelHeight = tiltColLabels ? tiltedExtent + LABEL_GAP : COL_LABEL_HEIGHT;
   const left = PADDING + rowLabelWidth;
   const top = PADDING + colLabelHeight;
-  const width = left + spec.cols.length * CELL + PADDING;
+  const width = left + spec.cols.length * CELL + PADDING + (tiltColLabels ? tiltedExtent : 0);
   const height = top + spec.rows.length * CELL + PADDING;
 
   return (
     <svg viewBox={`0 0 ${width} ${height}`} aria-hidden="true" className="block h-full max-h-full w-full">
-      {spec.cols.map((label, col) => (
-        <text
-          key={`col-${col}`}
-          data-col-label={col}
-          x={left + col * CELL + CELL / 2}
-          y={PADDING + colLabelHeight / 2}
-          textAnchor="middle"
-          dominantBaseline="central"
-          className="font-mono text-[11px]"
-          style={{ fill: "var(--ink-muted)" }}
-        >
-          {label}
-        </text>
-      ))}
+      {spec.cols.map((label, col) => {
+        const x = left + col * CELL + CELL / 2;
+        const y = tiltColLabels ? top - LABEL_GAP / 2 : PADDING + colLabelHeight / 2;
+        return (
+          <text
+            key={`col-${col}`}
+            data-col-label={col}
+            x={x}
+            y={y}
+            textAnchor={tiltColLabels ? "start" : "middle"}
+            dominantBaseline="central"
+            transform={tiltColLabels ? `rotate(${TILTED_LABEL_ANGLE} ${x} ${y})` : undefined}
+            className="font-mono text-[11px]"
+            style={{ fill: "var(--ink-muted)" }}
+          >
+            {label}
+          </text>
+        );
+      })}
 
       {spec.rows.map((label, row) => (
         <text

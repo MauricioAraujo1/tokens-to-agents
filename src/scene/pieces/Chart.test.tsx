@@ -32,6 +32,16 @@ describe("Chart", () => {
     expect(height(4) / height(0)).toBeCloseTo(0.1);
   });
 
+  it("rótulos curtos ficam retos; longos ficam inclinados e a cena ganha altura para eles", () => {
+    const short = renderPiece(distribution).container;
+    const long = renderPiece({ ...distribution, series: distribution.series.map((point) => ({ ...point, label: `${point.label}-relatório` })) }).container;
+    const viewHeight = (container: Element) => Number(container.querySelector("svg")?.getAttribute("viewBox")?.split(" ")[3]);
+
+    expect(short.querySelector('[data-label="0"]')).not.toHaveAttribute("transform");
+    expect(long.querySelector('[data-label="0"]')?.getAttribute("transform")).toMatch(/^rotate\(-35 /);
+    expect(viewHeight(long)).toBeGreaterThan(viewHeight(short));
+  });
+
   it("com `max` declarado, a escala vai até ele", () => {
     const { height } = renderPiece({ ...distribution, max: 1 });
 

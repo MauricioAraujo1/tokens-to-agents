@@ -43,6 +43,10 @@
   - busca por "atencao";
   - ícone do tema;
   - limpeza do pnpm: um sub-agente rodou `pnpm install` às 12:00, o que criou `pnpm-lock.yaml` e `node_modules/.pnpm`, contra a escolha de usar npm.
+- **Pendências conhecidas (rollout dos módulos, 2026-11-19):**
+  - a peça `matrix` mostra decimais com ponto (`toFixed`), não com vírgula; o usuário decidiu não mexer no componente por enquanto;
+  - a referência de Jurafsky e Martin (`https://web.stanford.edu/~jurafsky/slp3/`) dá timeout na checagem daqui; o usuário decidiu manter.
+- **Rollout dos módulos:** aulas enxutas (cerca de 6 passos), em lotes de uns 4 módulos, com a peça `block-diagram` dos blocos da página 05. Guia em `.specs/features/lesson-rollout/authoring-guide.md`. Lote 1: módulos 00, 01, 02 e 04.
 - **Próximo passo:** checkpoint do piloto do módulo 03 no navegador, com o usuário. Branch e commits só por decisão dele.
 - **Revisão (`reviewer`):** aprovada, sem BLOCKER nem HIGH. Os itens MEDIUM e LOW estão no resumo da sessão, entre eles setas em RTL, aviso de quota e Ctrl+clique nos links.
 - **Depois:** checkpoint da Phase 18. O usuário revisa o módulo 03 no navegador antes do rollout dos outros 17 módulos.

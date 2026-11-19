@@ -161,6 +161,7 @@ const fr: Messages = {
   "scene.piece.client-server": "Client et serveur : {items}",
   "scene.piece.chart": "Graphique : {items}",
   "scene.piece.metrics-panel": "Métriques : {items}",
+  "scene.piece.block-diagram": "Diagramme de blocs : {items}",
   "scene.highlight": "{description} (mis en évidence : {item})",
   "scene.tokenStream.query": "query",
   "scene.tokenStream.key": "key",

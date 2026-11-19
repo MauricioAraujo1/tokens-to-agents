@@ -159,6 +159,7 @@ const nl: Messages = {
   "scene.piece.client-server": "Client en server: {items}",
   "scene.piece.chart": "Grafiek: {items}",
   "scene.piece.metrics-panel": "Metrieken: {items}",
+  "scene.piece.block-diagram": "Blokdiagram: {items}",
   "scene.highlight": "{description} (uitgelicht: {item})",
   "scene.tokenStream.query": "query",
   "scene.tokenStream.key": "key",

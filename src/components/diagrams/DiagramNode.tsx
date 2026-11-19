@@ -55,7 +55,7 @@ const NODE_ICON: Record<RagNodeId, LucideIcon> = {
 
 // Regras da página "04 · Blocos do diagrama" (FigCraft).
 // Sombra suave do design (0 9px 7px a 20%), na cor de sombra do tema para valer também no escuro.
-const SOFT_SHADOW = "drop-shadow(0 9px 7px color-mix(in srgb, var(--shadow-hard) 20%, transparent))";
+export const SOFT_SHADOW = "drop-shadow(0 9px 7px color-mix(in srgb, var(--shadow-hard) 20%, transparent))";
 const PERSON_COLORS = [
   "var(--diagram-purple)",
   "var(--diagram-blue)",
@@ -149,7 +149,7 @@ interface ColoredShapeProps extends ShapeProps {
 }
 
 /** Zona verde no chão do bloco ativo: 180 × 90. */
-function GroundZone({ x, y }: ShapeProps) {
+export function GroundZone({ x, y }: ShapeProps) {
   const path = getRoundedPolygonPath(getIsoDiamond({ x, y }, RAG_GROUND_ZONE_HALF_WIDTH), 10);
 
   return (
