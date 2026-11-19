@@ -9,6 +9,8 @@ import {
   getArcStrokeWidth,
   getAttentionArc,
   getAttentionValues,
+  getEmbeddingPreview,
+  isMaskedToken,
   layoutAttentionTokens,
   softmax,
 } from "./attentionDiagramLayout";
@@ -63,5 +65,27 @@ describe("attentionDiagramLayout", () => {
 
     expect(findTopKeyIndex(scores, ATTENTION_QUERY_INDEX)).toBe(1);
     expect(findTopKeyIndex([5, 1], 0)).toBe(1);
+  });
+
+  it("zera os tokens do futuro na máscara causal e mantém a soma dos pesos em 1", () => {
+    const masked = getAttentionValues(ATTENTION_TOKENS, "masked");
+
+    masked.slice(ATTENTION_QUERY_INDEX + 1).forEach((value) => expect(value).toBe(0));
+    expect(masked.reduce((sum, value) => sum + value, 0)).toBeCloseTo(1);
+    expect(isMaskedToken(ATTENTION_QUERY_INDEX + 1, "masked")).toBe(true);
+    expect(isMaskedToken(ATTENTION_QUERY_INDEX, "masked")).toBe(false);
+    expect(isMaskedToken(ATTENTION_QUERY_INDEX + 1, "weights")).toBe(false);
+    expect(formatAttentionValue(masked[1], "masked")).toMatch(/^0\.\d{2}$/);
+  });
+
+  it("gera uma prévia de embedding determinística e dentro da escala das barras", () => {
+    const preview = getEmbeddingPreview("gato");
+
+    expect(preview).toEqual(getEmbeddingPreview("gato"));
+    expect(preview).not.toEqual(getEmbeddingPreview("muro"));
+    preview.forEach((value) => {
+      expect(value).toBeGreaterThanOrEqual(0.25);
+      expect(value).toBeLessThanOrEqual(1);
+    });
   });
 });

@@ -46,7 +46,7 @@ export function ModuleCard({ module, statuses, isCurrent, onOpen }: ModuleCardPr
       onClick={onOpen}
       aria-label={`${module.number} ${module.title}, ${completed} de ${total} aulas, ${STATUS_LABEL[status]}`}
       className={cn(
-        "flex h-full w-full flex-col gap-2 overflow-hidden rounded-[7px] border border-line-strong bg-surface pb-3 text-left transition-colors hover:bg-sunken",
+        "flex h-full w-full flex-col gap-2 overflow-hidden rounded-[7px] border border-line-strong bg-surface pb-3 text-left transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-press-lg",
         isCurrent && "border-[1.5px] shadow-press-lg",
       )}
     >
@@ -63,7 +63,10 @@ export function ModuleCard({ module, statuses, isCurrent, onOpen }: ModuleCardPr
           {completed}/{total} aulas
         </span>
         <span aria-hidden="true" className="mt-auto h-[5px] overflow-hidden rounded-[3px] bg-sunken">
-          <span className="block h-full" style={{ width: `${progress}%`, backgroundColor: color }} />
+          <span
+            className="block h-full transition-[width] duration-700 ease-out"
+            style={{ width: `${progress}%`, backgroundColor: color }}
+          />
         </span>
       </span>
     </button>

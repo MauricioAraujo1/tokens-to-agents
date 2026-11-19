@@ -34,6 +34,8 @@ const IMPORT_FEEDBACK_TEXT: Record<ImportFeedback, string> = {
   reset: "Progresso zerado.",
 };
 
+const MODULE_STAGGER_MS = 30;
+
 const PROGRESS_ACTION_CLASS = "inline-flex items-center gap-1 font-medium text-ink underline-offset-2 hover:underline";
 
 export function HomeView({
@@ -73,9 +75,9 @@ export function HomeView({
   }
 
   return (
-    <div className="flex-1 overflow-y-auto">
+    <div className="flex-1 animate-fade-in overflow-y-auto">
       <div className="mx-auto flex max-w-[1440px] flex-col gap-7 px-4 pb-7 pt-8 sm:px-10 sm:pt-9">
-        <section aria-labelledby="home-title" className="flex flex-col gap-8 lg:flex-row lg:items-end">
+        <section aria-labelledby="home-title" className="flex animate-rise flex-col gap-8 lg:flex-row lg:items-end">
           <div className="flex min-w-0 flex-1 flex-col gap-3.5">
             <p className="text-[11px] font-semibold uppercase tracking-[1.5px] text-muted">
               Trilha gratuita de AI Engineering
@@ -118,7 +120,7 @@ export function HomeView({
               aria-valuenow={completed}
               className="h-2.5 overflow-hidden rounded-[5px] border border-line-strong bg-sunken"
             >
-              <div className="h-full bg-brand" style={{ width: `${percentage}%` }} />
+              <div className="h-full bg-brand transition-[width] duration-700 ease-out" style={{ width: `${percentage}%` }} />
             </div>
             <p className="text-xs leading-4 text-muted">
               Última aula aberta: {lastLessonCode} {lastLesson.lesson.title} · passo {lastStepIndex + 1} de{" "}
@@ -149,7 +151,11 @@ export function HomeView({
               />
             </div>
             <p role="status" className="min-h-[14px] text-[11px] leading-[14px] text-muted">
-              {feedback && IMPORT_FEEDBACK_TEXT[feedback]}
+              {feedback && (
+                <span key={feedback} className="animate-fade-in">
+                  {IMPORT_FEEDBACK_TEXT[feedback]}
+                </span>
+              )}
             </p>
           </section>
         </section>
@@ -163,8 +169,8 @@ export function HomeView({
           </div>
 
           <ul className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
-            {modules.map((module) => (
-              <li key={module.id}>
+            {modules.map((module, index) => (
+              <li key={module.id} className="animate-rise" style={{ animationDelay: `${index * MODULE_STAGGER_MS}ms` }}>
                 <ModuleCard
                   module={module}
                   statuses={statuses}
@@ -186,7 +192,7 @@ export function HomeView({
                 <button
                   type="button"
                   onClick={onOpenProjects}
-                  className="rounded-[14px] border border-line-strong bg-surface px-3 py-[7px] text-xs font-medium text-ink transition-colors hover:bg-sunken"
+                  className="rounded-[14px] border border-line-strong bg-surface px-3 py-[7px] text-xs font-medium text-ink transition-[background-color,transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:bg-sunken hover:shadow-press-sm"
                 >
                   {project.number} {project.title}
                 </button>

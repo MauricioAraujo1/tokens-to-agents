@@ -23,7 +23,7 @@ export function CourseProgress({ completed, total }: CourseProgressProps) {
         aria-valuenow={completed}
         className="h-2 overflow-hidden rounded border border-line-strong bg-sunken"
       >
-        <div className="h-full bg-brand transition-[width]" style={{ width: `${percentage}%` }} />
+        <div className="h-full bg-brand transition-[width] duration-700 ease-out" style={{ width: `${percentage}%` }} />
       </div>
     </div>
   );

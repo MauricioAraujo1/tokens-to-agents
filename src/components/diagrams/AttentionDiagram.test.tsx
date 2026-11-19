@@ -27,4 +27,19 @@ describe("AttentionDiagram", () => {
     expect(screen.getByText("0.55")).toBeInTheDocument();
     expect(screen.getByText("⌒ espessura = peso")).toBeInTheDocument();
   });
+
+  it("mostra a fórmula do embedding no passo dos vetores, ainda sem query", () => {
+    render(<AttentionDiagram view="vectors" />);
+
+    expect(screen.getByText("token → embedding + posição")).toBeInTheDocument();
+    expect(screen.queryByText("↑ query")).not.toBeInTheDocument();
+  });
+
+  it("aplica a máscara causal redistribuindo o peso só entre os tokens do passado", () => {
+    render(<AttentionDiagram view="masked" />);
+
+    expect(screen.getByText("pontuação do futuro = −∞")).toBeInTheDocument();
+    expect(screen.getByText("com a máscara causal, “ele” só distribui atenção pelo passado")).toBeInTheDocument();
+    expect(screen.getByText("⌒ espessura = peso")).toBeInTheDocument();
+  });
 });

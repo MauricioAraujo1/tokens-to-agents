@@ -44,14 +44,14 @@ export function SearchDialog({ entries, onSelectLesson, onClose }: SearchDialogP
         tabIndex={-1}
         aria-label="Fechar busca"
         onClick={onClose}
-        className="absolute inset-0 cursor-default bg-ink/25"
+        className="absolute inset-0 animate-fade-in cursor-default bg-ink/25"
       />
 
       <div
         role="dialog"
         aria-modal="true"
         aria-label="Buscar aulas"
-        className="relative w-full max-w-[640px] overflow-hidden rounded-lg border-[1.5px] border-line-strong bg-surface shadow-press-lg"
+        className="relative w-full max-w-[640px] origin-top animate-pop-in overflow-hidden rounded-lg border-[1.5px] border-line-strong bg-surface shadow-press-lg"
       >
         <div className="flex items-center gap-3 border-b border-line px-4">
           <Search size={15} aria-hidden="true" className="text-muted" />
@@ -86,7 +86,7 @@ export function SearchDialog({ entries, onSelectLesson, onClose }: SearchDialogP
                       onMouseEnter={() => setActiveIndex(index)}
                       aria-current={isSelected ? "true" : undefined}
                       className={cn(
-                        "flex w-full items-center gap-3 rounded-md border-[1.5px] px-2.5 py-2 text-left text-[13px] transition-colors",
+                        "flex w-full animate-fade-in items-center gap-3 rounded-md border-[1.5px] px-2.5 py-2 text-left text-[13px] transition-colors",
                         isSelected ? "border-line-strong bg-brand-soft" : "border-transparent hover:bg-sunken",
                       )}
                     >

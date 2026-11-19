@@ -10,7 +10,10 @@ interface LessonHeaderProps {
 
 export function LessonHeader({ module, lesson, lessonIndex }: LessonHeaderProps) {
   return (
-    <header className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between md:gap-4">
+    <header
+      key={lesson.id}
+      className="flex animate-step-in flex-col gap-3 md:flex-row md:items-start md:justify-between md:gap-4"
+    >
       <div className="flex min-w-0 flex-col gap-1.5">
         <nav aria-label="Breadcrumb">
           <ol className="flex flex-wrap items-center gap-2 text-xs leading-4 text-muted">

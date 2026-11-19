@@ -6,7 +6,7 @@ export type LessonStepBadge = "concept" | "mechanism" | "solution" | "warning";
 
 export type LessonDiagramKind = "rag-flow" | "attention";
 
-export type AttentionView = "tokens" | "query" | "scores" | "weights";
+export type AttentionView = "tokens" | "vectors" | "query" | "scores" | "weights" | "masked";
 
 export interface LessonStep {
   id: string;

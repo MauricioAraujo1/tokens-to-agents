@@ -38,15 +38,22 @@ export function StepNavigation({
         ) : (
           <Button
             variant="primary"
-            className="h-full min-w-0 flex-1 justify-between px-3.5 py-2"
+            className="group h-full min-w-0 flex-1 justify-between px-3.5 py-2"
             aria-label={`Próximo: ${nextStepTitle}`}
             onClick={navigation.next}
           >
             <span className="flex min-w-0 flex-1 flex-col items-start text-left">
               <span className="text-[11px] font-normal leading-[14px]">Próximo:</span>
-              <span className="max-w-full truncate text-[13px] font-bold leading-[17px]">{nextStepTitle}</span>
+              <span key={nextStepTitle} className="max-w-full animate-fade-in truncate text-[13px] font-bold leading-[17px]">
+                {nextStepTitle}
+              </span>
             </span>
-            <ArrowRight size={16} strokeWidth={2.5} aria-hidden="true" />
+            <ArrowRight
+              size={16}
+              strokeWidth={2.5}
+              aria-hidden="true"
+              className="transition-transform duration-200 group-hover:translate-x-0.5"
+            />
           </Button>
         )}
       </div>

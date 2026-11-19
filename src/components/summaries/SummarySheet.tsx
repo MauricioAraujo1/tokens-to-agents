@@ -56,7 +56,7 @@ export function SummarySheet({ module, summary, findLesson, onOpenLesson }: Summ
   return (
     <article
       aria-labelledby="summary-title"
-      className="flex w-full max-w-[900px] flex-col gap-[18px] overflow-hidden rounded-md border-[1.5px] border-line-strong bg-surface pb-6"
+      className="flex w-full max-w-[900px] animate-rise flex-col gap-[18px] overflow-hidden rounded-md border-[1.5px] border-line-strong bg-surface pb-6"
     >
       <span aria-hidden="true" className="h-2.5 shrink-0" style={{ backgroundColor: color }} />
 

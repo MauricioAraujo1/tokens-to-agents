@@ -54,7 +54,7 @@ export function LanguageMenu() {
           id="language-menu"
           role="dialog"
           aria-label="Idioma da interface"
-          className="fixed inset-x-3 top-[64px] z-50 max-h-[calc(100dvh-80px)] overflow-y-auto rounded-lg border-[1.5px] border-line-strong bg-surface p-4 shadow-press-lg sm:absolute sm:inset-x-auto sm:right-0 sm:top-[calc(100%+8px)] sm:w-[560px]"
+          className="fixed inset-x-3 top-[64px] z-50 origin-top-right animate-pop-in max-h-[calc(100dvh-80px)] overflow-y-auto rounded-lg border-[1.5px] border-line-strong bg-surface p-4 shadow-press-lg sm:absolute sm:inset-x-auto sm:right-0 sm:top-[calc(100%+8px)] sm:w-[560px]"
         >
           <p className="border-b border-line pb-3 text-[11px] font-semibold uppercase tracking-[1px] text-ink">
             Idioma da interface

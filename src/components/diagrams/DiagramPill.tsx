@@ -1,4 +1,5 @@
 import type { LucideIcon } from "lucide-react";
+import { PILL_ICON_SPACE, getPillWidth } from "./ragDiagramLayout";
 
 export type DiagramPillTone = "neutral" | "success" | "danger";
 
@@ -11,9 +12,6 @@ interface DiagramPillProps {
 }
 
 const PILL_HEIGHT = 22;
-const PILL_CHAR_WIDTH = 6.7;
-const PILL_PADDING = 22;
-const PILL_ICON_SPACE = 16;
 const PILL_SHADOW_OFFSET = 2.5;
 
 const PILL_FILL: Record<DiagramPillTone, string> = {
@@ -23,7 +21,7 @@ const PILL_FILL: Record<DiagramPillTone, string> = {
 };
 
 export function DiagramPill({ x, y, text, icon: Icon, tone = "neutral" }: DiagramPillProps) {
-  const width = text.length * PILL_CHAR_WIDTH + PILL_PADDING + (Icon ? PILL_ICON_SPACE : 0);
+  const width = getPillWidth(text, Icon !== undefined);
   const left = x - width / 2;
   const top = y - PILL_HEIGHT / 2;
 

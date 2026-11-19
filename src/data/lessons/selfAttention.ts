@@ -42,7 +42,7 @@ export const selfAttentionLesson: Lesson = {
       description:
         "Cada token é convertido num embedding com informação de posição. Por enquanto, os vetores não sabem nada uns dos outros: cada um representa só o próprio token.",
       changes: ["Os 10 tokens agora são vetores de mesma dimensão."],
-      attentionView: "tokens",
+      attentionView: "vectors",
       badge: "concept",
     },
     {
@@ -98,7 +98,7 @@ export const selfAttentionLesson: Lesson = {
         "Num decoder, um token não pode olhar para o futuro. Antes do softmax, as pontuações dos tokens seguintes recebem −∞ e ficam com peso zero.",
       changes: ["Na geração, “ele” só enxerga “O gato subiu no muro porque”."],
       tip: "A máscara faz o treino imitar a geração: o modelo prevê cada token só com o que veio antes.",
-      attentionView: "weights",
+      attentionView: "masked",
       badge: "warning",
     },
     {

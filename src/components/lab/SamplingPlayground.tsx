@@ -31,6 +31,7 @@ interface SliderProps {
 
 const BAR_MAX_WIDTH_PERCENT = 100;
 const BAR_COLOR = "var(--module-04)";
+const ROW_STAGGER_MS = 35;
 
 function formatProbability(value: number): string {
   return value.toFixed(2);
@@ -125,10 +126,18 @@ export function SamplingPlayground({ lessonCode, random = Math.random }: Samplin
             const width = maxProbability === 0 ? 0 : (entry.probability / maxProbability) * BAR_MAX_WIDTH_PERCENT;
 
             return (
-              <li key={entry.token} className={cn("flex items-center gap-2.5", !entry.isKept && "opacity-45")}>
+              <li
+                key={entry.token}
+                className={cn(
+                  "flex animate-step-in items-center gap-2.5 transition-opacity duration-300",
+                  !entry.isKept && "opacity-45",
+                )}
+                style={{ animationDelay: `${index * ROW_STAGGER_MS}ms` }}
+              >
                 <span
                   className={cn(
                     "w-24 shrink-0 rounded-[5px] border-[1.5px] px-2 py-[5px] text-xs",
+                    "transition-colors duration-300",
                     isTop ? "border-line-strong bg-brand font-bold text-on-brand" : "border-line-strong bg-surface font-semibold text-ink",
                   )}
                 >
@@ -138,7 +147,7 @@ export function SamplingPlayground({ lessonCode, random = Math.random }: Samplin
                   <span className="min-w-0 max-w-[58%] flex-1">
                     <span
                       aria-hidden="true"
-                      className="block h-4 rounded-[2px] border border-line-strong"
+                      className="block h-4 rounded-[2px] border border-line-strong transition-[width,background-color] duration-500 ease-out"
                       style={{
                         width: `${Math.max(width, 1)}%`,
                         backgroundColor: entry.isKept ? BAR_COLOR : "var(--ink-subtle)",
@@ -205,7 +214,9 @@ export function SamplingPlayground({ lessonCode, random = Math.random }: Samplin
 
         <p role="status" className="flex items-start gap-1 text-[11px] leading-[14px] text-muted">
           {history.length > 0 && <CornerDownLeft size={11} aria-hidden="true" className="mt-px shrink-0" />}
-          {history.length > 0 ? `Sorteados: ${history.join(" · ")}` : "Nenhum token sorteado ainda."}
+          <span key={history.length} className={cn(history.length > 0 && "animate-fade-in")}>
+            {history.length > 0 ? `Sorteados: ${history.join(" · ")}` : "Nenhum token sorteado ainda."}
+          </span>
         </p>
         <p className="text-[10.5px] leading-[14px] text-subtle">Tudo roda no navegador, sem nenhuma chamada a API.</p>
       </aside>

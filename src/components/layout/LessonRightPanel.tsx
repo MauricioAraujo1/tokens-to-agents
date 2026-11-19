@@ -48,20 +48,28 @@ export function LessonRightPanel({ lesson, navigation, isLessonCompleted, onComp
           <p className="text-[11px] font-semibold uppercase leading-[14px] tracking-[1px] text-ink">
             Passo {navigation.stepIndex + 1} / {lesson.steps.length}
           </p>
-          {step.badge && <Tag>{STEP_BADGE_LABEL[step.badge]}</Tag>}
+          {step.badge && (
+            <span key={step.badge} className="animate-pop-in">
+              <Tag>{STEP_BADGE_LABEL[step.badge]}</Tag>
+            </span>
+          )}
         </div>
 
-        <h2 className="text-lg font-bold leading-[23px] text-ink">{step.title}</h2>
-        <p className="text-[12.5px] leading-[1.6] text-ink">{step.description}</p>
-        {step.changes && step.changes.length > 0 && (
-          <p className="text-[12.5px] leading-[1.6] text-muted">{step.changes.join(" ")}</p>
-        )}
+        <div key={`${lesson.id}-${step.id}`} className="flex animate-step-in flex-col gap-3">
+          <h2 className="text-lg font-bold leading-[23px] text-ink">{step.title}</h2>
+          <p className="text-[12.5px] leading-[1.6] text-ink">{step.description}</p>
+          {step.changes && step.changes.length > 0 && (
+            <p className="animate-step-in text-[12.5px] leading-[1.6] text-muted [animation-delay:60ms]">
+              {step.changes.join(" ")}
+            </p>
+          )}
 
-        {step.tip && (
-          <Callout title="Ideia-chave">
-            <p>{step.tip}</p>
-          </Callout>
-        )}
+          {step.tip && (
+            <Callout title="Ideia-chave" className="animate-step-in [animation-delay:120ms]">
+              <p>{step.tip}</p>
+            </Callout>
+          )}
+        </div>
 
         {isLessonCompleted && navigation.isLastStep && (
           <p className="flex items-center gap-2 rounded-md border border-success bg-success-soft px-3 py-2 text-xs text-ink">
@@ -99,9 +107,17 @@ export function LessonRightPanel({ lesson, navigation, isLessonCompleted, onComp
               return (
                 <li
                   key={objective.stepId}
-                  className={cn("flex gap-2.5 text-xs leading-4", isReached ? "text-muted" : "text-ink")}
+                  className={cn(
+                    "flex gap-2.5 text-xs leading-4 transition-colors duration-300",
+                    isReached ? "text-muted" : "text-ink",
+                  )}
                 >
-                  <Icon size={13} aria-hidden="true" className="mt-px shrink-0" />
+                  <Icon
+                    key={String(isReached)}
+                    size={13}
+                    aria-hidden="true"
+                    className={cn("mt-px shrink-0", isReached && "animate-pop-in text-success")}
+                  />
                   <span>
                     {objective.label}
                     <span className="sr-only">{isReached ? " (concluído)" : " (pendente)"}</span>

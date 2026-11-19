@@ -55,7 +55,7 @@ export function ModuleTreeItem({
       </button>
 
       {isExpanded && (
-        <ul id={panelId} className="mt-0.5 flex flex-col gap-0.5">
+        <ul id={panelId} className="mt-0.5 flex animate-step-in flex-col gap-0.5">
           {module.lessons.map((lesson) => (
             <LessonTreeItem
               key={lesson.id}

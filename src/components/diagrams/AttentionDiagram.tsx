@@ -10,6 +10,7 @@ import {
   ATTENTION_TOKENS,
   ATTENTION_TOKEN_HEIGHT,
   ATTENTION_TOKEN_TOP,
+  ATTENTION_VALUE_VIEWS,
   ATTENTION_VIEWBOX,
   findTopKeyIndex,
   formatAttentionValue,
@@ -17,6 +18,8 @@ import {
   getArcStrokeWidth,
   getAttentionArc,
   getAttentionValues,
+  getEmbeddingPreview,
+  isMaskedToken,
   layoutAttentionTokens,
   type PositionedAttentionToken,
 } from "./attentionDiagramLayout";
@@ -41,6 +44,15 @@ const SCORE_PILL_WIDTH = 34;
 const SCORE_PILL_HEIGHT = 19;
 const LABEL_OFFSET_Y = 16;
 const BARS_CAPTION_Y = 392;
+const ARC_STAGGER_MS = 45;
+const PILL_DELAY_MS = 260;
+const MIN_BAR_RATIO = 0.025;
+const MASKED_OPACITY = 0.3;
+const VECTOR_CELL_WIDTH = 6;
+const VECTOR_CELL_GAP = 2;
+const VECTOR_MAX_HEIGHT = 26;
+const VECTOR_OFFSET_Y = 14;
+const VECTOR_COLORS = ["var(--module-03)", "var(--module-04)", "var(--module-02)", "var(--module-05)"];
 
 const positionedTokens = layoutAttentionTokens(ATTENTION_TOKENS);
 const queryToken = positionedTokens[ATTENTION_QUERY_INDEX];
@@ -48,8 +60,8 @@ const queryToken = positionedTokens[ATTENTION_QUERY_INDEX];
 export function AttentionDiagram({ view }: AttentionDiagramProps) {
   const values = getAttentionValues(ATTENTION_TOKENS, view);
   const maxValue = Math.max(...values);
-  const showsQuery = view !== "tokens";
-  const showsValues = view === "scores" || view === "weights";
+  const showsQuery = view !== "tokens" && view !== "vectors";
+  const showsValues = ATTENTION_VALUE_VIEWS.has(view);
   const topKeyIndex = showsValues ? findTopKeyIndex(values, ATTENTION_QUERY_INDEX) : -1;
   const formula = ATTENTION_FORMULA[view];
   const barsCaption = ATTENTION_BARS_CAPTION[view];
@@ -79,7 +91,11 @@ export function AttentionDiagram({ view }: AttentionDiagramProps) {
               token “ele” a cada outro token, mais grossos quanto maior a pontuação; “gato” recebe a maior.
             </desc>
 
-            {formula && <FormulaPill text={formula} />}
+            {formula && (
+              <g key={formula} className="svg-anim-center animate-pop-in">
+                <FormulaPill text={formula} />
+              </g>
+            )}
 
             {showsValues &&
               positionedTokens
@@ -93,41 +109,67 @@ export function AttentionDiagram({ view }: AttentionDiagramProps) {
                       key={`arc-${token.text}-${token.index}`}
                       d={arc.path}
                       fill="none"
+                      pathLength={1}
                       strokeLinecap="round"
-                      className={isTopKey ? "stroke-info" : "stroke-muted"}
-                      strokeWidth={getArcStrokeWidth(values[token.index], maxValue)}
-                      opacity={isTopKey ? 1 : getArcOpacity(values[token.index], maxValue)}
+                      className={cn(
+                        "animate-draw transition-[stroke,stroke-width,opacity] duration-500",
+                        isTopKey ? "stroke-info" : "stroke-muted",
+                      )}
+                      style={{
+                        strokeDasharray: 1,
+                        strokeDashoffset: 0,
+                        strokeWidth: getArcStrokeWidth(values[token.index], maxValue),
+                        opacity: isMaskedToken(token.index, view)
+                          ? 0
+                          : isTopKey
+                            ? 1
+                            : getArcOpacity(values[token.index], maxValue),
+                        animationDelay: `${token.index * ARC_STAGGER_MS}ms`,
+                      }}
                     />
                   );
                 })}
 
             {showsValues &&
               positionedTokens
-                .filter((token) => token.index !== ATTENTION_QUERY_INDEX)
+                .filter((token) => token.index !== ATTENTION_QUERY_INDEX && !isMaskedToken(token.index, view))
                 .map((token) => {
                   const { labelPoint } = getAttentionArc(token.centerX, queryToken.centerX);
 
                   return (
-                    <ScorePill
-                      key={`score-${token.text}-${token.index}`}
-                      x={labelPoint.x}
-                      y={labelPoint.y}
-                      text={formatAttentionValue(values[token.index], view)}
-                      isTopKey={token.index === topKeyIndex}
-                    />
+                    <g
+                      key={`score-${view}-${token.index}`}
+                      className="svg-anim-center animate-pop-in"
+                      style={{ animationDelay: `${PILL_DELAY_MS + token.index * ARC_STAGGER_MS}ms` }}
+                    >
+                      <ScorePill
+                        x={labelPoint.x}
+                        y={labelPoint.y}
+                        text={formatAttentionValue(values[token.index], view)}
+                        isTopKey={token.index === topKeyIndex}
+                      />
+                    </g>
                   );
                 })}
 
             {positionedTokens.map((token) => (
-              <TokenBox key={`token-${token.text}-${token.index}`} token={token} role={getRole(token)} />
+              <TokenBox
+                key={`token-${token.text}-${token.index}`}
+                token={token}
+                role={getRole(token)}
+                isMasked={isMaskedToken(token.index, view)}
+              />
             ))}
+
+            {view === "vectors" &&
+              positionedTokens.map((token) => <EmbeddingPreview key={`vector-${token.text}-${token.index}`} token={token} />)}
 
             {showsQuery && (
               <text
                 x={queryToken.centerX}
                 y={ATTENTION_TOKEN_TOP + ATTENTION_TOKEN_HEIGHT + LABEL_OFFSET_Y}
                 textAnchor="middle"
-                className="fill-ink font-mono text-[10px] font-bold"
+                className="animate-fade-in fill-ink font-mono text-[10px] font-bold"
               >
                 ↑ query
               </text>
@@ -138,7 +180,8 @@ export function AttentionDiagram({ view }: AttentionDiagramProps) {
                 x={positionedTokens[topKeyIndex].centerX}
                 y={ATTENTION_TOKEN_TOP + ATTENTION_TOKEN_HEIGHT + LABEL_OFFSET_Y}
                 textAnchor="middle"
-                className="fill-info font-mono text-[10px] font-bold"
+                className="animate-fade-in fill-info font-mono text-[10px] font-bold"
+                style={{ animationDelay: `${PILL_DELAY_MS}ms` }}
               >
                 ↑ key mais parecida
               </text>
@@ -147,7 +190,7 @@ export function AttentionDiagram({ view }: AttentionDiagramProps) {
             {showsValues && (
               <g>
                 {positionedTokens.map((token) => {
-                  const height = Math.max(2, (values[token.index] / maxValue) * ATTENTION_BAR_MAX_HEIGHT);
+                  const ratio = Math.max(MIN_BAR_RATIO, values[token.index] / maxValue);
                   const fillClass =
                     token.index === ATTENTION_QUERY_INDEX
                       ? "fill-brand"
@@ -159,12 +202,20 @@ export function AttentionDiagram({ view }: AttentionDiagramProps) {
                     <rect
                       key={`bar-${token.text}-${token.index}`}
                       x={token.centerX - ATTENTION_BAR_WIDTH / 2}
-                      y={ATTENTION_BAR_BASELINE - height}
+                      y={ATTENTION_BAR_BASELINE - ATTENTION_BAR_MAX_HEIGHT}
                       width={ATTENTION_BAR_WIDTH}
-                      height={height}
+                      height={ATTENTION_BAR_MAX_HEIGHT}
                       rx={3}
-                      className={cn(fillClass, "stroke-line-strong")}
+                      vectorEffect="non-scaling-stroke"
+                      className={cn(
+                        fillClass,
+                        "svg-anim-bottom animate-grow stroke-line-strong transition-[fill,transform] duration-500",
+                      )}
                       strokeWidth={1}
+                      style={{
+                        transform: `scaleY(${ratio})`,
+                        animationDelay: `${token.index * ARC_STAGGER_MS}ms`,
+                      }}
                     />
                   );
                 })}
@@ -177,7 +228,12 @@ export function AttentionDiagram({ view }: AttentionDiagramProps) {
                   strokeWidth={1}
                 />
                 {barsCaption && (
-                  <text x={positionedTokens[0].x - 10} y={BARS_CAPTION_Y} className="fill-muted font-mono text-[10px]">
+                  <text
+                    key={barsCaption}
+                    x={positionedTokens[0].x - 10}
+                    y={BARS_CAPTION_Y}
+                    className="animate-fade-in fill-muted font-mono text-[10px]"
+                  >
                     {barsCaption}
                   </text>
                 )}
@@ -187,16 +243,24 @@ export function AttentionDiagram({ view }: AttentionDiagramProps) {
         </div>
       </div>
 
-      <figcaption className="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 pb-3 pt-1 text-[10px] text-muted">
-        <span className="inline-flex items-center gap-1.5">
-          <span aria-hidden="true" className="size-2.5 border border-line-strong bg-brand" />
-          query (“ele”)
-        </span>
-        <span className="inline-flex items-center gap-1.5 text-info">
-          <span aria-hidden="true" className="size-2.5 border border-line-strong bg-info" />
-          key com maior pontuação
-        </span>
-        <span>⌒ espessura = {view === "weights" ? "peso" : "pontuação"}</span>
+      <figcaption className="flex min-h-[28px] flex-wrap items-center gap-x-4 gap-y-2 px-4 pb-3 pt-1 text-[10px] text-muted">
+        {showsQuery && (
+          <span className="inline-flex animate-fade-in items-center gap-1.5">
+            <span aria-hidden="true" className="size-2.5 border border-line-strong bg-brand" />
+            query (“ele”)
+          </span>
+        )}
+        {showsValues && (
+          <>
+            <span className="inline-flex animate-fade-in items-center gap-1.5 text-info">
+              <span aria-hidden="true" className="size-2.5 border border-line-strong bg-info" />
+              key com maior pontuação
+            </span>
+            <span key={view} className="animate-fade-in">
+              ⌒ espessura = {view === "scores" ? "pontuação" : "peso"}
+            </span>
+          </>
+        )}
       </figcaption>
     </figure>
   );
@@ -249,11 +313,41 @@ function ScorePill({ x, y, text, isTopKey }: { x: number; y: number; text: strin
   );
 }
 
-function TokenBox({ token, role }: { token: PositionedAttentionToken; role: TokenRole }) {
+function EmbeddingPreview({ token }: { token: PositionedAttentionToken }) {
+  const dimensions = getEmbeddingPreview(token.text);
+  const totalWidth = dimensions.length * VECTOR_CELL_WIDTH + (dimensions.length - 1) * VECTOR_CELL_GAP;
+  const left = token.centerX - totalWidth / 2;
+  const baseline = ATTENTION_TOKEN_TOP + ATTENTION_TOKEN_HEIGHT + VECTOR_OFFSET_Y + VECTOR_MAX_HEIGHT;
+
+  return (
+    <g aria-hidden="true">
+      {dimensions.map((value, dimension) => (
+        <rect
+          key={dimension}
+          x={left + dimension * (VECTOR_CELL_WIDTH + VECTOR_CELL_GAP)}
+          y={baseline - VECTOR_MAX_HEIGHT}
+          width={VECTOR_CELL_WIDTH}
+          height={VECTOR_MAX_HEIGHT}
+          rx={1.5}
+          vectorEffect="non-scaling-stroke"
+          className="svg-anim-bottom animate-grow stroke-line-strong"
+          strokeWidth={1}
+          style={{
+            fill: VECTOR_COLORS[dimension % VECTOR_COLORS.length],
+            transform: `scaleY(${value})`,
+            animationDelay: `${token.index * ARC_STAGGER_MS + dimension * 40}ms`,
+          }}
+        />
+      ))}
+    </g>
+  );
+}
+
+function TokenBox({ token, role, isMasked }: { token: PositionedAttentionToken; role: TokenRole; isMasked: boolean }) {
   const isEmphasized = role !== "default";
 
   return (
-    <g>
+    <g className="transition-opacity duration-500" style={{ opacity: isMasked ? MASKED_OPACITY : 1 }}>
       <rect
         x={token.x + 3}
         y={ATTENTION_TOKEN_TOP + 3}
@@ -268,8 +362,8 @@ function TokenBox({ token, role }: { token: PositionedAttentionToken; role: Toke
         width={token.width}
         height={ATTENTION_TOKEN_HEIGHT}
         rx={6}
-        className={cn(TOKEN_FILL_CLASS[role], "stroke-line-strong")}
-        strokeWidth={role === "query" ? 2 : 1.5}
+        className={cn(TOKEN_FILL_CLASS[role], "stroke-line-strong transition-[fill,stroke-width] duration-300")}
+        style={{ strokeWidth: role === "query" ? 2 : 1.5 }}
       />
       <text
         x={token.centerX}
@@ -278,7 +372,7 @@ function TokenBox({ token, role }: { token: PositionedAttentionToken; role: Toke
         dominantBaseline="central"
         className={cn(
           role === "query" ? "fill-on-brand" : "fill-ink",
-          "font-mono text-[13px]",
+          "font-mono text-[13px] transition-[fill] duration-300",
           isEmphasized ? "font-bold" : "font-semibold",
         )}
       >

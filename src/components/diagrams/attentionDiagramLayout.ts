@@ -51,17 +51,25 @@ export const ATTENTION_TOKENS: AttentionToken[] = [
 
 export const ATTENTION_FORMULA: Record<AttentionView, string | undefined> = {
   tokens: undefined,
+  vectors: "token → embedding + posição",
   query: "q_ele = embedding_ele · W_Q",
   scores: "pontuação = q_ele · k_x / √64",
   weights: "peso = softmax(pontuação)",
+  masked: "pontuação do futuro = −∞",
 };
 
 export const ATTENTION_BARS_CAPTION: Record<AttentionView, string | undefined> = {
   tokens: undefined,
+  vectors: undefined,
   query: undefined,
   scores: "pontuação bruta de “ele” com cada token (antes do softmax)",
   weights: "peso de atenção de “ele” sobre cada token (soma = 1)",
+  masked: "com a máscara causal, “ele” só distribui atenção pelo passado",
 };
+
+export const ATTENTION_VALUE_VIEWS: ReadonlySet<AttentionView> = new Set(["scores", "weights", "masked"]);
+
+export const ATTENTION_VECTOR_DIMENSIONS = 4;
 
 export function layoutAttentionTokens(tokens: AttentionToken[], viewWidth: number = ATTENTION_VIEWBOX.width): PositionedAttentionToken[] {
   const widths = tokens.map((token) => token.text.length * TOKEN_CHAR_WIDTH + TOKEN_HORIZONTAL_PADDING);
@@ -88,14 +96,34 @@ export function softmax(values: number[]): number[] {
   return exponentials.map((value) => value / total);
 }
 
-export function getAttentionValues(tokens: AttentionToken[], view: AttentionView): number[] {
+export function getAttentionValues(
+  tokens: AttentionToken[],
+  view: AttentionView,
+  queryIndex: number = ATTENTION_QUERY_INDEX,
+): number[] {
   const scores = tokens.map((token) => token.score);
+
+  if (view === "masked") {
+    const visible = softmax(scores.slice(0, queryIndex + 1));
+    return scores.map((_, index) => visible[index] ?? 0);
+  }
 
   return view === "weights" ? softmax(scores) : scores;
 }
 
+export function isMaskedToken(index: number, view: AttentionView, queryIndex: number = ATTENTION_QUERY_INDEX): boolean {
+  return view === "masked" && index > queryIndex;
+}
+
 export function formatAttentionValue(value: number, view: AttentionView): string {
-  return view === "weights" ? value.toFixed(2) : value.toFixed(1);
+  return view === "scores" ? value.toFixed(1) : value.toFixed(2);
+}
+
+export function getEmbeddingPreview(token: string, dimensions: number = ATTENTION_VECTOR_DIMENSIONS): number[] {
+  return Array.from({ length: dimensions }, (_, dimension) => {
+    const seed = [...token].reduce((hash, char) => (hash * 31 + char.charCodeAt(0) * (dimension + 7)) % 997, 17 + dimension);
+    return 0.25 + (seed % 75) / 100;
+  });
 }
 
 export function getAttentionArc(fromX: number, toX: number, top: number = ATTENTION_TOKEN_TOP): AttentionArc {

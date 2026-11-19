@@ -21,6 +21,8 @@ interface QuizCardProps {
   onReview: (review: QuizReview) => void;
 }
 
+const OPTION_STAGGER_MS = 40;
+
 type OptionState = "idle" | "correct" | "wrong-selected" | "dimmed";
 
 const OPTION_CLASS: Record<OptionState, string> = {
@@ -84,7 +86,7 @@ export function QuizCard({
             answer === undefined ? "bg-line" : answer === item.correctIndex ? "bg-success" : "bg-danger";
 
           return (
-            <li key={item.id} className={cn("h-1.5 flex-1 rounded-[3px]", tone)}>
+            <li key={item.id} className={cn("h-1.5 flex-1 rounded-[3px] transition-colors duration-500", tone)}>
               <span className="sr-only">
                 Questão {index + 1}: {answer === undefined ? "sem resposta" : answer === item.correctIndex ? "certa" : "errada"}
               </span>
@@ -94,7 +96,7 @@ export function QuizCard({
       </ol>
 
       {isFinished ? (
-        <div className="flex flex-1 flex-col items-start gap-4">
+        <div className="flex flex-1 animate-rise flex-col items-start gap-4">
           <h2 className="text-lg font-semibold leading-[1.45] text-ink">
             Você acertou {correctCount} de {total}.
           </h2>
@@ -108,7 +110,7 @@ export function QuizCard({
         </div>
       ) : (
         question && (
-          <>
+          <div key={question.id} className="flex flex-1 animate-step-in flex-col gap-4">
             <h2 className="text-lg font-semibold leading-[1.45] text-ink">{question.prompt}</h2>
 
             <ul className="flex flex-col gap-4" aria-label="Alternativas">
@@ -116,13 +118,17 @@ export function QuizCard({
                 const state = getOptionState(optionIndex);
 
                 return (
-                  <li key={option}>
+                  <li
+                    key={option}
+                    className="animate-step-in"
+                    style={{ animationDelay: `${(optionIndex + 1) * OPTION_STAGGER_MS}ms` }}
+                  >
                     <button
                       type="button"
                       disabled={isAnswered}
                       onClick={() => onAnswer(optionIndex)}
                       className={cn(
-                        "flex w-full items-center justify-between gap-3 rounded-md border px-3.5 py-3 text-left text-[13px] leading-[17px] transition-colors disabled:cursor-default",
+                        "flex w-full items-center justify-between gap-3 rounded-md border px-3.5 py-3 text-left text-[13px] leading-[17px] transition-[background-color,border-color,color,box-shadow,transform] duration-300 enabled:hover:-translate-y-px disabled:cursor-default",
                         OPTION_CLASS[state],
                       )}
                     >
@@ -131,13 +137,13 @@ export function QuizCard({
                         <span>{option}</span>
                       </span>
                       {state === "correct" && (
-                        <span className="flex shrink-0 items-center gap-1 text-[11px] font-bold text-success">
+                        <span className="flex shrink-0 animate-pop-in items-center gap-1 text-[11px] font-bold text-success">
                           <Check size={12} strokeWidth={3} aria-hidden="true" />
                           correta
                         </span>
                       )}
                       {state === "wrong-selected" && (
-                        <span className="flex shrink-0 items-center gap-1 text-[11px] font-bold text-danger">
+                        <span className="flex shrink-0 animate-pop-in items-center gap-1 text-[11px] font-bold text-danger">
                           <X size={12} strokeWidth={3} aria-hidden="true" />
                           sua resposta
                         </span>
@@ -149,7 +155,10 @@ export function QuizCard({
             </ul>
 
             {isAnswered && (
-              <Callout title={`Por que ${QUIZ_OPTION_LETTERS[question.correctIndex]}`} className="gap-2 px-4 py-3.5">
+              <Callout
+                title={`Por que ${QUIZ_OPTION_LETTERS[question.correctIndex]}`}
+                className="animate-step-in gap-2 px-4 py-3.5"
+              >
                 <p className="text-[12.5px]">{question.explanation}</p>
                 {question.review && reviewLocation && (
                   <button
@@ -171,7 +180,7 @@ export function QuizCard({
                 <ArrowRight size={14} strokeWidth={2.5} aria-hidden="true" />
               </Button>
             </div>
-          </>
+          </div>
         )
       )}
     </section>

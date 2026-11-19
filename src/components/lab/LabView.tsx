@@ -17,7 +17,7 @@ export function LabView({ findLesson }: LabViewProps) {
   const lessonCode = samplingLesson ? formatLessonCode(samplingLesson.module, samplingLesson.lessonIndex) : "";
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4 lg:flex-row lg:overflow-hidden">
+    <div className="flex min-h-0 flex-1 animate-fade-in flex-col gap-4 overflow-y-auto p-4 lg:flex-row lg:overflow-hidden">
       <SectionList
         label="Playgrounds e projetos"
         activeId={selectedPlaygroundId}

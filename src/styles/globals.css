@@ -115,6 +115,61 @@
   --shadow-press-sm: 1.5px 1.5px 0 var(--shadow-hard);
   --shadow-press: 2px 2px 0 var(--shadow-hard);
   --shadow-press-lg: 3px 3px 0 var(--shadow-hard);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+  --animate-fade-in: fade-in 260ms var(--ease-smooth) both;
+  --animate-step-in: step-in 340ms var(--ease-smooth) both;
+  --animate-rise: rise 420ms var(--ease-smooth) both;
+  --animate-pop-in: pop-in 360ms var(--ease-spring) both;
+  --animate-zone-in: zone-in 460ms var(--ease-smooth) both;
+  --animate-draw: draw 700ms var(--ease-smooth) backwards;
+  --animate-grow: grow 620ms var(--ease-smooth) backwards;
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes step-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+  }
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+  }
+
+  @keyframes pop-in {
+    from {
+      opacity: 0;
+      transform: scale(0.82);
+    }
+  }
+
+  @keyframes zone-in {
+    from {
+      opacity: 0;
+      transform: scale(0.6);
+    }
+  }
+
+  @keyframes draw {
+    from {
+      stroke-dashoffset: 1;
+    }
+  }
+
+  @keyframes grow {
+    from {
+      transform: scaleY(0);
+    }
+  }
 }
 
 @layer base {
@@ -163,6 +218,29 @@
 
   .no-scrollbar::-webkit-scrollbar {
     display: none;
+  }
+
+  .rag-node {
+    transition: opacity 420ms var(--ease-smooth);
+  }
+
+  .rag-node-body {
+    transition: filter 420ms var(--ease-smooth);
+  }
+
+  .rag-node-outline,
+  .rag-edge {
+    transition: stroke-width 300ms var(--ease-smooth);
+  }
+
+  .svg-anim-center {
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
+  .svg-anim-bottom {
+    transform-box: fill-box;
+    transform-origin: bottom;
   }
 
   .rag-node:focus-visible {
@@ -223,5 +301,7 @@
   *::before,
   *::after {
     transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
   }
 }

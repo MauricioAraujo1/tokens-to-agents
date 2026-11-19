@@ -21,7 +21,7 @@ export function SummariesView({ modules, findLesson, onOpenLesson }: SummariesVi
   const selectedSummary = selectedModuleId ? SUMMARY_BY_MODULE.get(selectedModuleId) : undefined;
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4 print:p-0 lg:flex-row lg:overflow-hidden">
+    <div className="flex min-h-0 flex-1 animate-fade-in flex-col gap-4 overflow-y-auto p-4 print:p-0 lg:flex-row lg:overflow-hidden">
       <SectionList
         label="Resumos por módulo"
         activeId={selectedModuleId}
@@ -49,7 +49,7 @@ export function SummariesView({ modules, findLesson, onOpenLesson }: SummariesVi
         </div>
 
         {selectedModule && selectedSummary ? (
-          <SummarySheet module={selectedModule} summary={selectedSummary} findLesson={findLesson} onOpenLesson={onOpenLesson} />
+          <SummarySheet key={selectedModule.id} module={selectedModule} summary={selectedSummary} findLesson={findLesson} onOpenLesson={onOpenLesson} />
         ) : (
           <section className="grid w-full max-w-[900px] flex-1 place-items-center rounded-md border border-line bg-surface p-8">
             <p className="text-[13px] text-muted">Escolha um módulo com resumo disponível.</p>

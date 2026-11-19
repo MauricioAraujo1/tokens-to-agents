@@ -36,11 +36,12 @@ export function LessonTimeline({ steps, currentIndex, onSelectStep }: LessonTime
                 className="group flex w-full flex-col items-center gap-1.5 rounded-md py-0.5 text-center"
               >
                 <span
+                  key={isCurrent ? "current" : isDone ? "done" : "next"}
                   aria-hidden="true"
                   className={cn(
-                    "grid size-[26px] place-items-center rounded-full border border-line-strong text-[11px] leading-[14px] text-ink transition-colors",
+                    "grid size-[26px] place-items-center rounded-full border border-line-strong text-[11px] leading-[14px] text-ink transition-[background-color,transform] duration-300 group-hover:-translate-y-0.5",
                     isCurrent
-                      ? "border-[1.5px] bg-brand font-bold text-on-brand shadow-press-sm"
+                      ? "animate-pop-in border-[1.5px] bg-brand font-bold text-on-brand shadow-press-sm"
                       : isDone
                         ? "bg-success-soft font-bold"
                         : "bg-surface group-hover:bg-sunken",
@@ -48,7 +49,12 @@ export function LessonTimeline({ steps, currentIndex, onSelectStep }: LessonTime
                 >
                   {isDone ? <Check size={12} strokeWidth={3} /> : index + 1}
                 </span>
-                <span className={cn("text-[10px] leading-[13px]", isCurrent ? "font-semibold text-ink" : "text-muted")}>
+                <span
+                  className={cn(
+                    "text-[10px] leading-[13px] transition-colors duration-300",
+                    isCurrent ? "font-semibold text-ink" : "text-muted",
+                  )}
+                >
                   {step.shortTitle}
                 </span>
               </button>
