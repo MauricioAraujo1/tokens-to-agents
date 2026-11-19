@@ -43,7 +43,7 @@ const NODE_ICON: Record<RagNodeId, LucideIcon> = {
 };
 
 const SOFT_SHADOW = "drop-shadow(0 9px 7px rgb(41 40 32 / 0.2))";
-const PERSON_COLORS = ["var(--purple)", "var(--blue)", "var(--orange)", "var(--green)", "var(--yellow)"];
+const PERSON_COLORS = ["var(--diagram-purple)", "var(--diagram-blue)", "var(--diagram-orange)", "var(--diagram-green)", "var(--diagram-yellow)"];
 const PERSON_POSITIONS = [
   { x: 0, y: -26 },
   { x: -30, y: -11 },
@@ -125,7 +125,7 @@ function GroundZone({ x, y }: ShapeProps) {
     <path
       d={path}
       strokeWidth={2.5}
-      style={{ fill: "color-mix(in srgb, var(--green) 22%, transparent)", stroke: "var(--green)" }}
+      style={{ fill: "color-mix(in srgb, var(--diagram-green) 22%, transparent)", stroke: "var(--diagram-green)" }}
     />
   );
 }
@@ -153,9 +153,9 @@ function BlockShape({ nodeId, x, y, color, isActive }: ColoredShapeProps & { nod
       <clipPath id={clipId}>
         <path d={outline} />
       </clipPath>
-      <path d={outline} style={{ fill: `color-mix(in srgb, ${color} 62%, var(--surface))` }} />
+      <path d={outline} style={{ fill: `color-mix(in srgb, ${color} 62%, var(--surface-raised))` }} />
       <g clipPath={`url(#${clipId})`}>
-        <path d={topFace} style={{ fill: "var(--surface)", opacity: 0.42 }} />
+        <path d={topFace} style={{ fill: "var(--surface-raised)", opacity: 0.42 }} />
         <path d={rightFace} style={{ fill: color, opacity: 0.45 }} />
       </g>
       <path d={outline} fill="none" className="stroke-ink" strokeWidth={isActive ? 2.8 : 2} strokeLinejoin="round" />
@@ -173,8 +173,8 @@ function CylinderShape({ x, y, color, isActive }: ColoredShapeProps) {
 
   return (
     <g>
-      <path d={body} className="stroke-ink" strokeWidth={strokeWidth} strokeLinejoin="round" style={{ fill: `color-mix(in srgb, ${color} 62%, var(--surface))` }} />
-      <ellipse cx={x} cy={top} rx={radiusX} ry={radiusY} className="stroke-ink" strokeWidth={strokeWidth} style={{ fill: `color-mix(in srgb, ${color} 30%, var(--surface))` }} />
+      <path d={body} className="stroke-ink" strokeWidth={strokeWidth} strokeLinejoin="round" style={{ fill: `color-mix(in srgb, ${color} 62%, var(--surface-raised))` }} />
+      <ellipse cx={x} cy={top} rx={radiusX} ry={radiusY} className="stroke-ink" strokeWidth={strokeWidth} style={{ fill: `color-mix(in srgb, ${color} 30%, var(--surface-raised))` }} />
     </g>
   );
 }
@@ -193,7 +193,7 @@ function PlatformShape({ x, y }: ShapeProps) {
 
   return (
     <g>
-      <path d={createSlab(14)} className="fill-surface-muted stroke-ink" strokeWidth={2} />
+      <path d={createSlab(14)} className="fill-sunken stroke-ink" strokeWidth={2} />
       <path d={createSlab(0)} className="fill-surface stroke-ink" strokeWidth={2} />
       {PERSON_POSITIONS.map((position, index) => (
         <g key={`${position.x}-${position.y}`}>

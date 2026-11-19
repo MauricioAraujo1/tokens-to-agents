@@ -5,6 +5,7 @@ interface AppShortcutsOptions {
   onPrevious: () => void;
   onNext: () => void;
   onTogglePlay: () => void;
+  onRestart: () => void;
   onOpenSearch: () => void;
 }
 
@@ -24,6 +25,7 @@ export function useAppShortcuts({
   onPrevious,
   onNext,
   onTogglePlay,
+  onRestart,
   onOpenSearch,
 }: AppShortcutsOptions): void {
   useEffect(() => {
@@ -54,10 +56,13 @@ export function useAppShortcuts({
       } else if (event.key === " " && !isInteractiveTarget(event.target)) {
         event.preventDefault();
         onTogglePlay();
+      } else if (event.key.toLowerCase() === "r" && !event.shiftKey) {
+        event.preventDefault();
+        onRestart();
       }
     }
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isNavigationEnabled, onPrevious, onNext, onTogglePlay, onOpenSearch]);
+  }, [isNavigationEnabled, onPrevious, onNext, onTogglePlay, onRestart, onOpenSearch]);
 }

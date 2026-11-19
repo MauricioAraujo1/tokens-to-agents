@@ -1,6 +1,6 @@
-import { Clock, Gauge, ListOrdered } from "lucide-react";
-import { Badge, type BadgeTone } from "../ui/Badge";
-import type { CourseModule, Lesson, LessonDifficulty } from "../../types/course";
+import { Clock, ListOrdered, SignalMedium } from "lucide-react";
+import { Badge } from "../ui/Badge";
+import type { CourseModule, Lesson } from "../../types/course";
 
 interface LessonHeaderProps {
   module: CourseModule;
@@ -8,47 +8,41 @@ interface LessonHeaderProps {
   lessonIndex: number;
 }
 
-const DIFFICULTY_TONE: Record<LessonDifficulty, BadgeTone> = {
-  Iniciante: "green",
-  Intermediário: "yellow",
-  Avançado: "purple",
-};
-
 export function LessonHeader({ module, lesson, lessonIndex }: LessonHeaderProps) {
   return (
-    <header className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-      <div className="min-w-0">
+    <header className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between md:gap-4">
+      <div className="flex min-w-0 flex-col gap-1.5">
         <nav aria-label="Breadcrumb">
-          <ol className="flex flex-wrap items-center gap-1.5 font-mono text-xs text-muted">
+          <ol className="flex flex-wrap items-center gap-2 text-xs leading-4 text-muted">
             <li>
               {module.number}. {module.title}
             </li>
             <li aria-hidden="true">/</li>
             <li>
-              Aula {lessonIndex + 1} de {module.lessons.length}
+              Lição {lessonIndex + 1} de {module.lessons.length}
             </li>
           </ol>
         </nav>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight text-ink md:text-[28px]">{lesson.title}</h1>
-        <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-muted">{lesson.description}</p>
+        <h1 className="text-2xl font-bold leading-tight text-ink md:text-[30px] md:leading-[39px]">{lesson.title}</h1>
+        <p className="max-w-[480px] text-[13px] leading-[17px] text-muted">{lesson.description}</p>
       </div>
 
-      <ul className="flex flex-wrap gap-2 md:shrink-0">
+      <ul className="flex flex-wrap gap-1.5 md:shrink-0">
         <li>
-          <Badge tone="blue">
-            <Clock size={12} aria-hidden="true" />
+          <Badge tone="brand">
+            <Clock size={11} aria-hidden="true" />
             {lesson.duration} min
           </Badge>
         </li>
         <li>
-          <Badge tone={DIFFICULTY_TONE[lesson.difficulty]}>
-            <Gauge size={12} aria-hidden="true" />
+          <Badge tone="success">
+            <SignalMedium size={12} aria-hidden="true" />
             {lesson.difficulty}
           </Badge>
         </li>
         <li>
-          <Badge>
-            <ListOrdered size={12} aria-hidden="true" />
+          <Badge tone="info">
+            <ListOrdered size={11} aria-hidden="true" />
             {lesson.steps.length} passos
           </Badge>
         </li>

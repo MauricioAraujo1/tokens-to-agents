@@ -22,26 +22,32 @@ export interface LessonNavigation {
   togglePlay: () => void;
 }
 
-function createInitialState(lessonId: string): NavigationState {
-  return { lessonId, stepIndex: 0, isPlaying: !prefersReducedMotion() };
-}
-
 function clampStepIndex(stepIndex: number, stepCount: number): number {
   return Math.min(Math.max(stepIndex, 0), Math.max(stepCount - 1, 0));
 }
 
-export function useLessonNavigation(lessonId: string, stepCount: number): LessonNavigation {
-  const [storedState, setStoredState] = useState<NavigationState>(() => createInitialState(lessonId));
-  const state = storedState.lessonId === lessonId ? storedState : createInitialState(lessonId);
+function createInitialState(lessonId: string, stepIndex: number): NavigationState {
+  return { lessonId, stepIndex, isPlaying: !prefersReducedMotion() };
+}
+
+export function useLessonNavigation(
+  lessonId: string,
+  stepCount: number,
+  entryStepIndex = 0,
+  isAutoplayEnabled = true,
+): LessonNavigation {
+  const entryIndex = clampStepIndex(entryStepIndex, stepCount);
+  const [storedState, setStoredState] = useState<NavigationState>(() => createInitialState(lessonId, entryIndex));
+  const state = storedState.lessonId === lessonId ? storedState : createInitialState(lessonId, entryIndex);
   const { stepIndex, isPlaying } = state;
 
   const update = useCallback(
     (transform: (current: NavigationState) => NavigationState) => {
       setStoredState((previous) =>
-        transform(previous.lessonId === lessonId ? previous : createInitialState(lessonId)),
+        transform(previous.lessonId === lessonId ? previous : createInitialState(lessonId, entryIndex)),
       );
     },
-    [lessonId],
+    [lessonId, entryIndex],
   );
 
   const goTo = useCallback(
@@ -68,7 +74,7 @@ export function useLessonNavigation(lessonId: string, stepCount: number): Lesson
   }, [update]);
 
   useEffect(() => {
-    if (!isPlaying) {
+    if (!isPlaying || !isAutoplayEnabled) {
       return;
     }
 
@@ -81,7 +87,7 @@ export function useLessonNavigation(lessonId: string, stepCount: number): Lesson
     }, STEP_DURATION_MS);
 
     return () => window.clearTimeout(timer);
-  }, [isPlaying, stepIndex, stepCount, update]);
+  }, [isPlaying, isAutoplayEnabled, stepIndex, stepCount, update]);
 
   return {
     stepIndex,

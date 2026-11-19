@@ -1,4 +1,4 @@
-import type { LessonStatus, LessonStepBadge, LessonStep } from "../types/course";
+import type { LessonObjective, LessonStatus, LessonStepBadge, LessonStep } from "../types/course";
 
 export const LESSON_STATUS_LABEL: Record<LessonStatus, string> = {
   "not-started": "Não iniciada",
@@ -8,6 +8,7 @@ export const LESSON_STATUS_LABEL: Record<LessonStatus, string> = {
 
 export const STEP_BADGE_LABEL: Record<LessonStepBadge, string> = {
   concept: "CONCEITO",
+  mechanism: "MECANISMO",
   solution: "SOLUÇÃO",
   warning: "ATENÇÃO",
 };
@@ -18,4 +19,10 @@ export function stepIndexForNode(steps: LessonStep[], nodeId: string, currentInd
   }
 
   return steps.findIndex((step) => step.diagramNodeId === nodeId);
+}
+
+export function isObjectiveReached(objective: LessonObjective, steps: LessonStep[], currentIndex: number): boolean {
+  const objectiveStepIndex = steps.findIndex((step) => step.id === objective.stepId);
+
+  return objectiveStepIndex >= 0 && objectiveStepIndex < currentIndex;
 }

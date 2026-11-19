@@ -43,6 +43,13 @@ describe("CourseSidebar", () => {
     expect(screen.queryByRole("button", { name: /O que é Inteligência Artificial\?/ })).not.toBeInTheDocument();
   });
 
+  it("mostra o total de aulas no cabeçalho da trilha e marca módulos concluídos", () => {
+    renderSidebar();
+
+    expect(screen.getByText("59 aulas")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /00\. Introdução à IA.*3\/3 ✓/ })).toBeInTheDocument();
+  });
+
   it("mantém aberto o módulo da aula atual", () => {
     renderSidebar();
 
@@ -75,16 +82,5 @@ describe("CourseSidebar", () => {
     renderSidebar();
 
     expect(screen.getByRole("navigation", { name: "Módulos" })).toHaveClass("no-scrollbar", "overflow-y-auto");
-  });
-
-  it("expande todos os módulos e depois recolhe todos", async () => {
-    const user = userEvent.setup();
-    renderSidebar();
-
-    await user.click(screen.getByRole("button", { name: "Expandir módulos" }));
-    expect(screen.getByRole("button", { name: /IA Generativa/ })).toBeInTheDocument();
-
-    await user.click(screen.getByRole("button", { name: "Recolher módulos" }));
-    expect(screen.queryByRole("button", { name: /IA Generativa/ })).not.toBeInTheDocument();
   });
 });

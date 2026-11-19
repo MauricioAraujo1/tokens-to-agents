@@ -49,10 +49,10 @@ export function RagDiagram({ steps, activeStepIndex, isPaused, onSelectStep }: R
             </desc>
             <defs>
               <marker id="rag-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
-                <path d="M0,0.5 L10,5 L0,9.5 Z" style={{ fill: "var(--ink)" }} />
+                <path d="M0,0.5 L10,5 L0,9.5 Z" style={{ fill: "var(--ink-primary)" }} />
               </marker>
               <marker id="rag-arrow-alt" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse">
-                <path d="M0,0.5 L10,5 L0,9.5 Z" style={{ fill: "var(--red)" }} />
+                <path d="M0,0.5 L10,5 L0,9.5 Z" style={{ fill: "var(--diagram-red)" }} />
               </marker>
             </defs>
 
@@ -81,13 +81,13 @@ export function RagDiagram({ steps, activeStepIndex, isPaused, onSelectStep }: R
         </div>
       </div>
 
-      <figcaption className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-line bg-surface/85 px-4 py-2.5 font-mono text-[11px] text-muted">
+      <figcaption className="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 pb-3 pt-1 text-[10px] text-muted">
         {RAG_CATEGORY_LEGEND.map((item) => (
           <span key={item.category} className="inline-flex items-center gap-1.5">
             <span
               aria-hidden="true"
               className="size-3 rounded-[4px] border-[1.5px] border-ink"
-              style={{ backgroundColor: `color-mix(in srgb, ${RAG_CATEGORY_COLOR[item.category]} 62%, var(--surface))` }}
+              style={{ backgroundColor: `color-mix(in srgb, ${RAG_CATEGORY_COLOR[item.category]} 62%, var(--surface-raised))` }}
             />
             {item.label}
           </span>
@@ -115,7 +115,7 @@ function DiagramEdge({ edge, isFlowing }: DiagramEdgeProps) {
         strokeLinecap="round"
         strokeWidth={isFlowing ? 2.4 : 1.8}
         strokeDasharray={isAlternative ? "7 6" : undefined}
-        className={isAlternative ? "stroke-red" : "stroke-ink"}
+        className={isAlternative ? "stroke-(--diagram-red)" : "stroke-ink"}
         markerEnd={isAlternative ? "url(#rag-arrow-alt)" : "url(#rag-arrow)"}
       />
       {isFlowing &&
@@ -127,7 +127,7 @@ function DiagramEdge({ edge, isFlowing }: DiagramEdgeProps) {
             strokeWidth={1.6}
             style={
               {
-                fill: "var(--orange)",
+                fill: "var(--diagram-orange)",
                 offsetPath: `path("${path}")`,
                 offsetDistance,
                 animationDelay: FLOW_DOT_DELAYS[index],

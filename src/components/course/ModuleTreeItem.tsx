@@ -1,7 +1,7 @@
-import { ChevronRight, Folder } from "lucide-react";
-import type { LessonStatusMap } from "../../lib/course";
+import { ChevronRight } from "lucide-react";
+import { getModuleColor, type LessonStatusMap } from "../../lib/course";
 import { cn } from "../../lib/utils";
-import type { CourseModule, ModuleAccent } from "../../types/course";
+import type { CourseModule } from "../../types/course";
 import { LessonTreeItem } from "./LessonTreeItem";
 
 interface ModuleTreeItemProps {
@@ -14,14 +14,6 @@ interface ModuleTreeItemProps {
   onSelectLesson: (lessonId: string) => void;
 }
 
-const MODULE_ACCENT_TEXT_CLASS: Record<ModuleAccent, string> = {
-  blue: "text-blue",
-  green: "text-green-dark",
-  purple: "text-purple",
-  orange: "text-orange",
-  yellow: "text-yellow",
-};
-
 export function ModuleTreeItem({
   module,
   completedCount,
@@ -32,6 +24,7 @@ export function ModuleTreeItem({
   onSelectLesson,
 }: ModuleTreeItemProps) {
   const panelId = `module-panel-${module.id}`;
+  const isComplete = module.lessons.length > 0 && completedCount === module.lessons.length;
 
   return (
     <li>
@@ -40,24 +33,29 @@ export function ModuleTreeItem({
         aria-expanded={isExpanded}
         aria-controls={panelId}
         onClick={onToggle}
-        className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm font-medium text-ink transition-colors hover:bg-surface-muted"
+        className="flex w-full items-center gap-2 rounded-[5px] py-1.5 pl-1 pr-2 text-left text-xs leading-4 text-ink transition-colors hover:bg-sunken"
       >
         <ChevronRight
           size={14}
           aria-hidden="true"
-          className={cn("shrink-0 text-muted transition-transform", isExpanded && "rotate-90")}
+          className={cn("shrink-0 transition-transform", isExpanded ? "rotate-90 text-ink" : "text-muted")}
         />
-        <Folder size={14} aria-hidden="true" className={cn("shrink-0", MODULE_ACCENT_TEXT_CLASS[module.accent])} />
-        <span className="min-w-0 flex-1 truncate">
+        <span
+          aria-hidden="true"
+          className="h-[11px] w-3.5 shrink-0 rounded-[2px] border border-line-strong"
+          style={{ backgroundColor: getModuleColor(module) }}
+        />
+        <span className={cn("min-w-0 flex-1", isExpanded && "font-semibold")}>
           {module.number}. {module.title}
         </span>
-        <span className="shrink-0 font-mono text-[11px] text-muted">
+        <span className={cn("shrink-0 text-[11px] leading-[14px]", isComplete ? "text-success" : "text-muted")}>
           {completedCount}/{module.lessons.length}
+          {isComplete && " ✓"}
         </span>
       </button>
 
       {isExpanded && (
-        <ul id={panelId} className="ml-4 mt-0.5 flex flex-col gap-0.5 border-l border-line pl-2">
+        <ul id={panelId} className="mt-0.5 flex flex-col gap-0.5">
           {module.lessons.map((lesson) => (
             <LessonTreeItem
               key={lesson.id}

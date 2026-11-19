@@ -17,9 +17,9 @@ const PILL_ICON_SPACE = 16;
 const PILL_SHADOW_OFFSET = 2.5;
 
 const PILL_FILL: Record<DiagramPillTone, string> = {
-  neutral: "var(--surface)",
-  success: "color-mix(in srgb, var(--green) 45%, var(--surface))",
-  danger: "color-mix(in srgb, var(--red) 28%, var(--surface))",
+  neutral: "var(--surface-raised)",
+  success: "color-mix(in srgb, var(--diagram-green) 45%, var(--surface-raised))",
+  danger: "color-mix(in srgb, var(--diagram-red) 28%, var(--surface-raised))",
 };
 
 export function DiagramPill({ x, y, text, icon: Icon, tone = "neutral" }: DiagramPillProps) {

@@ -1,4 +1,3 @@
-import { FolderOpen } from "lucide-react";
 import { useState, type CSSProperties } from "react";
 import {
   countCompletedLessons,
@@ -13,9 +12,9 @@ import { CourseProgress } from "../course/CourseProgress";
 import { ModuleTreeItem } from "../course/ModuleTreeItem";
 import { ResizeHandle } from "./ResizeHandle";
 
-const SIDEBAR_MIN_WIDTH = 200;
-const SIDEBAR_MAX_WIDTH = 380;
-const SIDEBAR_INITIAL_WIDTH = 240;
+const SIDEBAR_MIN_WIDTH = 240;
+const SIDEBAR_MAX_WIDTH = 400;
+const SIDEBAR_INITIAL_WIDTH = 290;
 
 interface CourseSidebarProps {
   modules: CourseModule[];
@@ -51,16 +50,10 @@ export function CourseSidebar({ modules, selectedLessonId, statuses, isOpen, onS
     direction: 1,
   });
 
-  const allExpanded = expandedModuleIds.length === modules.length;
-
   function toggleModule(moduleId: string) {
     setExpandedModuleIds((previous) =>
       previous.includes(moduleId) ? previous.filter((id) => id !== moduleId) : [...previous, moduleId],
     );
-  }
-
-  function toggleAllModules() {
-    setExpandedModuleIds(allExpanded ? [] : modules.map((module) => module.id));
   }
 
   return (
@@ -69,20 +62,19 @@ export function CourseSidebar({ modules, selectedLessonId, statuses, isOpen, onS
       aria-label="Currículo do curso"
       style={{ "--sidebar-width": `${width}px` } as CSSProperties}
       className={cn(
-        "fixed bottom-0 left-0 top-12 z-40 flex w-[248px] flex-col border-r border-line bg-surface transition-transform duration-200 xl:relative xl:top-0 xl:z-auto xl:w-(--sidebar-width) xl:shrink-0 xl:translate-x-0 xl:visible xl:transition-none",
+        "fixed bottom-0 left-0 top-[60px] z-40 flex w-[290px] flex-col border-r border-line bg-surface transition-transform duration-200 print:hidden xl:relative xl:top-0 xl:z-auto xl:w-(--sidebar-width) xl:shrink-0 xl:translate-x-0 xl:visible xl:rounded-lg xl:border xl:transition-none",
         isOpen ? "visible translate-x-0" : "invisible -translate-x-full",
       )}
     >
-      <div className="flex items-center gap-2.5 border-b border-line px-4 py-3">
-        <FolderOpen size={16} aria-hidden="true" className="text-muted" />
-        <div className="min-w-0">
-          <p className="text-sm font-semibold text-ink">Curso</p>
-          <p className="font-mono text-[11px] text-muted">{countLessons(modules)} lições</p>
-        </div>
+      <div className="flex items-center justify-between px-3.5 pb-2.5 pt-3.5">
+        <p className="text-sm font-bold leading-[18px] text-ink">
+          <span aria-hidden="true">■ </span>Trilha
+        </p>
+        <p className="text-[11px] leading-[14px] text-muted">{countLessons(modules)} aulas</p>
       </div>
 
-      <nav aria-label="Módulos" className="no-scrollbar min-h-0 flex-1 overflow-y-auto px-2 py-3">
-        <ul className="flex flex-col gap-1">
+      <nav aria-label="Módulos" className="no-scrollbar min-h-0 flex-1 overflow-y-auto px-2 pb-2">
+        <ul className="flex flex-col gap-0.5">
           {modules.map((module) => (
             <ModuleTreeItem
               key={module.id}
@@ -98,12 +90,7 @@ export function CourseSidebar({ modules, selectedLessonId, statuses, isOpen, onS
         </ul>
       </nav>
 
-      <CourseProgress
-        completed={countCompletedLessons(modules, statuses)}
-        total={countLessons(modules)}
-        allExpanded={allExpanded}
-        onToggleAll={toggleAllModules}
-      />
+      <CourseProgress completed={countCompletedLessons(modules, statuses)} total={countLessons(modules)} />
 
       <ResizeHandle label="Redimensionar sidebar do curso" edge="right" separatorProps={separatorProps} />
     </aside>

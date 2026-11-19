@@ -90,4 +90,32 @@ describe("useLessonNavigation", () => {
 
     expect(result.current.isPlaying).toBe(false);
   });
+
+  it("abre uma aula diretamente no passo de entrada informado, dentro dos limites", () => {
+    const { result, rerender } = renderHook(
+      ({ lessonId, entry }) => useLessonNavigation(lessonId, 10, entry),
+      { initialProps: { lessonId: "lesson-a", entry: 0 } },
+    );
+
+    rerender({ lessonId: "lesson-b", entry: 3 });
+    expect(result.current.stepIndex).toBe(3);
+
+    rerender({ lessonId: "lesson-c", entry: 42 });
+    expect(result.current.stepIndex).toBe(9);
+  });
+
+  it("não avança sozinho enquanto a reprodução automática está desabilitada", () => {
+    setReducedMotionPreference(false);
+    vi.useFakeTimers();
+    const { result, rerender } = renderHook(({ isEnabled }) => useLessonNavigation("lesson-a", 4, 0, isEnabled), {
+      initialProps: { isEnabled: false },
+    });
+
+    act(() => vi.advanceTimersByTime(STEP_DURATION_MS * 2));
+    expect(result.current.stepIndex).toBe(0);
+
+    rerender({ isEnabled: true });
+    act(() => vi.advanceTimersByTime(STEP_DURATION_MS));
+    expect(result.current.stepIndex).toBe(1);
+  });
 });

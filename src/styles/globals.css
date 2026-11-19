@@ -2,61 +2,119 @@
 
 :root {
   color-scheme: light;
-  --canvas: #f5f0e7;
-  --surface: #fbf8f1;
-  --surface-muted: #eee8dc;
-  --ink: #292820;
-  --muted: #817b70;
-  --line: #d8d0c2;
-  --green: #b9d99b;
-  --green-dark: #547b45;
-  --blue: #8db9de;
-  --purple: #b8a2d8;
-  --orange: #efb47d;
-  --red: #d96b65;
-  --yellow: #e9d58b;
-  --on-accent: #292820;
-  --grid-line: rgb(41 40 32 / 0.075);
-  --paper-shadow: 0 1px 2px rgb(41 40 32 / 0.08), 0 6px 14px -8px rgb(41 40 32 / 0.18);
+  --bg-paper: #f4eee2;
+  --bg-grid: #e6ddcb;
+  --surface-raised: #fbf8f2;
+  --surface-sunken: #efe7d8;
+  --ink-primary: #1b1916;
+  --ink-muted: #6e675c;
+  --ink-subtle: #9a9284;
+  --line-strong: #1b1916;
+  --line-soft: #ddd3c1;
+  --accent-brand: #f2b33d;
+  --accent-brand-soft: #fce7b8;
+  --accent-on-brand: #1b1916;
+  --state-success: #5fa35b;
+  --state-success-soft: #ddefd6;
+  --state-info: #7b68c4;
+  --state-info-soft: #e9e3f7;
+  --state-danger: #d2554f;
+  --shadow-hard: #1b1916;
+  --module-00: #9aa5b1;
+  --module-01: #7fb77e;
+  --module-02: #5fa8a0;
+  --module-03: #8e7cc3;
+  --module-04: #6c8ee0;
+  --module-05: #e0a458;
+  --module-06: #d98c6a;
+  --module-07: #c9a227;
+  --module-08: #d16a8b;
+  --module-09: #a47148;
+  --module-10: #4fa3c7;
+  --module-11: #b07cc6;
+  --module-12: #e07a5f;
+  --module-13: #5b9e6f;
+  --module-14: #c4864a;
+  --module-15: #7a8c3e;
+  --module-16: #c25b5b;
+  --module-17: #4c6a92;
+  --diagram-green: #b9d99b;
+  --diagram-blue: #8db9de;
+  --diagram-purple: #b8a2d8;
+  --diagram-orange: #efb47d;
+  --diagram-red: #d96b65;
+  --diagram-yellow: #e9d58b;
 }
 
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --canvas: #1c1a15;
-  --surface: #25231d;
-  --surface-muted: #2d2a23;
-  --ink: #ece6d8;
-  --muted: #a39c8e;
-  --line: #413d32;
-  --green: #9cc27c;
-  --green-dark: #bcdca0;
-  --blue: #7aa6cc;
-  --purple: #a78ecb;
-  --orange: #d99a64;
-  --red: #e07f78;
-  --yellow: #d7c16e;
-  --grid-line: rgb(236 230 216 / 0.05);
-  --paper-shadow: 0 1px 2px rgb(0 0 0 / 0.35), 0 6px 14px -8px rgb(0 0 0 / 0.5);
+  --bg-paper: #15130f;
+  --bg-grid: #24211b;
+  --surface-raised: #1e1b16;
+  --surface-sunken: #1a1813;
+  --ink-primary: #f3ede1;
+  --ink-muted: #a69f91;
+  --ink-subtle: #7a7366;
+  --line-strong: #e9e1d2;
+  --line-soft: #34302a;
+  --accent-brand: #f2b33d;
+  --accent-brand-soft: #4a3a18;
+  --accent-on-brand: #1b1916;
+  --state-success: #7cc478;
+  --state-success-soft: #24361f;
+  --state-info: #a595e6;
+  --state-info-soft: #2b2640;
+  --state-danger: #e8736d;
+  --shadow-hard: #5c5549;
+  --module-00: #aeb8c3;
+  --module-01: #93c792;
+  --module-02: #74bbb3;
+  --module-03: #a595e6;
+  --module-04: #86a3ea;
+  --module-05: #e8b46f;
+  --module-06: #e3a083;
+  --module-07: #d8b445;
+  --module-08: #de85a1;
+  --module-09: #b98861;
+  --module-10: #69b5d6;
+  --module-11: #c194d4;
+  --module-12: #e89279;
+  --module-13: #72b286;
+  --module-14: #d29b63;
+  --module-15: #93a556;
+  --module-16: #d47575;
+  --module-17: #6a88b0;
+  --diagram-green: #9cc27c;
+  --diagram-blue: #7aa6cc;
+  --diagram-purple: #a78ecb;
+  --diagram-orange: #d99a64;
+  --diagram-red: #e07f78;
+  --diagram-yellow: #d7c16e;
 }
 
 @theme inline {
-  --color-canvas: var(--canvas);
-  --color-surface: var(--surface);
-  --color-surface-muted: var(--surface-muted);
-  --color-ink: var(--ink);
-  --color-muted: var(--muted);
-  --color-line: var(--line);
-  --color-green: var(--green);
-  --color-green-dark: var(--green-dark);
-  --color-blue: var(--blue);
-  --color-purple: var(--purple);
-  --color-orange: var(--orange);
-  --color-red: var(--red);
-  --color-yellow: var(--yellow);
-  --color-on-accent: var(--on-accent);
-  --font-sans: "Inter Variable", Inter, ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  --shadow-paper: var(--paper-shadow);
+  --color-paper: var(--bg-paper);
+  --color-grid: var(--bg-grid);
+  --color-surface: var(--surface-raised);
+  --color-sunken: var(--surface-sunken);
+  --color-ink: var(--ink-primary);
+  --color-muted: var(--ink-muted);
+  --color-subtle: var(--ink-subtle);
+  --color-line: var(--line-soft);
+  --color-line-strong: var(--line-strong);
+  --color-brand: var(--accent-brand);
+  --color-brand-soft: var(--accent-brand-soft);
+  --color-on-brand: var(--accent-on-brand);
+  --color-success: var(--state-success);
+  --color-success-soft: var(--state-success-soft);
+  --color-info: var(--state-info);
+  --color-info-soft: var(--state-info-soft);
+  --color-danger: var(--state-danger);
+  --font-sans: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --shadow-press-sm: 1.5px 1.5px 0 var(--shadow-hard);
+  --shadow-press: 2px 2px 0 var(--shadow-hard);
+  --shadow-press-lg: 3px 3px 0 var(--shadow-hard);
 }
 
 @layer base {
@@ -68,24 +126,25 @@
 
   body {
     margin: 0;
-    background-color: var(--canvas);
-    color: var(--ink);
-    font-family: var(--font-sans);
+    background-color: var(--bg-paper);
+    color: var(--ink-primary);
+    font-family: var(--font-mono);
     -webkit-font-smoothing: antialiased;
   }
 
   :focus-visible {
-    outline: 2px solid var(--ink);
+    outline: 2px solid var(--line-strong);
     outline-offset: 2px;
   }
 }
 
 @layer components {
-  .paper-grid {
-    background-color: var(--surface);
+  .scene-grid {
+    background-color: var(--bg-paper);
     background-image:
-      repeating-linear-gradient(26.565deg, var(--grid-line) 0 1px, transparent 1px 20px),
-      repeating-linear-gradient(-26.565deg, var(--grid-line) 0 1px, transparent 1px 20px);
+      linear-gradient(var(--bg-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px);
+    background-size: 24px 24px;
   }
 
   .flow-dot {
@@ -112,6 +171,36 @@
 
   .rag-node:focus-visible path {
     stroke-width: 3.4;
+  }
+
+  .range-track {
+    appearance: none;
+    height: 8px;
+    border: 1px solid var(--line-strong);
+    border-radius: 4px;
+    background: linear-gradient(
+      to right,
+      var(--range-fill) 0 var(--range-progress),
+      var(--surface-sunken) var(--range-progress) 100%
+    );
+    cursor: pointer;
+  }
+
+  .range-track::-webkit-slider-thumb {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--line-strong);
+    border-radius: 9999px;
+    background: var(--surface-raised);
+  }
+
+  .range-track::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--line-strong);
+    border-radius: 9999px;
+    background: var(--surface-raised);
   }
 }
 

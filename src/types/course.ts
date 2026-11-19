@@ -2,27 +2,33 @@ export type LessonStatus = "not-started" | "in-progress" | "completed";
 
 export type LessonDifficulty = "Iniciante" | "Intermediário" | "Avançado";
 
-export type LessonStepBadge = "concept" | "solution" | "warning";
+export type LessonStepBadge = "concept" | "mechanism" | "solution" | "warning";
 
-export type ModuleAccent = "blue" | "green" | "purple" | "orange" | "yellow";
+export type LessonDiagramKind = "rag-flow" | "attention";
 
-export type LessonDiagramKind = "rag-flow";
+export type AttentionView = "tokens" | "query" | "scores" | "weights";
 
 export interface LessonStep {
   id: string;
   title: string;
   shortTitle: string;
   description: string;
-  terms?: string[];
   tip?: string;
   changes?: string[];
   diagramNodeId?: string;
+  attentionView?: AttentionView;
   badge?: LessonStepBadge;
 }
 
 export interface LessonStat {
   label: string;
   value: string;
+  isHighlighted?: boolean;
+}
+
+export interface LessonObjective {
+  label: string;
+  stepId: string;
 }
 
 export interface Lesson {
@@ -34,6 +40,7 @@ export interface Lesson {
   status: LessonStatus;
   steps: LessonStep[];
   stats?: LessonStat[];
+  objectives?: LessonObjective[];
   diagram?: LessonDiagramKind;
 }
 
@@ -41,6 +48,5 @@ export interface CourseModule {
   id: string;
   number: string;
   title: string;
-  accent: ModuleAccent;
   lessons: Lesson[];
 }

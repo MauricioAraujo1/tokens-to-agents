@@ -25,7 +25,7 @@ describe("SearchDialog", () => {
   it("filtra as aulas mockadas e seleciona uma ao clicar", async () => {
     const { user, onSelectLesson } = renderDialog();
 
-    await user.type(screen.getByRole("searchbox", { name: "Buscar lições e conceitos" }), "chunking");
+    await user.type(screen.getByRole("searchbox", { name: "Buscar aulas e conceitos" }), "chunking");
     await user.click(screen.getByRole("button", { name: /Chunking Strategies/ }));
 
     expect(onSelectLesson).toHaveBeenCalledWith("08-04");
@@ -34,15 +34,24 @@ describe("SearchDialog", () => {
   it("seleciona o primeiro resultado ao pressionar Enter", async () => {
     const { user, onSelectLesson } = renderDialog();
 
-    await user.type(screen.getByRole("searchbox", { name: "Buscar lições e conceitos" }), "bm25{Enter}");
+    await user.type(screen.getByRole("searchbox", { name: "Buscar aulas e conceitos" }), "bm25{Enter}");
 
     expect(onSelectLesson).toHaveBeenCalledWith("07-02");
+  });
+
+  it("mostra o código da aula e a contagem de resultados no rodapé", async () => {
+    const { user } = renderDialog();
+
+    await user.type(screen.getByRole("searchbox", { name: "Buscar aulas e conceitos" }), "chunking");
+
+    expect(screen.getByRole("button", { name: /08\.04\s*Chunking Strategies/ })).toBeInTheDocument();
+    expect(screen.getByText("1 resultado · funciona offline")).toBeInTheDocument();
   });
 
   it("mostra estado vazio quando nada corresponde à busca", async () => {
     const { user } = renderDialog();
 
-    await user.type(screen.getByRole("searchbox", { name: "Buscar lições e conceitos" }), "xyzabc");
+    await user.type(screen.getByRole("searchbox", { name: "Buscar aulas e conceitos" }), "xyzabc");
 
     expect(screen.getByText("Nenhuma aula encontrada para “xyzabc”.")).toBeInTheDocument();
   });

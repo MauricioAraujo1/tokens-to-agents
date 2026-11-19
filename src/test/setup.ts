@@ -8,5 +8,6 @@ setReducedMotionPreference(true);
 afterEach(() => {
   cleanup();
   delete document.documentElement.dataset.theme;
+  window.localStorage.clear();
   setReducedMotionPreference(true);
 });

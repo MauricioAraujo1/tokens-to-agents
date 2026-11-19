@@ -57,13 +57,13 @@ export const RAG_NODE_CLEARANCE = 80;
 const DEFAULT_LABEL_OFFSET: Point = { x: 0, y: 0 };
 
 export const RAG_CATEGORY_COLOR: Record<DiagramCategory, string> = {
-  request: "var(--blue)",
-  processing: "var(--blue)",
-  retrieval: "var(--purple)",
-  context: "var(--yellow)",
-  generation: "var(--orange)",
-  response: "var(--green)",
-  error: "var(--red)",
+  request: "var(--diagram-blue)",
+  processing: "var(--diagram-blue)",
+  retrieval: "var(--diagram-purple)",
+  context: "var(--diagram-yellow)",
+  generation: "var(--diagram-orange)",
+  response: "var(--diagram-green)",
+  error: "var(--diagram-red)",
 };
 
 export const RAG_CATEGORY_LEGEND: Array<{ category: DiagramCategory; label: string }> = [

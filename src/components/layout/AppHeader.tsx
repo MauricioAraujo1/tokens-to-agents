@@ -1,58 +1,75 @@
-import { BookOpen, Menu, Moon, Search, Sun } from "lucide-react";
+import { CircleDot, FlaskConical, Menu, Moon, Search, SquareMenu, Sun, TextAlignJustify, type LucideIcon } from "lucide-react";
 import { APP_SECTIONS } from "../../data/sections";
 import { cn } from "../../lib/utils";
 import type { AppSection, ThemeMode } from "../../types/app";
-import { Button } from "../ui/Button";
 import { Kbd } from "../ui/Kbd";
+import { BrandMark } from "./BrandMark";
+import { LanguageMenu } from "./LanguageMenu";
 
 interface AppHeaderProps {
   activeSection: AppSection;
   onSectionChange: (section: AppSection) => void;
+  onOpenHome: () => void;
   theme: ThemeMode;
   onToggleTheme: () => void;
   onOpenSearch: () => void;
+  hasCourseMenu: boolean;
   isSidebarOpen: boolean;
   onToggleSidebar: () => void;
 }
 
+const SECTION_ICON: Record<AppSection, LucideIcon> = {
+  aprender: SquareMenu,
+  pratica: CircleDot,
+  laboratorio: FlaskConical,
+  resumos: TextAlignJustify,
+};
+
+const ICON_BUTTON_CLASS =
+  "grid h-[37px] w-[34px] shrink-0 place-items-center rounded-md border border-line-strong bg-surface text-ink transition-colors hover:bg-sunken";
+
 export function AppHeader({
   activeSection,
   onSectionChange,
+  onOpenHome,
   theme,
   onToggleTheme,
   onOpenSearch,
+  hasCourseMenu,
   isSidebarOpen,
   onToggleSidebar,
 }: AppHeaderProps) {
   const nextThemeLabel = theme === "light" ? "Ativar tema escuro" : "Ativar tema claro";
 
   return (
-    <header className="flex h-12 shrink-0 items-center gap-3 border-b border-line bg-surface px-3 xl:px-4">
-      <Button
-        variant="ghost"
-        size="sm"
-        className="xl:hidden"
-        aria-label="Abrir menu do curso"
-        aria-expanded={isSidebarOpen}
-        aria-controls="course-sidebar"
-        onClick={onToggleSidebar}
+    <header className="flex h-[60px] shrink-0 items-center gap-3 border-b border-line bg-paper px-3 print:hidden sm:px-5">
+      {hasCourseMenu && (
+        <button
+          type="button"
+          className="grid size-9 shrink-0 place-items-center rounded-md text-ink hover:bg-sunken xl:hidden"
+          aria-label="Abrir menu do curso"
+          aria-expanded={isSidebarOpen}
+          aria-controls="course-sidebar"
+          onClick={onToggleSidebar}
+        >
+          <Menu size={20} aria-hidden="true" />
+        </button>
+      )}
+
+      <button
+        type="button"
+        onClick={onOpenHome}
+        aria-label="Tokens to Agents, página inicial"
+        className="flex shrink-0 items-center gap-2.5 rounded-md"
       >
-        <Menu size={16} aria-hidden="true" />
-      </Button>
+        <BrandMark />
+        <span className="hidden text-[17px] font-bold leading-[22px] text-ink sm:inline">Tokens to Agents</span>
+      </button>
 
-      <div className="flex shrink-0 items-center gap-2">
-        <span className="grid size-7 place-items-center rounded-md border border-ink/70 bg-green text-on-accent">
-          <BookOpen size={15} aria-hidden="true" />
-        </span>
-        <span className="text-sm font-semibold tracking-tight text-ink">
-          AI{" "}
-          <span className="rounded bg-green/50 px-1 py-px">Engineering</span>
-        </span>
-      </div>
-
-      <nav aria-label="Seções" className="flex min-w-0 items-center gap-1 overflow-x-auto">
+      <nav aria-label="Seções" className="no-scrollbar mx-auto flex min-w-0 items-center gap-1.5 overflow-x-auto">
         {APP_SECTIONS.map((section) => {
           const isActive = section.id === activeSection;
+          const Icon = SECTION_ICON[section.id];
 
           return (
             <button
@@ -60,59 +77,49 @@ export function AppHeader({
               type="button"
               onClick={() => onSectionChange(section.id)}
               aria-current={isActive ? "page" : undefined}
+              aria-label={section.label}
+              title={section.label}
               className={cn(
-                "h-8 shrink-0 rounded-md border px-2.5 text-xs font-medium transition-colors sm:text-sm",
+                "flex shrink-0 items-center gap-2 rounded-md px-3 py-2 text-sm leading-[18px] text-ink transition-colors xl:px-4",
                 isActive
-                  ? "border-green-dark/40 bg-green/40 text-ink shadow-sm"
-                  : "border-transparent text-muted hover:bg-surface-muted hover:text-ink",
+                  ? "border-[1.5px] border-line-strong bg-brand-soft font-semibold shadow-press"
+                  : "border-[1.5px] border-transparent font-medium hover:bg-sunken",
               )}
             >
-              {section.label}
+              <Icon size={15} strokeWidth={2} aria-hidden="true" />
+              <span className="hidden lg:inline">{section.label}</span>
             </button>
           );
         })}
       </nav>
 
-      <div className="ml-auto flex shrink-0 items-center gap-2">
+      <div className="flex shrink-0 items-center gap-2">
         <button
           type="button"
           onClick={onOpenSearch}
-          className="hidden h-8 w-64 items-center gap-2 rounded-md border border-line bg-canvas px-2.5 text-left text-sm text-muted transition-colors hover:bg-surface-muted md:flex"
+          className="hidden h-[38px] w-[300px] items-center justify-between gap-2 rounded-md border border-line-strong bg-surface py-2 pl-3 pr-2 text-left text-[13px] text-subtle transition-colors hover:bg-sunken xl:flex"
         >
-          <Search size={14} aria-hidden="true" />
-          <span className="min-w-0 flex-1 truncate">Buscar lições e conceitos...</span>
+          <span className="flex min-w-0 items-center gap-2">
+            <Search size={14} aria-hidden="true" />
+            <span className="truncate">Buscar aulas e conceitos…</span>
+          </span>
           <Kbd>Ctrl K</Kbd>
         </button>
-        <Button variant="ghost" size="sm" className="md:hidden" aria-label="Buscar lições" onClick={onOpenSearch}>
+        <button type="button" className={cn(ICON_BUTTON_CLASS, "xl:hidden")} aria-label="Buscar aulas" onClick={onOpenSearch}>
           <Search size={16} aria-hidden="true" />
-        </Button>
+        </button>
 
-        <label htmlFor="app-language" className="sr-only">
-          Idioma
-        </label>
-        <select
-          id="app-language"
-          defaultValue="pt"
-          className="h-8 rounded-md border border-line bg-surface px-2 font-mono text-xs text-ink"
+        <LanguageMenu />
+
+        <button
+          type="button"
+          className={ICON_BUTTON_CLASS}
+          aria-label={nextThemeLabel}
+          title={nextThemeLabel}
+          onClick={onToggleTheme}
         >
-          <option value="pt">PT</option>
-          <option value="en" disabled>
-            EN (em breve)
-          </option>
-        </select>
-
-        <Button variant="ghost" size="sm" aria-label={nextThemeLabel} title={nextThemeLabel} onClick={onToggleTheme}>
-          {theme === "light" ? <Moon size={16} aria-hidden="true" /> : <Sun size={16} aria-hidden="true" />}
-        </Button>
-
-        <div
-          role="img"
-          aria-label="Perfil de visitante (autenticação em breve)"
-          title="Perfil (autenticação em breve)"
-          className="grid size-8 shrink-0 place-items-center rounded-full border border-line bg-surface-muted font-mono text-[11px] font-semibold text-muted"
-        >
-          AI
-        </div>
+          {theme === "light" ? <Moon size={15} aria-hidden="true" /> : <Sun size={15} aria-hidden="true" />}
+        </button>
       </div>
     </header>
   );

@@ -1,6 +1,7 @@
 import type { CourseModule } from "../types/course";
 import { createGenericLesson } from "./lessons/generic";
 import { RAG_LESSON_ID, ragHowItWorksLesson } from "./lessons/rag";
+import { selfAttentionLesson } from "./lessons/selfAttention";
 
 export const DEFAULT_LESSON_ID = RAG_LESSON_ID;
 
@@ -9,7 +10,6 @@ export const courseModules: CourseModule[] = [
     id: "module-00",
     number: "00",
     title: "Introdução à IA",
-    accent: "blue",
     lessons: [
       createGenericLesson({
         id: "00-01",
@@ -41,7 +41,6 @@ export const courseModules: CourseModule[] = [
     id: "module-01",
     number: "01",
     title: "Machine Learning",
-    accent: "green",
     lessons: [
       createGenericLesson({
         id: "01-01",
@@ -73,7 +72,6 @@ export const courseModules: CourseModule[] = [
     id: "module-02",
     number: "02",
     title: "Deep Learning",
-    accent: "purple",
     lessons: [
       createGenericLesson({
         id: "02-01",
@@ -105,7 +103,6 @@ export const courseModules: CourseModule[] = [
     id: "module-03",
     number: "03",
     title: "Arquitetura Transformers",
-    accent: "blue",
     lessons: [
       createGenericLesson({
         id: "03-01",
@@ -115,14 +112,7 @@ export const courseModules: CourseModule[] = [
         difficulty: "Iniciante",
         status: "not-started",
       }),
-      createGenericLesson({
-        id: "03-02",
-        title: "Self-Attention",
-        description: "Como cada token pondera a relevância dos outros tokens da sequência.",
-        duration: 14,
-        difficulty: "Avançado",
-        status: "not-started",
-      }),
+      selfAttentionLesson,
       createGenericLesson({
         id: "03-03",
         title: "Multi-Head Attention",
@@ -137,7 +127,6 @@ export const courseModules: CourseModule[] = [
     id: "module-04",
     number: "04",
     title: "Fundamentos de LLMs",
-    accent: "orange",
     lessons: [
       createGenericLesson({
         id: "04-01",
@@ -169,7 +158,6 @@ export const courseModules: CourseModule[] = [
     id: "module-05",
     number: "05",
     title: "Prompt Engineering",
-    accent: "yellow",
     lessons: [
       createGenericLesson({
         id: "05-01",
@@ -201,7 +189,6 @@ export const courseModules: CourseModule[] = [
     id: "module-06",
     number: "06",
     title: "Embeddings e Bancos Vetoriais",
-    accent: "purple",
     lessons: [
       createGenericLesson({
         id: "06-01",
@@ -233,7 +220,6 @@ export const courseModules: CourseModule[] = [
     id: "module-07",
     number: "07",
     title: "Information Retrieval",
-    accent: "green",
     lessons: [
       createGenericLesson({
         id: "07-01",
@@ -265,7 +251,6 @@ export const courseModules: CourseModule[] = [
     id: "module-08",
     number: "08",
     title: "RAG Architecture",
-    accent: "orange",
     lessons: [
       createGenericLesson({
         id: "08-01",
@@ -330,7 +315,6 @@ export const courseModules: CourseModule[] = [
     id: "module-09",
     number: "09",
     title: "Knowledge Systems",
-    accent: "blue",
     lessons: [
       createGenericLesson({
         id: "09-01",
@@ -362,7 +346,6 @@ export const courseModules: CourseModule[] = [
     id: "module-10",
     number: "10",
     title: "Inference e Otimização",
-    accent: "yellow",
     lessons: [
       createGenericLesson({
         id: "10-01",
@@ -394,7 +377,6 @@ export const courseModules: CourseModule[] = [
     id: "module-11",
     number: "11",
     title: "Fine-tuning",
-    accent: "purple",
     lessons: [
       createGenericLesson({
         id: "11-01",
@@ -426,7 +408,6 @@ export const courseModules: CourseModule[] = [
     id: "module-12",
     number: "12",
     title: "AI Agents",
-    accent: "green",
     lessons: [
       createGenericLesson({
         id: "12-01",
@@ -458,7 +439,6 @@ export const courseModules: CourseModule[] = [
     id: "module-13",
     number: "13",
     title: "Model Context Protocol",
-    accent: "blue",
     lessons: [
       createGenericLesson({
         id: "13-01",
@@ -490,7 +470,6 @@ export const courseModules: CourseModule[] = [
     id: "module-14",
     number: "14",
     title: "Harness Engineering",
-    accent: "orange",
     lessons: [
       createGenericLesson({
         id: "14-01",
@@ -522,7 +501,6 @@ export const courseModules: CourseModule[] = [
     id: "module-15",
     number: "15",
     title: "AI Software Engineering",
-    accent: "yellow",
     lessons: [
       createGenericLesson({
         id: "15-01",
@@ -554,7 +532,6 @@ export const courseModules: CourseModule[] = [
     id: "module-16",
     number: "16",
     title: "Evaluation e Safety",
-    accent: "purple",
     lessons: [
       createGenericLesson({
         id: "16-01",
@@ -586,7 +563,6 @@ export const courseModules: CourseModule[] = [
     id: "module-17",
     number: "17",
     title: "AI Infrastructure",
-    accent: "green",
     lessons: [
       createGenericLesson({
         id: "17-01",

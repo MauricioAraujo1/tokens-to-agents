@@ -1,3 +1,4 @@
+import { Check } from "lucide-react";
 import { cn } from "../../lib/utils";
 import type { LessonStep } from "../../types/course";
 
@@ -9,46 +10,47 @@ interface LessonTimelineProps {
 
 export function LessonTimeline({ steps, currentIndex, onSelectStep }: LessonTimelineProps) {
   return (
-    <section aria-label="Etapas da aula" className="rounded-lg border border-line bg-surface p-3 shadow-paper">
-      <p className="mb-2 font-mono text-[11px] uppercase tracking-wide text-muted">
-        Passo {currentIndex + 1} de {steps.length}
-      </p>
+    <section
+      aria-label="Etapas da aula"
+      className="flex flex-col gap-3 rounded-lg border border-line bg-surface px-5 pb-4 pt-3.5"
+    >
+      <div className="flex items-center justify-between text-[11px] leading-[14px]">
+        <p className="font-semibold uppercase tracking-[1px] text-ink">Nesta lição</p>
+        <p className="text-muted">
+          Passo {currentIndex + 1} de {steps.length}
+        </p>
+      </div>
 
-      <ol className="flex gap-2 overflow-x-auto pb-1">
+      <ol className="no-scrollbar flex justify-between gap-1 overflow-x-auto">
         {steps.map((step, index) => {
           const isCurrent = index === currentIndex;
           const isDone = index < currentIndex;
 
           return (
-            <li key={step.id} className="shrink-0">
+            <li key={step.id} className="w-16 shrink-0">
               <button
                 type="button"
                 onClick={() => onSelectStep(index)}
                 aria-current={isCurrent ? "step" : undefined}
                 aria-label={`Passo ${index + 1}: ${step.shortTitle}`}
-                className={cn(
-                  "flex min-w-[96px] flex-col items-center gap-1.5 rounded-md border px-2 py-1.5 text-center text-xs transition-colors",
-                  isCurrent
-                    ? "border-ink/70 bg-green/40 font-semibold text-ink shadow-sm"
-                    : isDone
-                      ? "border-green-dark/30 bg-surface-muted text-ink"
-                      : "border-transparent text-muted hover:bg-surface-muted",
-                )}
+                className="group flex w-full flex-col items-center gap-1.5 rounded-md py-0.5 text-center"
               >
                 <span
                   aria-hidden="true"
                   className={cn(
-                    "grid size-6 place-items-center rounded-full border text-[11px] font-semibold",
+                    "grid size-[26px] place-items-center rounded-full border border-line-strong text-[11px] leading-[14px] text-ink transition-colors",
                     isCurrent
-                      ? "border-ink bg-green text-on-accent"
+                      ? "border-[1.5px] bg-brand font-bold text-on-brand shadow-press-sm"
                       : isDone
-                        ? "border-green-dark bg-green/50 text-green-dark"
-                        : "border-line bg-canvas text-muted",
+                        ? "bg-success-soft font-bold"
+                        : "bg-surface group-hover:bg-sunken",
                   )}
                 >
-                  {index + 1}
+                  {isDone ? <Check size={12} strokeWidth={3} /> : index + 1}
                 </span>
-                <span>{step.shortTitle}</span>
+                <span className={cn("text-[10px] leading-[13px]", isCurrent ? "font-semibold text-ink" : "text-muted")}>
+                  {step.shortTitle}
+                </span>
               </button>
             </li>
           );

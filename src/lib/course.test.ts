@@ -6,6 +6,11 @@ import {
   countModuleCompletedLessons,
   createStatusMap,
   findLessonLocation,
+  findResumeLessonId,
+  formatLessonCode,
+  getModuleColor,
+  getModuleStatus,
+  sumModuleDuration,
   type LessonStatusMap,
 } from "./course";
 
@@ -18,14 +23,12 @@ const modules: CourseModule[] = [
     id: "m1",
     number: "01",
     title: "Primeiro",
-    accent: "blue",
     lessons: [createLesson("a1", "completed"), createLesson("a2", "not-started")],
   },
   {
     id: "m2",
     number: "02",
     title: "Segundo",
-    accent: "green",
     lessons: [createLesson("b1", "in-progress")],
   },
 ];
@@ -53,5 +56,29 @@ describe("funções de curso", () => {
     expect(countCompletedLessons(modules, statuses)).toBe(2);
     expect(countModuleCompletedLessons(modules[0], statuses)).toBe(2);
     expect(countModuleCompletedLessons(modules[1], statuses)).toBe(0);
+  });
+
+  it("deriva a cor do módulo do token do design system", () => {
+    expect(getModuleColor(modules[0])).toBe("var(--module-01)");
+  });
+
+  it("formata o código da aula com o número do módulo e a posição com dois dígitos", () => {
+    expect(formatLessonCode(modules[1], 0)).toBe("02.01");
+    expect(formatLessonCode(modules[0], 11)).toBe("01.12");
+  });
+
+  it("classifica o módulo como concluído, em andamento ou não iniciado", () => {
+    expect(getModuleStatus(modules[0], { a1: "completed", a2: "completed" })).toBe("completed");
+    expect(getModuleStatus(modules[0], { a1: "completed", a2: "not-started" })).toBe("in-progress");
+    expect(getModuleStatus(modules[0], { a1: "not-started", a2: "not-started" })).toBe("not-started");
+  });
+
+  it("retoma o módulo pela primeira aula ainda não concluída", () => {
+    expect(findResumeLessonId(modules[0], { a1: "completed", a2: "not-started" })).toBe("a2");
+    expect(findResumeLessonId(modules[0], { a1: "completed", a2: "completed" })).toBe("a1");
+  });
+
+  it("soma a duração das aulas do módulo em minutos", () => {
+    expect(sumModuleDuration(modules[0])).toBe(10);
   });
 });
