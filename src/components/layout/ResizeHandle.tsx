@@ -14,12 +14,12 @@ export function ResizeHandle({ label, edge, separatorProps }: ResizeHandleProps)
       {...separatorProps}
       className={cn(
         "group absolute inset-y-0 z-20 hidden w-2 cursor-col-resize touch-none select-none xl:block",
-        edge === "right" ? "-right-1" : "-left-1",
+        edge === "right" ? "-right-2.5" : "-left-2.5",
       )}
     >
       <span
         aria-hidden="true"
-        className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-transparent transition-colors group-hover:bg-green-dark group-focus-visible:bg-green-dark"
+        className="absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-transparent transition-colors group-hover:bg-brand group-focus-visible:bg-brand"
       />
     </div>
   );

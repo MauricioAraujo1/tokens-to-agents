@@ -1,62 +1,161 @@
 @import "tailwindcss";
+@import "./tokens.css";
 
 :root {
   color-scheme: light;
-  --canvas: #f5f0e7;
-  --surface: #fbf8f1;
-  --surface-muted: #eee8dc;
-  --ink: #292820;
-  --muted: #817b70;
-  --line: #d8d0c2;
-  --green: #b9d99b;
-  --green-dark: #547b45;
-  --blue: #8db9de;
-  --purple: #b8a2d8;
-  --orange: #efb47d;
-  --red: #d96b65;
-  --yellow: #e9d58b;
-  --on-accent: #292820;
-  --grid-line: rgb(41 40 32 / 0.075);
-  --paper-shadow: 0 1px 2px rgb(41 40 32 / 0.08), 0 6px 14px -8px rgb(41 40 32 / 0.18);
 }
 
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --canvas: #1c1a15;
-  --surface: #25231d;
-  --surface-muted: #2d2a23;
-  --ink: #ece6d8;
-  --muted: #a39c8e;
-  --line: #413d32;
-  --green: #9cc27c;
-  --green-dark: #bcdca0;
-  --blue: #7aa6cc;
-  --purple: #a78ecb;
-  --orange: #d99a64;
-  --red: #e07f78;
-  --yellow: #d7c16e;
-  --grid-line: rgb(236 230 216 / 0.05);
-  --paper-shadow: 0 1px 2px rgb(0 0 0 / 0.35), 0 6px 14px -8px rgb(0 0 0 / 0.5);
+}
+
+/*
+ * Fonte da escrita do idioma (I18N-01.6), carregada sob demanda por src/i18n/fonts.ts.
+ * A Geist Mono continua na frente para o latim; o `lang` do <html> escolhe a Noto certa,
+ * o que também separa os ideogramas de chinês simplificado, tradicional e japonês.
+ */
+:root {
+  --font-script: "Noto Sans Variable";
+}
+:root:lang(ar) {
+  --font-script: "Noto Sans Arabic Variable";
+}
+:root:lang(he) {
+  --font-script: "Noto Sans Hebrew Variable";
+}
+:root:lang(hi) {
+  --font-script: "Noto Sans Devanagari Variable";
+}
+:root:lang(zh-Hans) {
+  --font-script: "Noto Sans SC Variable";
+}
+:root:lang(zh-Hant) {
+  --font-script: "Noto Sans TC Variable";
+}
+:root:lang(ja) {
+  --font-script: "Noto Sans JP Variable";
+}
+:root:lang(ko) {
+  --font-script: "Noto Sans KR Variable";
 }
 
 @theme inline {
-  --color-canvas: var(--canvas);
-  --color-surface: var(--surface);
-  --color-surface-muted: var(--surface-muted);
-  --color-ink: var(--ink);
-  --color-muted: var(--muted);
-  --color-line: var(--line);
-  --color-green: var(--green);
-  --color-green-dark: var(--green-dark);
-  --color-blue: var(--blue);
-  --color-purple: var(--purple);
-  --color-orange: var(--orange);
-  --color-red: var(--red);
-  --color-yellow: var(--yellow);
-  --color-on-accent: var(--on-accent);
-  --font-sans: "Inter Variable", Inter, ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  --shadow-paper: var(--paper-shadow);
+  /* Nomes do design system (origin/master): os valores vêm de tokens.css. */
+  --color-paper: var(--bg-paper);
+  --color-grid: var(--bg-grid);
+  --color-surface: var(--surface-raised);
+  --color-sunken: var(--surface-sunken);
+  --color-ink: var(--ink-primary);
+  --color-muted: var(--ink-muted);
+  --color-subtle: var(--ink-subtle);
+  --color-line: var(--line-soft);
+  --color-line-strong: var(--line-strong);
+  --color-brand: var(--accent-brand);
+  --color-brand-soft: var(--accent-brand-soft);
+  --color-on-brand: var(--accent-on-brand);
+  --color-success: var(--state-success);
+  --color-success-soft: var(--state-success-soft);
+  --color-info: var(--state-info);
+  --color-info-soft: var(--state-info-soft);
+  --color-danger: var(--state-danger);
+  /* Texto em cor de estado usa os *-ink (T136); success, info e danger ficam para bordas, ícones e preenchimentos. */
+  --color-success-ink: var(--state-success-ink);
+  --color-info-ink: var(--state-info-ink);
+  --color-danger-ink: var(--state-danger-ink);
+  --color-diagram-green: var(--diagram-green);
+  --color-diagram-blue: var(--diagram-blue);
+  --color-diagram-purple: var(--diagram-purple);
+  --color-diagram-orange: var(--diagram-orange);
+  --color-diagram-red: var(--diagram-red);
+  --color-diagram-yellow: var(--diagram-yellow);
+  --shadow-press-sm: 1.5px 1.5px 0 var(--shadow-hard);
+  --shadow-press: 2px 2px 0 var(--shadow-hard);
+  --shadow-press-lg: 3px 3px 0 var(--shadow-hard);
+
+  /* Motion do app (origin/master 27abe4e): troca de passo, entrada de cartões e destaque de nós. */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+  --animate-fade-in: fade-in 260ms var(--ease-smooth) both;
+  --animate-step-in: step-in 340ms var(--ease-smooth) both;
+  --animate-rise: rise 420ms var(--ease-smooth) both;
+  --animate-pop-in: pop-in 360ms var(--ease-spring) both;
+  --animate-zone-in: zone-in 460ms var(--ease-smooth) both;
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes step-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+  }
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+  }
+
+  @keyframes pop-in {
+    from {
+      opacity: 0;
+      transform: scale(0.82);
+    }
+  }
+
+  @keyframes zone-in {
+    from {
+      opacity: 0;
+      transform: scale(0.6);
+    }
+  }
+
+  --color-bg-paper: var(--bg-paper);
+  --color-bg-grid: var(--bg-grid);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-sunken: var(--surface-sunken);
+  --color-ink-primary: var(--ink-primary);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-subtle: var(--ink-subtle);
+  --color-line-soft: var(--line-soft);
+  --color-accent-brand: var(--accent-brand);
+  --color-accent-brand-soft: var(--accent-brand-soft);
+  --color-accent-on-brand: var(--accent-on-brand);
+  --color-state-success: var(--state-success);
+  --color-state-success-soft: var(--state-success-soft);
+  --color-state-info: var(--state-info);
+  --color-state-info-soft: var(--state-info-soft);
+  --color-state-danger: var(--state-danger);
+  --color-state-success-ink: var(--state-success-ink);
+  --color-state-info-ink: var(--state-info-ink);
+  --color-state-danger-ink: var(--state-danger-ink);
+  --color-shadow-hard: var(--shadow-hard);
+  --color-module-00: var(--module-00);
+  --color-module-01: var(--module-01);
+  --color-module-02: var(--module-02);
+  --color-module-03: var(--module-03);
+  --color-module-04: var(--module-04);
+  --color-module-05: var(--module-05);
+  --color-module-06: var(--module-06);
+  --color-module-07: var(--module-07);
+  --color-module-08: var(--module-08);
+  --color-module-09: var(--module-09);
+  --color-module-10: var(--module-10);
+  --color-module-11: var(--module-11);
+  --color-module-12: var(--module-12);
+  --color-module-13: var(--module-13);
+  --color-module-14: var(--module-14);
+  --color-module-15: var(--module-15);
+  --color-module-16: var(--module-16);
+  --color-module-17: var(--module-17);
+
+  --font-sans: "Geist Mono Variable", "Geist Mono", var(--font-script), ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  --font-mono: "Geist Mono Variable", "Geist Mono", var(--font-script), ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
 }
 
 @layer base {
@@ -68,24 +167,26 @@
 
   body {
     margin: 0;
-    background-color: var(--canvas);
-    color: var(--ink);
+    background-color: var(--bg-paper);
+    color: var(--ink-primary);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
   }
 
   :focus-visible {
-    outline: 2px solid var(--ink);
+    outline: 2px solid var(--ink-primary);
     outline-offset: 2px;
   }
 }
 
 @layer components {
-  .paper-grid {
-    background-color: var(--surface);
+  /* Grade da cena do design: linhas de 1 px a cada 24 px em bg/grid. */
+  .scene-grid {
+    background-color: var(--bg-paper);
     background-image:
-      repeating-linear-gradient(26.565deg, var(--grid-line) 0 1px, transparent 1px 20px),
-      repeating-linear-gradient(-26.565deg, var(--grid-line) 0 1px, transparent 1px 20px);
+      linear-gradient(var(--bg-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px);
+    background-size: 24px 24px;
   }
 
   .flow-dot {
@@ -106,6 +207,37 @@
     display: none;
   }
 
+  /* Motor de cenas: as peças marcam com .scene-animate o que anima entre passos (SCN-01.4). */
+  .scene-animate {
+    transition-property: transform, opacity, fill, stroke, stroke-width, width, height, x, y, cx, cy, r;
+    transition-duration: 450ms;
+    transition-timing-function: ease-in-out;
+  }
+
+  .scene-transition .scene-piece {
+    animation: scene-enter 450ms var(--ease-smooth);
+  }
+
+  /* Destaque de nós da cena RAG: opacidade, brilho e contorno mudam com o passo. */
+  .rag-node {
+    transition: opacity 420ms var(--ease-smooth);
+  }
+
+  .rag-node-body {
+    transition: filter 420ms var(--ease-smooth);
+  }
+
+  .rag-node-outline,
+  .rag-edge {
+    transition: stroke-width 300ms var(--ease-smooth);
+  }
+
+  /* Escala de formas SVG a partir do próprio centro. */
+  .svg-anim-center {
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+
   .rag-node:focus-visible {
     outline: none;
   }
@@ -113,6 +245,55 @@
   .rag-node:focus-visible path {
     stroke-width: 3.4;
   }
+
+  /* Slider do design (preview 09): trilho de 8 px com o trecho preenchido até o valor e o botão redondo. */
+  .range-track {
+    appearance: none;
+    height: 8px;
+    border: 1px solid var(--line-strong);
+    border-radius: 4px;
+    background: linear-gradient(
+      to right,
+      var(--range-fill) 0 var(--range-progress),
+      var(--surface-sunken) var(--range-progress) 100%
+    );
+    cursor: pointer;
+  }
+
+  .range-track:dir(rtl) {
+    background: linear-gradient(
+      to left,
+      var(--range-fill) 0 var(--range-progress),
+      var(--surface-sunken) var(--range-progress) 100%
+    );
+  }
+
+  .range-track::-webkit-slider-thumb {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--line-strong);
+    border-radius: 9999px;
+    background: var(--surface-raised);
+  }
+
+  .range-track::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--line-strong);
+    border-radius: 9999px;
+    background: var(--surface-raised);
+  }
+}
+
+/*
+ * Rótulos em caixa alta com letter-spacing (I18N-01.6, T140): árabe, hebraico, devanágari, chinês,
+ * japonês e coreano não têm caixa, e o espaçamento entre letras quebra a ligação dos glifos. Nessas
+ * escritas o rótulo fica no texto normal. Fora de camada, para vencer `uppercase` e `tracking-*`.
+ */
+.uppercase:is(:lang(ar), :lang(he), :lang(hi), :lang(zh), :lang(ja), :lang(ko)) {
+  text-transform: none;
+  letter-spacing: normal;
 }
 
 @keyframes flow-travel {
@@ -125,8 +306,20 @@
   }
 }
 
+@keyframes scene-enter {
+  from {
+    opacity: 0.6;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .flow-dot {
+  .flow-dot,
+  .scene-transition .scene-piece {
     animation: none;
   }
 
@@ -134,5 +327,7 @@
   *::before,
   *::after {
     transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
   }
 }

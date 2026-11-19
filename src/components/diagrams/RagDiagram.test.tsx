@@ -1,10 +1,10 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
-import { ragHowItWorksLesson } from "../../data/lessons/rag";
+import ragLesson from "../../content/lessons/08/08-02-rag-architecture";
 import { RagDiagram } from "./RagDiagram";
 
-const steps = ragHowItWorksLesson.steps;
+const steps = ragLesson.steps;
 
 function renderDiagram(activeStepIndex: number, onSelectStep = vi.fn()) {
   render(
@@ -61,5 +61,32 @@ describe("RagDiagram", () => {
 
     expect(screen.getByRole("img", { name: "Usuário" })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Usuário" })).not.toBeInTheDocument();
+  });
+
+  it("a legenda fica abaixo da cena, fora da área dos blocos (T138)", () => {
+    renderDiagram(0);
+
+    const diagram = screen.getByRole("img", { name: "Fluxo de uma consulta RAG" });
+    const caption = document.querySelector("figcaption") as HTMLElement;
+    const stage = diagram.parentElement as HTMLElement;
+
+    // Nenhum ancestral da legenda até a figura a posiciona sobre a cena.
+    for (let element: HTMLElement | null = caption; element && element.tagName !== "FIGURE"; element = element.parentElement) {
+      expect(element.className).not.toMatch(/(?:^|\s)(?:absolute|fixed)(?:\s|$)/);
+    }
+    // A cena vem antes da legenda no fluxo e não a contém.
+    expect(stage.contains(caption)).toBe(false);
+    expect(stage.compareDocumentPosition(caption) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("a cena tem a proporção da viewBox, para ocupar a largura do quadro (T138)", () => {
+    renderDiagram(0);
+
+    const diagram = screen.getByRole("img", { name: "Fluxo de uma consulta RAG" });
+    const [, , width, height] = (diagram.getAttribute("viewBox") ?? "").split(" ").map(Number);
+    const stage = diagram.parentElement as HTMLElement;
+
+    expect(stage.style.aspectRatio).toBe(`${width} / ${height}`);
+    expect(stage).toHaveClass("w-full");
   });
 });

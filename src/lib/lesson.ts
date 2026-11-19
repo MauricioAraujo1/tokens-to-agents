@@ -1,21 +1,12 @@
-import type { LessonStatus, LessonStepBadge, LessonStep } from "../types/course";
-
-export const LESSON_STATUS_LABEL: Record<LessonStatus, string> = {
-  "not-started": "Não iniciada",
-  "in-progress": "Em andamento",
-  completed: "Concluída",
-};
-
-export const STEP_BADGE_LABEL: Record<LessonStepBadge, string> = {
-  concept: "CONCEITO",
-  solution: "SOLUÇÃO",
-  warning: "ATENÇÃO",
-};
-
-export function stepIndexForNode(steps: LessonStep[], nodeId: string, currentIndex: number): number {
-  if (steps[currentIndex]?.diagramNodeId === nodeId) {
+/** `stepNodeIds[i]` é o nó do diagrama que o passo i destaca. */
+export function stepIndexForNode(
+  stepNodeIds: ReadonlyArray<string | undefined>,
+  nodeId: string,
+  currentIndex: number,
+): number {
+  if (stepNodeIds[currentIndex] === nodeId) {
     return currentIndex;
   }
 
-  return steps.findIndex((step) => step.diagramNodeId === nodeId);
+  return stepNodeIds.indexOf(nodeId);
 }

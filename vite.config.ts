@@ -8,5 +8,8 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
+    // Os testes de App montam o app inteiro no jsdom; com um worker por núcleo, a disputa de CPU
+    // estoura o timeout de 5 s. Metade dos núcleos mantém a suíte estável (decisão do usuário).
+    maxWorkers: '50%',
   },
 })

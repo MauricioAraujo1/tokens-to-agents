@@ -12,12 +12,22 @@ import {
 } from "lucide-react";
 import type { KeyboardEvent } from "react";
 import { cn } from "../../lib/utils";
+import { FADED_TEXT_OPACITY } from "../../scene/colors";
 import { DiagramPill } from "./DiagramPill";
 import {
-  RAG_BLOCK_HALF_HEIGHT,
+  ISO_CELL,
   RAG_BLOCK_HALF_WIDTH,
+  RAG_BLOCK_HEIGHT,
   RAG_CATEGORY_COLOR,
+  RAG_CYLINDER_HEIGHT,
+  RAG_CYLINDER_RADIUS_X,
+  RAG_CYLINDER_RADIUS_Y,
+  RAG_GROUND_ZONE_HALF_WIDTH,
+  RAG_PLATFORM_HALF_WIDTH,
+  RAG_PLATFORM_THICKNESS,
+  getIsoDiamond,
   getRoundedPolygonPath,
+  type DiagramNodeShape,
   type DiagramNodeState,
   type RagNodeDefinition,
   type RagNodeId,
@@ -26,7 +36,8 @@ import {
 interface DiagramNodeProps {
   node: RagNodeDefinition;
   state: DiagramNodeState;
-  activeStepNumber?: number;
+  /** Texto da pílula do nó ativo, por exemplo "passo 3". */
+  stepLabel?: string;
   onSelect?: () => void;
 }
 
@@ -42,26 +53,48 @@ const NODE_ICON: Record<RagNodeId, LucideIcon> = {
   fallback: SearchX,
 };
 
-const SOFT_SHADOW = "drop-shadow(0 9px 7px rgb(41 40 32 / 0.2))";
-const PERSON_COLORS = ["var(--purple)", "var(--blue)", "var(--orange)", "var(--green)", "var(--yellow)"];
-const PERSON_POSITIONS = [
-  { x: 0, y: -26 },
-  { x: -30, y: -11 },
-  { x: 30, y: -11 },
-  { x: -60, y: 4 },
-  { x: 0, y: 4 },
-  { x: 60, y: 4 },
-  { x: -30, y: 19 },
-  { x: 30, y: 19 },
-  { x: 0, y: 34 },
+// Regras da página "04 · Blocos do diagrama" (FigCraft).
+// Sombra suave do design (0 9px 7px a 20%), na cor de sombra do tema para valer também no escuro.
+const SOFT_SHADOW = "drop-shadow(0 9px 7px color-mix(in srgb, var(--shadow-hard) 20%, transparent))";
+const PERSON_COLORS = [
+  "var(--diagram-purple)",
+  "var(--diagram-blue)",
+  "var(--diagram-orange)",
+  "var(--diagram-green)",
+  "var(--diagram-yellow)",
 ];
+/** Nove pessoas nos vértices da grade sobre a laje de cima. */
+const PERSON_POSITIONS = [
+  { x: 0, y: -2 * ISO_CELL },
+  { x: -2 * ISO_CELL, y: -ISO_CELL },
+  { x: 2 * ISO_CELL, y: -ISO_CELL },
+  { x: -4 * ISO_CELL, y: 0 },
+  { x: 0, y: 0 },
+  { x: 4 * ISO_CELL, y: 0 },
+  { x: -2 * ISO_CELL, y: ISO_CELL },
+  { x: 2 * ISO_CELL, y: ISO_CELL },
+  { x: 0, y: 2 * ISO_CELL },
+];
+const BLOCK_CORNER_RADIUS = 14;
+const UPCOMING_OPACITY = FADED_TEXT_OPACITY;
 
-export function DiagramNode({ node, state, activeStepNumber, onSelect }: DiagramNodeProps) {
+const LABEL_PILL_OFFSET: Record<DiagramNodeShape, number> = {
+  block: 0,
+  cylinder: RAG_CYLINDER_HEIGHT + RAG_CYLINDER_RADIUS_Y + 18,
+  platform: RAG_PLATFORM_THICKNESS + RAG_PLATFORM_HALF_WIDTH / 2 + 32,
+};
+
+const ACTIVE_PILL_OFFSET: Record<DiagramNodeShape, number> = {
+  block: RAG_BLOCK_HEIGHT + RAG_BLOCK_HALF_WIDTH / 2 + 22,
+  cylinder: LABEL_PILL_OFFSET.cylinder + 28,
+  platform: LABEL_PILL_OFFSET.platform + 28,
+};
+
+export function DiagramNode({ node, state, stepLabel, onSelect }: DiagramNodeProps) {
   const { x, y, label, shape } = node;
   const color = RAG_CATEGORY_COLOR[node.category];
   const isInteractive = onSelect !== undefined;
   const isActive = state === "active";
-  const pillY = shape === "cylinder" ? y - 100 : y - RAG_BLOCK_HALF_HEIGHT - 24;
 
   function handleKeyDown(event: KeyboardEvent<SVGGElement>) {
     if (!onSelect) {
@@ -81,20 +114,25 @@ export function DiagramNode({ node, state, activeStepNumber, onSelect }: Diagram
       tabIndex={isInteractive ? 0 : undefined}
       aria-label={label}
       aria-current={isActive ? "step" : undefined}
-      opacity={state === "upcoming" ? 0.55 : 1}
+      style={{ opacity: state === "upcoming" ? UPCOMING_OPACITY : 1 }}
       onClick={onSelect}
       onKeyDown={handleKeyDown}
     >
       <title>{label}</title>
       {isActive && <GroundZone x={x} y={y} />}
-      <g style={{ filter: isActive ? `${SOFT_SHADOW} drop-shadow(0 0 12px ${color})` : SOFT_SHADOW }}>
+      <g
+        className="rag-node-body"
+        style={{ filter: isActive ? `${SOFT_SHADOW} drop-shadow(0 0 12px ${color})` : SOFT_SHADOW }}
+      >
         {shape === "platform" && <PlatformShape x={x} y={y} />}
         {shape === "cylinder" && <CylinderShape x={x} y={y} color={color} isActive={isActive} />}
         {shape === "block" && <BlockShape nodeId={node.id} x={x} y={y} color={color} isActive={isActive} />}
       </g>
       <NodeContent node={node} />
-      {isActive && activeStepNumber !== undefined && (
-        <DiagramPill x={x} y={pillY} text={`passo ${activeStepNumber}`} icon={NODE_ICON[node.id]} tone="success" />
+      {isActive && stepLabel !== undefined && (
+        <g key={stepLabel} className="svg-anim-center animate-pop-in">
+          <DiagramPill x={x} y={y - ACTIVE_PILL_OFFSET[shape]} text={stepLabel} icon={NODE_ICON[node.id]} tone="success" />
+        </g>
       )}
     </g>
   );
@@ -110,96 +148,115 @@ interface ColoredShapeProps extends ShapeProps {
   isActive: boolean;
 }
 
+/** Zona verde no chão do bloco ativo: 180 × 90. */
 function GroundZone({ x, y }: ShapeProps) {
-  const path = getRoundedPolygonPath(
-    [
-      { x, y: y - 28 },
-      { x: x + 132, y: y + 38 },
-      { x, y: y + 104 },
-      { x: x - 132, y: y + 38 },
-    ],
-    10,
-  );
+  const path = getRoundedPolygonPath(getIsoDiamond({ x, y }, RAG_GROUND_ZONE_HALF_WIDTH), 10);
 
   return (
     <path
       d={path}
       strokeWidth={2.5}
-      style={{ fill: "color-mix(in srgb, var(--green) 22%, transparent)", stroke: "var(--green)" }}
+      className="svg-anim-center animate-zone-in"
+      style={{
+        fill: "color-mix(in srgb, var(--diagram-green) 22%, transparent)",
+        stroke: "var(--diagram-green)",
+      }}
     />
   );
 }
 
-function BlockShape({ nodeId, x, y, color, isActive }: ColoredShapeProps & { nodeId: RagNodeId }) {
+/**
+ * Bloco isométrico com base 120 × 60 e 54 px de altura; `(x, y)` é o centro da base.
+ * Também usado pela peça ClientServer. `nodeId` precisa ser único no documento (id do clipPath).
+ */
+export function BlockShape({ nodeId, x, y, color, isActive }: ColoredShapeProps & { nodeId: string }) {
   const halfWidth = RAG_BLOCK_HALF_WIDTH;
-  const halfHeight = RAG_BLOCK_HALF_HEIGHT;
+  const height = RAG_BLOCK_HEIGHT;
+  const quarter = halfWidth / 2;
   const clipId = `rag-block-clip-${nodeId}`;
   const outline = getRoundedPolygonPath(
     [
-      { x, y: y - halfHeight },
-      { x: x + halfWidth, y: y - halfHeight / 2 },
-      { x: x + halfWidth, y: y + halfHeight / 2 },
-      { x, y: y + halfHeight },
-      { x: x - halfWidth, y: y + halfHeight / 2 },
-      { x: x - halfWidth, y: y - halfHeight / 2 },
+      { x, y: y - quarter - height },
+      { x: x + halfWidth, y: y - height },
+      { x: x + halfWidth, y },
+      { x, y: y + quarter },
+      { x: x - halfWidth, y },
+      { x: x - halfWidth, y: y - height },
     ],
-    16,
+    BLOCK_CORNER_RADIUS,
   );
-  const topFace = `M ${x - halfWidth} ${y - halfHeight / 2} L ${x} ${y - halfHeight} L ${x + halfWidth} ${y - halfHeight / 2} L ${x} ${y} Z`;
-  const rightFace = `M ${x} ${y} L ${x + halfWidth} ${y - halfHeight / 2} L ${x + halfWidth} ${y + halfHeight / 2} L ${x} ${y + halfHeight} Z`;
+  const topFace = `M ${x - halfWidth} ${y - height} L ${x} ${y - quarter - height} L ${x + halfWidth} ${y - height} L ${x} ${y + quarter - height} Z`;
+  const rightFace = `M ${x} ${y + quarter - height} L ${x + halfWidth} ${y - height} L ${x + halfWidth} ${y} L ${x} ${y + quarter} Z`;
 
   return (
     <g>
       <clipPath id={clipId}>
         <path d={outline} />
       </clipPath>
-      <path d={outline} style={{ fill: `color-mix(in srgb, ${color} 62%, var(--surface))` }} />
+      <path d={outline} style={{ fill: `color-mix(in srgb, ${color} 62%, var(--surface-raised))` }} />
       <g clipPath={`url(#${clipId})`}>
-        <path d={topFace} style={{ fill: "var(--surface)", opacity: 0.42 }} />
+        <path d={topFace} style={{ fill: "var(--surface-raised)", opacity: 0.42 }} />
         <path d={rightFace} style={{ fill: color, opacity: 0.45 }} />
       </g>
-      <path d={outline} fill="none" className="stroke-ink" strokeWidth={isActive ? 2.8 : 2} strokeLinejoin="round" />
+      <path
+        d={outline}
+        fill="none"
+        className="rag-node-outline stroke-ink"
+        strokeLinejoin="round"
+        strokeWidth={isActive ? 2.8 : 2}
+      />
     </g>
   );
 }
 
+/** Cilindro: elipse 96 × 48 no chão, corpo de 68 px, topo com 30% da cor e corpo com 62%. */
 function CylinderShape({ x, y, color, isActive }: ColoredShapeProps) {
-  const radiusX = 52;
-  const radiusY = 20;
-  const top = y - 34;
-  const bottom = y + 34;
-  const body = `M ${x - radiusX} ${top} L ${x - radiusX} ${bottom} A ${radiusX} ${radiusY} 0 0 0 ${x + radiusX} ${bottom} L ${x + radiusX} ${top} Z`;
+  const radiusX = RAG_CYLINDER_RADIUS_X;
+  const radiusY = RAG_CYLINDER_RADIUS_Y;
+  const top = y - RAG_CYLINDER_HEIGHT;
+  const body = `M ${x - radiusX} ${top} L ${x - radiusX} ${y} A ${radiusX} ${radiusY} 0 0 0 ${x + radiusX} ${y} L ${x + radiusX} ${top} Z`;
   const strokeWidth = isActive ? 2.8 : 2;
 
   return (
     <g>
-      <path d={body} className="stroke-ink" strokeWidth={strokeWidth} strokeLinejoin="round" style={{ fill: `color-mix(in srgb, ${color} 62%, var(--surface))` }} />
-      <ellipse cx={x} cy={top} rx={radiusX} ry={radiusY} className="stroke-ink" strokeWidth={strokeWidth} style={{ fill: `color-mix(in srgb, ${color} 30%, var(--surface))` }} />
+      <path
+        d={body}
+        className="rag-node-outline stroke-ink"
+        strokeLinejoin="round"
+        strokeWidth={strokeWidth}
+        style={{ fill: `color-mix(in srgb, ${color} 62%, var(--surface-raised))` }}
+      />
+      <ellipse
+        cx={x}
+        cy={top}
+        rx={radiusX}
+        ry={radiusY}
+        className="rag-node-outline stroke-ink"
+        strokeWidth={strokeWidth}
+        style={{ fill: `color-mix(in srgb, ${color} 30%, var(--surface-raised))` }}
+      />
     </g>
   );
 }
 
-function PlatformShape({ x, y }: ShapeProps) {
-  const createSlab = (offsetY: number) =>
-    getRoundedPolygonPath(
-      [
-        { x, y: y - 52 + offsetY },
-        { x: x + 104, y: y + offsetY },
-        { x, y: y + 52 + offsetY },
-        { x: x - 104, y: y + offsetY },
-      ],
-      14,
-    );
+/**
+ * Plataforma: duas lajes 180 × 90 deslocadas 14 px, com nove pessoas nos vértices da grade.
+ * `(x, y)` é o centro da laje de baixo. Também usada pela peça ClientServer para os clientes.
+ */
+export function PlatformShape({ x, y }: ShapeProps) {
+  const topCenter = y - RAG_PLATFORM_THICKNESS;
+  const createSlab = (centerY: number) =>
+    getRoundedPolygonPath(getIsoDiamond({ x, y: centerY }, RAG_PLATFORM_HALF_WIDTH), 14);
 
   return (
     <g>
-      <path d={createSlab(14)} className="fill-surface-muted stroke-ink" strokeWidth={2} />
-      <path d={createSlab(0)} className="fill-surface stroke-ink" strokeWidth={2} />
+      <path d={createSlab(y)} className="fill-sunken stroke-ink" strokeWidth={2} />
+      <path d={createSlab(topCenter)} className="fill-surface stroke-ink" strokeWidth={2} />
       {PERSON_POSITIONS.map((position, index) => (
         <g key={`${position.x}-${position.y}`}>
           <rect
             x={x + position.x - 7}
-            y={y + position.y - 20}
+            y={topCenter + position.y - 24}
             width={14}
             height={24}
             rx={7}
@@ -207,7 +264,13 @@ function PlatformShape({ x, y }: ShapeProps) {
             strokeWidth={1.6}
             style={{ fill: PERSON_COLORS[index % PERSON_COLORS.length] }}
           />
-          <circle cx={x + position.x} cy={y + position.y - 25} r={6} className="fill-surface stroke-ink" strokeWidth={1.6} />
+          <circle
+            cx={x + position.x}
+            cy={topCenter + position.y - 29}
+            r={6}
+            className="fill-surface stroke-ink"
+            strokeWidth={1.6}
+          />
         </g>
       ))}
     </g>
@@ -219,22 +282,32 @@ function NodeContent({ node }: { node: RagNodeDefinition }) {
   const Icon = NODE_ICON[node.id];
 
   if (shape === "platform") {
-    return <DiagramPill x={x} y={y - 76} text={label.toLowerCase()} icon={Icon} />;
+    return <DiagramPill x={x} y={y - LABEL_PILL_OFFSET.platform} text={label.toLowerCase()} icon={Icon} />;
   }
 
   if (shape === "cylinder") {
+    const bodyCenter = y - RAG_CYLINDER_HEIGHT / 2;
+
     return (
       <g>
-        <Icon x={x - 12} y={y - 4} width={24} height={24} strokeWidth={2} className="text-ink" aria-hidden="true" />
-        <DiagramPill x={x} y={y - 72} text={label.toLowerCase()} />
+        <Icon x={x - 12} y={bodyCenter - 6} width={24} height={24} strokeWidth={2} className="text-ink" aria-hidden="true" />
+        <DiagramPill x={x} y={y - LABEL_PILL_OFFSET.cylinder} text={label.toLowerCase()} />
       </g>
     );
   }
 
+  const center = y - RAG_BLOCK_HEIGHT / 2;
+
   return (
     <g>
-      <Icon x={x - 12} y={y - 30} width={24} height={24} strokeWidth={2} className="text-ink" aria-hidden="true" />
-      <text x={x} y={y + 14} textAnchor="middle" dominantBaseline="central" className="fill-ink font-mono text-[13px] font-bold">
+      <Icon x={x - 12} y={center - 30} width={24} height={24} strokeWidth={2} className="text-ink" aria-hidden="true" />
+      <text
+        x={x}
+        y={center + 14}
+        textAnchor="middle"
+        dominantBaseline="central"
+        className="fill-ink font-mono text-[13px] font-bold"
+      >
         {label}
       </text>
     </g>

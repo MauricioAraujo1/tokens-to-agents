@@ -160,7 +160,33 @@ T99 → T100 → T101 → T102 → T103 → T104 → T105 → T106
 T107 → T108 → T109 → T110 → T111 → T112 → T113 → T114 → T115
 ```
 
-**Checkpoint depois da Phase 18:** o usuário revisa o módulo 03 no navegador. A Phase 19 em diante (rollout) só começa depois dessa aprovação.
+### Phase 19: Alinhamento visual (fundação e shell)
+
+```
+T116 → T117 → T118 → T119 → T120 → T121 → T122
+```
+
+### Phase 20: Alinhamento visual (cenas)
+
+```
+T123 → T124 → T125 → T126 → T127
+```
+
+### Phase 21: Alinhamento visual (páginas, docs e QA)
+
+```
+T128 → T129 → T130 → T131 → T132 → T133
+```
+
+**Por que as Phases 19–21 existem (adicionadas em 2026-11-19):** T1–T115 entregaram o comportamento da spec, mas a interface não seguiu o design do FigCraft. O cabeçalho ficou como "AI Engineering" e os componentes mantiveram as classes antigas. Em paralelo, o Lucas fez a camada visual certa no `origin/master` (commits `59287a7` e `27abe4e`), mas sobre a arquitetura antiga (`src/data/*`). O usuário decidiu manter a nossa base e trazer o visual dele. Nestas fases, o código do Lucas e os PNGs de `design/previews/` são o gabarito. Uma tarefa de UI só fecha quando a tela bate com o preview indicado. Consulte o código dele com `git show origin/master:<arquivo>`, sem fazer merge.
+
+### Phase 22: Correções do QA visual (T133)
+
+```
+T134 → T135 → T136 → T137 → T138 → T139 → T140 → T141
+```
+
+**Checkpoint depois da Phase 22:** o usuário revisa o módulo 03 no navegador. O rollout (`content-module-NN`) só começa depois dessa aprovação.
 
 ---
 
@@ -177,13 +203,14 @@ T107 → T108 → T109 → T110 → T111 → T112 → T113 → T114 → T115
 **Requirement**: THM-01
 
 **Done when**:
-- [ ] `src/styles/tokens.css` é importado em `globals.css`; nenhuma cor fixa sobra fora dos tokens
-- [ ] `src/styles/contrast.test.ts` verifica ≥ 4.5:1 para `ink/primary` e `ink/muted` sobre `bg/paper` e `surface/raised`, claro e escuro (THM-01.3)
-- [ ] Gate check passes: `npm test`
+- [x] `src/styles/tokens.css` é importado em `globals.css`; nenhuma cor fixa sobra fora dos tokens
+- [x] `src/styles/contrast.test.ts` verifica ≥ 4.5:1 para `ink/primary` e `ink/muted` sobre `bg/paper` e `surface/raised`, claro e escuro (THM-01.3)
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(theme): apply FigCraft design tokens`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -196,12 +223,13 @@ T107 → T108 → T109 → T110 → T111 → T112 → T113 → T114 → T115
 **Requirement**: THM-01, I18N-01.6
 
 **Done when**:
-- [ ] `package.json` traz `@fontsource-variable/geist-mono`; Inter e IBM Plex Mono saem
-- [ ] Gate check passes: `npm run lint && npm run build && npm test`
+- [x] `package.json` traz `@fontsource-variable/geist-mono`; Inter e IBM Plex Mono saem
+- [x] Gate check passes: `npm run lint && npm run build && npm test`
 
 **Tests**: none
 **Gate**: build
 **Commit**: `feat(theme): switch typography to Geist Mono`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -214,12 +242,13 @@ T107 → T108 → T109 → T110 → T111 → T112 → T113 → T114 → T115
 **Requirement**: PRG-01.7
 
 **Done when**:
-- [ ] Testes cobrem: storage normal, `localStorage` que lança erro no acesso, quota cheia no `set` e storage ausente
-- [ ] Gate check passes: `npm test`
+- [x] Testes cobrem: storage normal, `localStorage` que lança erro no acesso, quota cheia no `set` e storage ausente
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(storage): add safe localStorage adapter`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -232,12 +261,13 @@ T107 → T108 → T109 → T110 → T111 → T112 → T113 → T114 → T115
 **Requirement**: THM-01.1, THM-01.2
 
 **Done when**:
-- [ ] `src/hooks/useTheme.test.ts` cobre: sistema escuro sem escolha salva → dark; escolha salva tem prioridade; alternar salva
-- [ ] Gate check passes: `npm test`
+- [x] `src/hooks/useTheme.test.ts` cobre: sistema escuro sem escolha salva → dark; escolha salva tem prioridade; alternar salva
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(theme): follow system preference and persist choice`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -250,12 +280,13 @@ T107 → T108 → T109 → T110 → T111 → T112 → T113 → T114 → T115
 **Requirement**: THM-01
 
 **Done when**:
-- [ ] `src/components/ui/Button.test.tsx` cobre variantes, `disabled` (sem clique, `aria-disabled`) e foco visível
-- [ ] Gate check passes: `npm run lint && npm run build && npm test`
+- [x] `src/components/ui/Button.test.tsx` cobre variantes, `disabled` (sem clique, `aria-disabled`) e foco visível
+- [x] Gate check passes: `npm run lint && npm run build && npm test`
 
 **Tests**: component
 **Gate**: build
 **Commit**: `feat(ui): restyle button variants with design system`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -270,12 +301,13 @@ T107 → T108 → T109 → T110 → T111 → T112 → T113 → T114 → T115
 **Requirement**: CNT-01, SCN-01.1
 
 **Done when**:
-- [ ] Os tipos compilam; `SceneSpec` fica importado de um stub em `src/scene/types.ts`, completado em T54
-- [ ] Gate check passes: `npm run lint && npm run build && npm test`
+- [x] Os tipos compilam; `SceneSpec` fica importado de um stub em `src/scene/types.ts`, completado em T54
+- [x] Gate check passes: `npm run lint && npm run build && npm test`
 
 **Tests**: none
 **Gate**: build
 **Commit**: `feat(content): define typed content model`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -288,12 +320,13 @@ T107 → T108 → T109 → T110 → T111 → T112 → T113 → T114 → T115
 **Requirement**: CNT-01.1, NAV-01.1
 
 **Done when**:
-- [ ] `src/content/catalog.test.ts`: 18 módulos, 237 aulas, títulos idênticos aos do roadmap, ids únicos, KV Cache (10.05) e Prompt Caching (10.06) separados (CNT-01.6)
-- [ ] Gate check passes: `npm test`
+- [x] `src/content/catalog.test.ts`: 18 módulos, 237 aulas, títulos idênticos aos do roadmap, ids únicos, KV Cache (10.05) e Prompt Caching (10.06) separados (CNT-01.6)
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(content): add 237-lesson catalog checked against roadmap`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -306,12 +339,13 @@ T107 → T108 → T109 → T110 → T111 → T112 → T113 → T114 → T115
 **Requirement**: LES-01.12, CNT-01.2, CNT-01.3, CNT-01.4, CNT-01.5, SCN-01.6
 
 **Done when**:
-- [ ] `src/content/validate.test.ts` cobre cada regra: as 9 seções presentes, ≥1 passo, `related` existente, URL `https://`, termo do glossário existente, ids de passo únicos
-- [ ] Gate check passes: `npm test`
+- [x] `src/content/validate.test.ts` cobre cada regra: as 9 seções presentes, ≥1 passo, `related` existente, URL `https://`, termo do glossário existente, ids de passo únicos
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(content): add lesson, quiz and summary validators`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -324,12 +358,13 @@ T107 → T108 → T109 → T110 → T111 → T112 → T113 → T114 → T115
 **Requirement**: CNT-01, NAV-01.3
 
 **Done when**:
-- [ ] `src/content/registry.test.ts` cobre: aula existente carrega; id desconhecido rejeita com `ContentNotFound`; aula do catálogo ainda sem arquivo devolve `ContentNotFound`
-- [ ] Gate check passes: `npm test`
+- [x] `src/content/registry.test.ts` cobre: aula existente carrega; id desconhecido rejeita com `ContentNotFound`; aula do catálogo ainda sem arquivo devolve `ContentNotFound`
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(content): add lazy content registry`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -342,12 +377,13 @@ T107 → T108 → T109 → T110 → T111 → T112 → T113 → T114 → T115
 **Requirement**: SCN-01.6, CNT-01.5
 
 **Done when**:
-- [ ] Um arquivo de fixture inválido em `src/content/__fixtures__/` faz o teste falhar com a mensagem do campo; fixtures ficam fora do glob de produção
-- [ ] Gate check passes: `npm test`
+- [x] Um arquivo de fixture inválido em `src/content/__fixtures__/` faz o teste falhar com a mensagem do campo; fixtures ficam fora do glob de produção
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `test(content): validate every content file`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -360,12 +396,13 @@ T107 → T108 → T109 → T110 → T111 → T112 → T113 → T114 → T115
 **Requirement**: CNT-01.2, SCN-01.3
 
 **Done when**:
-- [ ] A aula passa no `content.test.ts`; as seções que faltavam (real-world example, código, trade-offs, knowledge check, referências) foram escritas
-- [ ] Gate check passes: `npm test`
+- [x] A aula passa no `content.test.ts`; as seções que faltavam (real-world example, código, trade-offs, knowledge check, referências) foram escritas
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(content): migrate RAG lesson to typed format`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -378,12 +415,13 @@ T107 → T108 → T109 → T110 → T111 → T112 → T113 → T114 → T115
 **Requirement**: NAV-01.1, NAV-01.2
 
 **Done when**:
-- [ ] `CourseSidebar.test.tsx` atualizado: 18 módulos na ordem, cor por módulo, contador concluídas/total, expandir lista as aulas na ordem
-- [ ] Gate check passes: `npm run lint && npm run build && npm test`
+- [x] `CourseSidebar.test.tsx` atualizado: 18 módulos na ordem, cor por módulo, contador concluídas/total, expandir lista as aulas na ordem
+- [x] Gate check passes: `npm run lint && npm run build && npm test`
 
 **Tests**: component
 **Gate**: build
 **Commit**: `refactor(course): drive sidebar from catalog`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -398,12 +436,13 @@ T107 → T108 → T109 → T110 → T111 → T112 → T113 → T114 → T115
 **Requirement**: NAV-01.3, NAV-01.4, LES-01.10, LES-01.11
 
 **Done when**:
-- [ ] `src/lib/router.test.ts` cobre: ida e volta de cada rota, id inexistente → not-found, `step` ausente, `step` 0, negativo, não numérico ou > N → passo 1
-- [ ] Gate check passes: `npm test`
+- [x] `src/lib/router.test.ts` cobre: ida e volta de cada rota, id inexistente → not-found, `step` ausente, `step` 0, negativo, não numérico ou > N → passo 1
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(router): parse and build typed routes`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -416,12 +455,13 @@ T107 → T108 → T109 → T110 → T111 → T112 → T113 → T114 → T115
 **Requirement**: NAV-01.3, LES-01.10
 
 **Done when**:
-- [ ] `src/hooks/useRoute.test.ts` cobre: navigate faz push, replace substitui, voltar do navegador atualiza a rota
-- [ ] Gate check passes: `npm test`
+- [x] `src/hooks/useRoute.test.ts` cobre: navigate faz push, replace substitui, voltar do navegador atualiza a rota
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(router): add useRoute hook`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -434,12 +474,13 @@ T107 → T108 → T109 → T110 → T111 → T112 → T113 → T114 → T115
 **Requirement**: NAV-01.3, NAV-01.5
 
 **Done when**:
-- [ ] `App.test.tsx` atualizado: abrir `/learn/08-02` renderiza a aula com breadcrumb; clicar numa aba muda a URL e destaca a aba
-- [ ] Gate check passes: `npm test`
+- [x] `App.test.tsx` atualizado: abrir `/learn/08-02` renderiza a aula com breadcrumb; clicar numa aba muda a URL e destaca a aba
+- [x] Gate check passes: `npm test`
 
 **Tests**: component
 **Gate**: full
 **Commit**: `feat(router): drive app sections from the URL`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -452,12 +493,13 @@ T107 → T108 → T109 → T110 → T111 → T112 → T113 → T114 → T115
 **Requirement**: NAV-01.4
 
 **Done when**:
-- [ ] `NotFoundPage.test.tsx`: `/learn/99-99` mostra a página e o link leva à home
-- [ ] Gate check passes: `npm test`
+- [x] `NotFoundPage.test.tsx`: `/learn/99-99` mostra a página e o link leva à home
+- [x] Gate check passes: `npm test`
 
 **Tests**: component
 **Gate**: quick
 **Commit**: `feat(router): add not-found page`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -470,12 +512,13 @@ T107 → T108 → T109 → T110 → T111 → T112 → T113 → T114 → T115
 **Requirement**: OPS-01.1, OPS-01.2
 
 **Done when**:
-- [ ] `npm run build && npm run preview`: acessar `/learn/08-02` direto abre a aula
-- [ ] Gate check passes: `npm run lint && npm run build && npm test`
+- [x] `npm run build && npm run preview`: acessar `/learn/08-02` direto abre a aula
+- [x] Gate check passes: `npm run lint && npm run build && npm test`
 
 **Tests**: none
 **Gate**: build
 **Commit**: `chore(deploy): add Vercel SPA rewrite`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -490,12 +533,13 @@ T107 → T108 → T109 → T110 → T111 → T112 → T113 → T114 → T115
 **Requirement**: PRG-01.9
 
 **Done when**:
-- [ ] `schema.test.ts` cobre: v1 válido, v0 (formato de `useCourseProgress`) convertido sem perder concluídas, versão futura → null, lixo → null
-- [ ] Gate check passes: `npm test`
+- [x] `schema.test.ts` cobre: v1 válido, v0 (formato de `useCourseProgress`) convertido sem perder concluídas, versão futura → null, lixo → null
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(progress): add versioned progress schema`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -508,12 +552,13 @@ T107 → T108 → T109 → T110 → T111 → T112 → T113 → T114 → T115
 **Requirement**: PRG-01.1, PRG-01.2, PRG-01.3, PRG-01.10, PRAC-01.3
 
 **Done when**:
-- [ ] `store.test.ts` cobre: concluir duas vezes mantém um registro, checklist alterna, a melhor nota não regride, reset limpa o storage, storage indisponível funciona em memória
-- [ ] Gate check passes: `npm test`
+- [x] `store.test.ts` cobre: concluir duas vezes mantém um registro, checklist alterna, a melhor nota não regride, reset limpa o storage, storage indisponível funciona em memória
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(progress): add persistent progress store`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -526,12 +571,13 @@ T107 → T108 → T109 → T110 → T111 → T112 → T113 → T114 → T115
 **Requirement**: PRG-01.8
 
 **Done when**:
-- [ ] `useProgress.test.ts` cobre: atualização local re-renderiza; um evento `storage` com o novo valor atualiza os contadores; `useCourseProgress.test.ts` continua passando
-- [ ] Gate check passes: `npm test`
+- [x] `useProgress.test.ts` cobre: atualização local re-renderiza; um evento `storage` com o novo valor atualiza os contadores; `useCourseProgress.test.ts` continua passando
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(progress): sync progress across tabs`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -544,12 +590,13 @@ T107 → T108 → T109 → T110 → T111 → T112 → T113 → T114 → T115
 **Requirement**: PRG-01.4, PRG-01.5, PRG-01.6
 
 **Done when**:
-- [ ] `transfer.test.ts` cobre: exporta com `schemaVersion`; importa válido; rejeita `.txt`, JSON com schema desconhecido e arquivo > 1 MB, cada um com o seu erro tipado
-- [ ] Gate check passes: `npm test`
+- [x] `transfer.test.ts` cobre: exporta com `schemaVersion`; importa válido; rejeita `.txt`, JSON com schema desconhecido e arquivo > 1 MB, cada um com o seu erro tipado
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(progress): export and import progress files`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -562,12 +609,13 @@ T107 → T108 → T109 → T110 → T111 → T112 → T113 → T114 → T115
 **Requirement**: PRG-01.4, PRG-01.5, PRG-01.6, PRG-01.10
 
 **Done when**:
-- [ ] `ProgressMenu.test.tsx` cobre: exportar baixa um arquivo; importar pede confirmação e substitui; arquivo inválido mostra o erro e mantém o estado; zerar pede confirmação
-- [ ] Gate check passes: `npm test`
+- [x] `ProgressMenu.test.tsx` cobre: exportar baixa um arquivo; importar pede confirmação e substitui; arquivo inválido mostra o erro e mantém o estado; zerar pede confirmação
+- [x] Gate check passes: `npm test`
 
 **Tests**: component
 **Gate**: quick
 **Commit**: `feat(progress): add export, import and reset menu`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -580,12 +628,13 @@ T107 → T108 → T109 → T110 → T111 → T112 → T113 → T114 → T115
 **Requirement**: PRG-01.7
 
 **Done when**:
-- [ ] `StorageNotice.test.tsx`: aparece sem storage, some ao fechar e não volta na mesma sessão
-- [ ] Gate check passes: `npm run lint && npm run build && npm test`
+- [x] `StorageNotice.test.tsx`: aparece sem storage, some ao fechar e não volta na mesma sessão
+- [x] Gate check passes: `npm run lint && npm run build && npm test`
 
 **Tests**: component
 **Gate**: build
 **Commit**: `feat(progress): warn when storage is unavailable`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -600,12 +649,13 @@ T107 → T108 → T109 → T110 → T111 → T112 → T113 → T114 → T115
 **Requirement**: I18N-01.1, I18N-01.3
 
 **Done when**:
-- [ ] `locales.test.ts` cobre: 21 idiomas; `["es-MX"]` → `es`; `["uk-UA"]` → `uk`; `["xx"]` → `pt-BR`; AR e HE com `dir: "rtl"`
-- [ ] Gate check passes: `npm test`
+- [x] `locales.test.ts` cobre: 21 idiomas; `["es-MX"]` → `es`; `["uk-UA"]` → `uk`; `["xx"]` → `pt-BR`; AR e HE com `dir: "rtl"`
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(i18n): add locale list and detection`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -618,12 +668,13 @@ T107 → T108 → T109 → T110 → T111 → T112 → T113 → T114 → T115
 **Requirement**: I18N-01.7
 
 **Done when**:
-- [ ] `src/i18n/messages.test.ts`: nenhuma string vazia; placeholders `{x}` iguais aos do pt-BR em cada idioma
-- [ ] Gate check passes: `npm test`
+- [x] `src/i18n/messages.test.ts`: nenhuma string vazia; placeholders `{x}` iguais aos do pt-BR em cada idioma
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(i18n): add pt-BR source messages`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -636,12 +687,13 @@ T107 → T108 → T109 → T110 → T111 → T112 → T113 → T114 → T115
 **Requirement**: I18N-01.2, I18N-01.3, I18N-01.4
 
 **Done when**:
-- [ ] `I18nProvider.test.tsx` cobre: trocar o idioma troca o texto sem recarregar; AR define `dir="rtl"`; a escolha persiste; o plural funciona
-- [ ] Gate check passes: `npm test`
+- [x] `I18nProvider.test.tsx` cobre: trocar o idioma troca o texto sem recarregar; AR define `dir="rtl"`; a escolha persiste; o plural funciona
+- [x] Gate check passes: `npm test`
 
 **Tests**: component
 **Gate**: quick
 **Commit**: `feat(i18n): add provider with plurals and rtl`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -654,12 +706,13 @@ T107 → T108 → T109 → T110 → T111 → T112 → T113 → T114 → T115
 **Requirement**: I18N-01.2
 
 **Done when**:
-- [ ] `grep` por literais em português nos componentes não acha nada fora de `messages/`; os testes existentes continuam passando
-- [ ] Gate check passes: `npm test`
+- [x] `grep` por literais em português nos componentes não acha nada fora de `messages/`; os testes existentes continuam passando
+- [x] Gate check passes: `npm test`
 
 **Tests**: component
 **Gate**: full
 **Commit**: `refactor(i18n): route all UI strings through t()`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -672,12 +725,13 @@ T107 → T108 → T109 → T110 → T111 → T112 → T113 → T114 → T115
 **Requirement**: I18N-01.1, I18N-01.2
 
 **Done when**:
-- [ ] `LanguageMenu.test.tsx`: lista os 21 idiomas; escolher fecha e troca o idioma; Esc fecha e devolve o foco
-- [ ] Gate check passes: `npm test`
+- [x] `LanguageMenu.test.tsx`: lista os 21 idiomas; escolher fecha e troca o idioma; Esc fecha e devolve o foco
+- [x] Gate check passes: `npm test`
 
 **Tests**: component
 **Gate**: quick
 **Commit**: `feat(i18n): add language picker`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -690,12 +744,13 @@ T107 → T108 → T109 → T110 → T111 → T112 → T113 → T114 → T115
 **Requirement**: I18N-01.6
 
 **Done when**:
-- [ ] `fonts.test.ts`: cada idioma não latino importa exatamente o pacote certo; idioma latino não importa nada; uma falha no import não lança
-- [ ] Gate check passes: `npm test`
+- [x] `fonts.test.ts`: cada idioma não latino importa exatamente o pacote certo; idioma latino não importa nada; uma falha no import não lança
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(i18n): lazy-load script fonts`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -708,12 +763,13 @@ T107 → T108 → T109 → T110 → T111 → T112 → T113 → T114 → T115
 **Requirement**: I18N-01.5
 
 **Done when**:
-- [ ] `ContentLanguageNotice.test.tsx`: não aparece em pt-BR; aparece em JA com o texto traduzido
-- [ ] Gate check passes: `npm run lint && npm run build && npm test`
+- [x] `ContentLanguageNotice.test.tsx`: não aparece em pt-BR; aparece em JA com o texto traduzido
+- [x] Gate check passes: `npm run lint && npm run build && npm test`
 
 **Tests**: component
 **Gate**: build
 **Commit**: `feat(i18n): show content-language notice`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -730,11 +786,12 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: I18N-01.1
 
 **Done when**:
-- [ ] Gate check passes: `npm test`
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(i18n): add en messages`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -747,11 +804,12 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: I18N-01.1
 
 **Done when**:
-- [ ] Gate check passes: `npm test`
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(i18n): add es messages`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -764,11 +822,12 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: I18N-01.1
 
 **Done when**:
-- [ ] Gate check passes: `npm test`
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(i18n): add fr messages`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -781,11 +840,12 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: I18N-01.1
 
 **Done when**:
-- [ ] Gate check passes: `npm test`
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(i18n): add it messages`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -798,11 +858,12 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: I18N-01.1
 
 **Done when**:
-- [ ] Gate check passes: `npm test`
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(i18n): add de messages`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -815,11 +876,12 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: I18N-01.1
 
 **Done when**:
-- [ ] Gate check passes: `npm test`
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(i18n): add nl messages`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -832,11 +894,12 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: I18N-01.1
 
 **Done when**:
-- [ ] Gate check passes: `npm test`
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(i18n): add pl messages`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -849,11 +912,12 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: I18N-01.1
 
 **Done when**:
-- [ ] Gate check passes: `npm test`
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(i18n): add tr messages`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -866,11 +930,12 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: I18N-01.1
 
 **Done when**:
-- [ ] Gate check passes: `npm test`
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(i18n): add id messages`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -883,11 +948,12 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: I18N-01.1
 
 **Done when**:
-- [ ] Gate check passes: `npm run lint && npm run build && npm test`
+- [x] Gate check passes: `npm run lint && npm run build && npm test`
 
 **Tests**: unit
 **Gate**: build
 **Commit**: `feat(i18n): add vi messages`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -902,11 +968,12 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: I18N-01.1
 
 **Done when**:
-- [ ] Gate check passes: `npm test`
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(i18n): add el messages`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -919,11 +986,12 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: I18N-01.1
 
 **Done when**:
-- [ ] Gate check passes: `npm test`
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(i18n): add uk messages`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -936,11 +1004,12 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: I18N-01.1
 
 **Done when**:
-- [ ] Gate check passes: `npm test`
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(i18n): add ru messages`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -953,11 +1022,12 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: I18N-01.1
 
 **Done when**:
-- [ ] Gate check passes: `npm test`
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(i18n): add zh-Hans messages`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -970,11 +1040,12 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: I18N-01.1
 
 **Done when**:
-- [ ] Gate check passes: `npm test`
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(i18n): add zh-Hant messages`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -987,11 +1058,12 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: I18N-01.1
 
 **Done when**:
-- [ ] Gate check passes: `npm test`
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(i18n): add ja messages`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1004,11 +1076,12 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: I18N-01.1
 
 **Done when**:
-- [ ] Gate check passes: `npm test`
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(i18n): add ko messages`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1021,11 +1094,12 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: I18N-01.1
 
 **Done when**:
-- [ ] Gate check passes: `npm test`
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(i18n): add hi messages`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1038,11 +1112,12 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: I18N-01.1, I18N-01.4
 
 **Done when**:
-- [ ] Gate check passes: `npm test`
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(i18n): add ar messages`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1055,11 +1130,12 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: I18N-01.1, I18N-01.4
 
 **Done when**:
-- [ ] Gate check passes: `npm run lint && npm run build && npm test`
+- [x] Gate check passes: `npm run lint && npm run build && npm test`
 
 **Tests**: unit
 **Gate**: build
 **Commit**: `feat(i18n): add he messages`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1074,12 +1150,13 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: SRCH-01.2, CNT-01.2
 
 **Done when**:
-- [ ] `validate.ts` passa a checar ids únicos e aula de origem existente no glossário; o teste cobre os dois casos
-- [ ] Gate check passes: `npm test`
+- [x] `validate.ts` passa a checar ids únicos e aula de origem existente no glossário; o teste cobre os dois casos
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(content): add glossary`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1092,12 +1169,13 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: SRCH-01.2, SRCH-01.6
 
 **Done when**:
-- [ ] `search.test.ts` cobre: "atencao" encontra Attention Mechanism e Self-Attention; com menos de 2 caracteres → vazio; limite de 10; os três grupos
-- [ ] Gate check passes: `npm test`
+- [x] `search.test.ts` cobre: "atencao" encontra Attention Mechanism e Self-Attention; com menos de 2 caracteres → vazio; limite de 10; os três grupos
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(search): index lessons, concepts and glossary`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1110,12 +1188,13 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: SRCH-01.1, SRCH-01.3, SRCH-01.4, SRCH-01.5
 
 **Done when**:
-- [ ] `SearchDialog.test.tsx` cobre cada AC listado, incluindo a devolução do foco
-- [ ] Gate check passes: `npm run lint && npm run build && npm test`
+- [x] `SearchDialog.test.tsx` cobre cada AC listado, incluindo a devolução do foco
+- [x] Gate check passes: `npm run lint && npm run build && npm test`
 
 **Tests**: component
 **Gate**: build
 **Commit**: `feat(search): grouped results and empty state`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1130,12 +1209,13 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: SCN-01.1, SCN-01.2, SCN-01.6
 
 **Done when**:
-- [ ] Uma cena com campo errado não compila (verificado por `// @ts-expect-error` num arquivo `src/scene/types.check.ts`)
-- [ ] Gate check passes: `npm run lint && npm run build && npm test`
+- [x] Uma cena com campo errado não compila (verificado por `// @ts-expect-error` num arquivo `src/scene/types.check.ts`)
+- [x] Gate check passes: `npm run lint && npm run build && npm test`
 
 **Tests**: none
 **Gate**: build
 **Commit**: `feat(scene): define declarative scene types`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1148,12 +1228,13 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: SCN-01.1, SCN-01.4, SCN-01.5, SCN-01.7
 
 **Done when**:
-- [ ] `Scene.test.tsx` cobre: renderiza a partir da spec; trocar o passo aplica a classe de transição; com reduced motion, nenhuma transição; o `aria-label` descreve a cena
-- [ ] Gate check passes: `npm test`
+- [x] `Scene.test.tsx` cobre: renderiza a partir da spec; trocar o passo aplica a classe de transição; com reduced motion, nenhuma transição; o `aria-label` descreve a cena
+- [x] Gate check passes: `npm test`
 
 **Tests**: component
 **Gate**: quick
 **Commit**: `feat(scene): add scene runtime`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1166,12 +1247,13 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: SCN-01.3
 
 **Done when**:
-- [ ] `RagDiagram.test.tsx` continua passando; um novo teste garante que `kind: "custom"` renderiza o componente registrado
-- [ ] Gate check passes: `npm test`
+- [x] `RagDiagram.test.tsx` continua passando; um novo teste garante que `kind: "custom"` renderiza o componente registrado
+- [x] Gate check passes: `npm test`
 
 **Tests**: component
 **Gate**: quick
 **Commit**: `feat(scene): support custom scenes and adapt RAG diagram`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1184,12 +1266,13 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: SCN-01.2
 
 **Done when**:
-- [ ] `TokenStream.test.tsx`: N tokens, arcos com espessura proporcional ao peso, destaque correto, sem sobrepor rótulos para ≤ 12 tokens
-- [ ] Gate check passes: `npm test`
+- [x] `TokenStream.test.tsx`: N tokens, arcos com espessura proporcional ao peso, destaque correto, sem sobrepor rótulos para ≤ 12 tokens
+- [x] Gate check passes: `npm test`
 
 **Tests**: component
 **Gate**: quick
 **Commit**: `feat(scene): add TokenStream piece`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1202,12 +1285,13 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: SCN-01.2
 
 **Done when**:
-- [ ] `Matrix.test.tsx`: dimensões, escala, destaque e máscara causal (células acima da diagonal apagadas)
-- [ ] Gate check passes: `npm test`
+- [x] `Matrix.test.tsx`: dimensões, escala, destaque e máscara causal (células acima da diagonal apagadas)
+- [x] Gate check passes: `npm test`
 
 **Tests**: component
 **Gate**: quick
 **Commit**: `feat(scene): add Matrix piece`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1220,12 +1304,13 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: SCN-01.2
 
 **Done when**:
-- [ ] `VectorSpace.test.tsx`: posições escaladas, k vizinhos destacados, rótulo de distância
-- [ ] Gate check passes: `npm test`
+- [x] `VectorSpace.test.tsx`: posições escaladas, k vizinhos destacados, rótulo de distância
+- [x] Gate check passes: `npm test`
 
 **Tests**: component
 **Gate**: quick
 **Commit**: `feat(scene): add VectorSpace piece`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1238,12 +1323,13 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: SCN-01.2
 
 **Done when**:
-- [ ] `Chart.test.tsx`: altura proporcional, linha de corte, barras fora do corte esmaecidas
-- [ ] Gate check passes: `npm test`
+- [x] `Chart.test.tsx`: altura proporcional, linha de corte, barras fora do corte esmaecidas
+- [x] Gate check passes: `npm test`
 
 **Tests**: component
 **Gate**: quick
 **Commit**: `feat(scene): add Chart piece`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1256,12 +1342,13 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: SCN-01.2
 
 **Done when**:
-- [ ] `MetricsPanel.test.tsx`: renderiza os cards e marca o destaque com `aria-current`
-- [ ] Gate check passes: `npm run lint && npm run build && npm test`
+- [x] `MetricsPanel.test.tsx`: renderiza os cards e marca o destaque com `aria-current`
+- [x] Gate check passes: `npm run lint && npm run build && npm test`
 
 **Tests**: component
 **Gate**: build
 **Commit**: `feat(scene): add MetricsPanel piece`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1276,12 +1363,13 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: SCN-01.2
 
 **Done when**:
-- [ ] `Graph.test.tsx`: nós e arestas, caminho ativo, nó visitado vs. não visitado
-- [ ] Gate check passes: `npm test`
+- [x] `Graph.test.tsx`: nós e arestas, caminho ativo, nó visitado vs. não visitado
+- [x] Gate check passes: `npm test`
 
 **Tests**: component
 **Gate**: quick
 **Commit**: `feat(scene): add Graph piece`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1294,12 +1382,13 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: SCN-01.2
 
 **Done when**:
-- [ ] `Pipeline.test.tsx`: etapa ativa, concluída e futura; fluxo pausado sem animação
-- [ ] Gate check passes: `npm test`
+- [x] `Pipeline.test.tsx`: etapa ativa, concluída e futura; fluxo pausado sem animação
+- [x] Gate check passes: `npm test`
 
 **Tests**: component
 **Gate**: quick
 **Commit**: `feat(scene): add Pipeline piece`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1312,12 +1401,13 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: SCN-01.2
 
 **Done when**:
-- [ ] `AgentLoop.test.tsx`: fase ativa, ferramenta chamada e limite de iterações exibido
-- [ ] Gate check passes: `npm test`
+- [x] `AgentLoop.test.tsx`: fase ativa, ferramenta chamada e limite de iterações exibido
+- [x] Gate check passes: `npm test`
 
 **Tests**: component
 **Gate**: quick
 **Commit**: `feat(scene): add AgentLoop piece`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1330,12 +1420,13 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: SCN-01.2
 
 **Done when**:
-- [ ] `ClientServer.test.tsx`: N clientes, fila com tamanho, barra de utilização
-- [ ] Gate check passes: `npm run lint && npm run build && npm test`
+- [x] `ClientServer.test.tsx`: N clientes, fila com tamanho, barra de utilização
+- [x] Gate check passes: `npm run lint && npm run build && npm test`
 
 **Tests**: component
 **Gate**: build
 **Commit**: `feat(scene): add ClientServer piece`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1350,12 +1441,13 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: LES-01.2, LES-01.3, LES-01.4, LES-01.5, LES-01.7, LES-01.8, LES-01.10, LES-01.11
 
 **Done when**:
-- [ ] `useLessonNavigation.test.ts` atualizado para cada AC listado, incluindo aula de 1 passo e a última aula do módulo 17
-- [ ] Gate check passes: `npm test`
+- [x] `useLessonNavigation.test.ts` atualizado para cada AC listado, incluindo aula de 1 passo e a última aula do módulo 17
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(lesson): manual stepping synced with URL`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1368,12 +1460,13 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: LES-01.1, NAV-01.3
 
 **Done when**:
-- [ ] `LessonHeader.test.tsx`: breadcrumb, badges traduzidos e contagem de passos
-- [ ] Gate check passes: `npm test`
+- [x] `LessonHeader.test.tsx`: breadcrumb, badges traduzidos e contagem de passos
+- [x] Gate check passes: `npm test`
 
 **Tests**: component
 **Gate**: quick
 **Commit**: `feat(lesson): header with breadcrumb and badges`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1386,12 +1479,13 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: LES-01.1, CNT-01.2
 
 **Done when**:
-- [ ] `StepNarration.test.tsx`: renderiza tag e ideia-chave; `[[term|id]]` vira link para o glossário; passo sem ideia-chave não mostra o callout
-- [ ] Gate check passes: `npm test`
+- [x] `StepNarration.test.tsx`: renderiza tag e ideia-chave; `[[term|id]]` vira link para o glossário; passo sem ideia-chave não mostra o callout
+- [x] Gate check passes: `npm test`
 
 **Tests**: component
 **Gate**: quick
 **Commit**: `feat(lesson): step narration with key idea`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1404,12 +1498,13 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: LES-01.6
 
 **Done when**:
-- [ ] `LessonTimeline.test.tsx`: estados corretos e clique em um passo chama `goTo`
-- [ ] Gate check passes: `npm test`
+- [x] `LessonTimeline.test.tsx`: estados corretos e clique em um passo chama `goTo`
+- [x] Gate check passes: `npm test`
 
 **Tests**: component
 **Gate**: quick
 **Commit**: `feat(lesson): stepper with step states`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1422,12 +1517,13 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: PRG-01.3
 
 **Done when**:
-- [ ] `ObjectivesChecklist.test.tsx`: marcar persiste e o estado volta ao reabrir a aula
-- [ ] Gate check passes: `npm test`
+- [x] `ObjectivesChecklist.test.tsx`: marcar persiste e o estado volta ao reabrir a aula
+- [x] Gate check passes: `npm test`
 
 **Tests**: component
 **Gate**: quick
 **Commit**: `feat(lesson): objectives checklist`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1440,12 +1536,13 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: LES-01.12, CNT-01.3, CNT-01.4
 
 **Done when**:
-- [ ] `LessonFooterSections.test.tsx`: as seções aparecem; aula sem código não mostra o bloco; os links relacionados apontam para `/learn/:id`; referências abrem com `rel="noopener noreferrer"`
-- [ ] Gate check passes: `npm test`
+- [x] `LessonFooterSections.test.tsx`: as seções aparecem; aula sem código não mostra o bloco; os links relacionados apontam para `/learn/:id`; referências abrem com `rel="noopener noreferrer"`
+- [x] Gate check passes: `npm test`
 
 **Tests**: component
 **Gate**: quick
 **Commit**: `feat(lesson): footer sections`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1458,12 +1555,13 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: LES-01.12
 
 **Done when**:
-- [ ] `KnowledgeCheck.test.tsx`: resposta certa e errada mostram o estado e a explicação; o teclado funciona
-- [ ] Gate check passes: `npm test`
+- [x] `KnowledgeCheck.test.tsx`: resposta certa e errada mostram o estado e a explicação; o teclado funciona
+- [x] Gate check passes: `npm test`
 
 **Tests**: component
 **Gate**: quick
 **Commit**: `feat(lesson): inline knowledge check`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1476,12 +1574,13 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: LES-01.1, PRG-01.1, NAV-01.3
 
 **Done when**:
-- [ ] `LessonPage.test.tsx`: abre `/learn/08-02?step=4` no passo 4; chegar ao último passo conclui a aula; falha de import mostra o botão de tentar de novo
-- [ ] Gate check passes: `npm run lint && npm run build && npm test`
+- [x] `LessonPage.test.tsx`: abre `/learn/08-02?step=4` no passo 4; chegar ao último passo conclui a aula; falha de import mostra o botão de tentar de novo
+- [x] Gate check passes: `npm run lint && npm run build && npm test`
 
 **Tests**: component
 **Gate**: build
 **Commit**: `feat(lesson): assemble lesson page`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1496,12 +1595,13 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: RSP-01.1, RSP-01.2, RSP-01.3, RSP-01.5
 
 **Done when**:
-- [ ] `LessonWorkspace.test.tsx` verifica as classes de cada breakpoint; o agente `qa` confirma no navegador em 375, 1024 e 1440 px
-- [ ] Gate check passes: `npm test`
+- [ ] `LessonWorkspace.test.tsx` verifica as classes de cada breakpoint; o agente `qa` confirma no navegador em 375, 1024 e 1440 px (a parte de teste está feita: `LessonWorkspace.test.tsx` cobre ordem e classes por breakpoint, e `LanguageMenu.test.tsx` o menu preso às bordas abaixo de 640 px; pendente: verificação visual pelo agente qa (orquestrador))
+- [x] Gate check passes: `npm test`
 
 **Tests**: component
 **Gate**: quick
 **Commit**: `feat(layout): responsive lesson layout`
+**Status**: ⚠️ Done exceto verificação visual (qa), sem commit
 
 ---
 
@@ -1514,12 +1614,13 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: RSP-01.3
 
 **Done when**:
-- [ ] `MobileStepBar.test.tsx`: os pontos refletem o passo; os botões navegam e respeitam primeiro e último passo
-- [ ] Gate check passes: `npm test`
+- [x] `MobileStepBar.test.tsx`: os pontos refletem o passo; os botões navegam e respeitam primeiro e último passo
+- [x] Gate check passes: `npm test`
 
 **Tests**: component
 **Gate**: quick
 **Commit**: `feat(layout): mobile step bar`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1532,12 +1633,13 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: RSP-01.4
 
 **Done when**:
-- [ ] `useSwipe.test.ts`: swipe à esquerda → next; à direita → previous; gesto curto ou vertical → nada; RTL inverte
-- [ ] Gate check passes: `npm run lint && npm run build && npm test`
+- [x] `useSwipe.test.ts`: swipe à esquerda → next; à direita → previous; gesto curto ou vertical → nada; RTL inverte (arquivo `useSwipe.test.tsx`, porque o teste monta um elemento com JSX)
+- [x] Gate check passes: `npm run lint && npm run build && npm test`
 
 **Tests**: unit
 **Gate**: build
 **Commit**: `feat(layout): swipe between steps`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1552,12 +1654,13 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: NAV-01.6
 
 **Done when**:
-- [ ] `HomePage.test.tsx`: 18 cards com progresso; "continuar" leva a `lastVisited`; sem histórico leva à 00.01
-- [ ] Gate check passes: `npm test`
+- [x] `HomePage.test.tsx`: 18 cards com progresso; "continuar" leva a `lastVisited`; sem histórico leva à 00.01
+- [x] Gate check passes: `npm test`
 
 **Tests**: component
 **Gate**: quick
 **Commit**: `feat(home): track overview page`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1570,12 +1673,13 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: OPS-01.6
 
 **Done when**:
-- [ ] `SiteFooter.test.tsx`: crédito e dois links de licença presentes
-- [ ] Gate check passes: `npm test`
+- [x] `SiteFooter.test.tsx`: crédito e dois links de licença presentes
+- [x] Gate check passes: `npm test`
 
 **Tests**: component
 **Gate**: quick
 **Commit**: `feat(layout): footer with credit and licenses`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1588,12 +1692,13 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: PRAC-01.2, PRAC-01.3, PRAC-01.4
 
 **Done when**:
-- [ ] `QuizRunner.test.tsx`: errar mostra a explicação e o link; terminar mostra a nota; a melhor nota não regride
-- [ ] Gate check passes: `npm test`
+- [x] `QuizRunner.test.tsx`: errar mostra a explicação e o link; terminar mostra a nota; a melhor nota não regride
+- [x] Gate check passes: `npm test`
 
 **Tests**: component
 **Gate**: quick
 **Commit**: `feat(practice): quiz runner`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1606,12 +1711,13 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: PRAC-01.1
 
 **Done when**:
-- [ ] `PracticePage.test.tsx`: 18 itens; módulo sem quiz publicado mostra "em produção" (só durante o desenvolvimento); a URL abre o quiz
-- [ ] Gate check passes: `npm run lint && npm run build && npm test`
+- [x] `PracticePage.test.tsx`: 18 itens; módulo sem quiz publicado mostra "em produção" (só durante o desenvolvimento); a URL abre o quiz
+- [x] Gate check passes: `npm run lint && npm run build && npm test`
 
 **Tests**: component
 **Gate**: build
 **Commit**: `feat(practice): practice page`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1626,12 +1732,13 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: LAB-01.1, LAB-01.2, LAB-01.4
 
 **Done when**:
-- [ ] `PlaygroundShell.test.tsx`: mudar o controle re-renderiza a cena de forma síncrona (sem `await`); nenhuma chamada a `fetch`
-- [ ] Gate check passes: `npm test`
+- [x] `PlaygroundShell.test.tsx`: mudar o controle re-renderiza a cena de forma síncrona (sem `await`); nenhuma chamada a `fetch`
+- [x] Gate check passes: `npm test`
 
 **Tests**: component
 **Gate**: quick
 **Commit**: `feat(lab): playground shell`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1644,12 +1751,13 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: LAB-01.1
 
 **Done when**:
-- [ ] `bpe-tokenizer.test.tsx`: os merges conhecidos de um texto fixo batem com o esperado
-- [ ] Gate check passes: `npm test`
+- [x] `bpe-tokenizer.test.tsx`: os merges conhecidos de um texto fixo batem com o esperado
+- [x] Gate check passes: `npm test`
 
 **Tests**: component
 **Gate**: quick
 **Commit**: `feat(lab): BPE tokenizer playground`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1662,12 +1770,13 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: LAB-01.1, LAB-01.2
 
 **Done when**:
-- [ ] `sampling.test.tsx`: T→0 concentra no topo; top-p 0.95 mantém o menor conjunto com soma ≥ 0.95; o sorteio usa um RNG com seed nos testes
-- [ ] Gate check passes: `npm test`
+- [x] `sampling.test.tsx`: T→0 concentra no topo; top-p 0.95 mantém o menor conjunto com soma ≥ 0.95; o sorteio usa um RNG com seed nos testes
+- [x] Gate check passes: `npm test`
 
 **Tests**: component
 **Gate**: quick
 **Commit**: `feat(lab): sampling playground`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1680,12 +1789,13 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: LAB-01.1
 
 **Done when**:
-- [ ] `attention-weights.test.tsx`: os pesos somam 1; trocar a query atualiza a linha da matriz
-- [ ] Gate check passes: `npm test`
+- [x] `attention-weights.test.tsx`: os pesos somam 1; trocar a query atualiza a linha da matriz
+- [x] Gate check passes: `npm test`
 
 **Tests**: component
 **Gate**: quick
 **Commit**: `feat(lab): attention weights playground`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1698,12 +1808,13 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: LAB-01.1
 
 **Done when**:
-- [ ] `embedding-space.test.tsx`: o cosseno de um vetor com ele mesmo = 1; os k vizinhos vêm ordenados
-- [ ] Gate check passes: `npm test`
+- [x] `embedding-space.test.tsx`: o cosseno de um vetor com ele mesmo = 1; os k vizinhos vêm ordenados
+- [x] Gate check passes: `npm test`
 
 **Tests**: component
 **Gate**: quick
 **Commit**: `feat(lab): embedding space playground`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1716,12 +1827,13 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: LAB-01.1
 
 **Done when**:
-- [ ] `chunking.test.tsx`: tamanho e overlap geram a contagem esperada; overlap ≥ tamanho é rejeitado com mensagem
-- [ ] Gate check passes: `npm test`
+- [x] `chunking.test.tsx`: tamanho e overlap geram a contagem esperada; overlap ≥ tamanho é rejeitado com mensagem
+- [x] Gate check passes: `npm test`
 
 **Tests**: component
 **Gate**: quick
 **Commit**: `feat(lab): chunking playground`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1734,12 +1846,13 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: LAB-01.1
 
 **Done when**:
-- [ ] `bm25-vs-vector.test.tsx`: os scores BM25 de um corpus fixo batem com valores calculados à mão; o RRF combina os rankings corretamente
-- [ ] Gate check passes: `npm test`
+- [x] `bm25-vs-vector.test.tsx`: os scores BM25 de um corpus fixo batem com valores calculados à mão; o RRF combina os rankings corretamente
+- [x] Gate check passes: `npm test`
 
 **Tests**: component
 **Gate**: quick
 **Commit**: `feat(lab): BM25 vs vector search playground`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1752,12 +1865,13 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: LAB-01.1
 
 **Done when**:
-- [ ] `kv-cache.test.tsx`: sem cache o custo cresce de forma quadrática; com cache, linear
-- [ ] Gate check passes: `npm test`
+- [x] `kv-cache.test.tsx`: sem cache o custo cresce de forma quadrática; com cache, linear
+- [x] Gate check passes: `npm test`
 
 **Tests**: component
 **Gate**: quick
 **Commit**: `feat(lab): KV cache playground`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1770,12 +1884,13 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: LAB-01.1
 
 **Done when**:
-- [ ] `agent-loop.test.tsx`: atinge a resposta com o roteiro fixo; para no limite de iterações com aviso
-- [ ] Gate check passes: `npm run lint && npm run build && npm test`
+- [x] `agent-loop.test.tsx`: atinge a resposta com o roteiro fixo; para no limite de iterações com aviso
+- [x] Gate check passes: `npm run lint && npm run build && npm test`
 
 **Tests**: component
 **Gate**: build
 **Commit**: `feat(lab): agent loop playground`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1790,12 +1905,13 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: LAB-01.3
 
 **Done when**:
-- [ ] `ProjectView.test.tsx` com um projeto de fixture: etapas na ordem e links de conceito válidos
-- [ ] Gate check passes: `npm test`
+- [x] `ProjectView.test.tsx` com um projeto de fixture: etapas na ordem e links de conceito válidos
+- [x] Gate check passes: `npm test`
 
 **Tests**: component
 **Gate**: quick
 **Commit**: `feat(lab): guided project view`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1808,12 +1924,13 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: LAB-01.1, LAB-01.3
 
 **Done when**:
-- [ ] `LabPage.test.tsx`: 8 playgrounds e 5 projetos listados; a URL abre o item
-- [ ] Gate check passes: `npm run lint && npm run build && npm test`
+- [x] `LabPage.test.tsx`: 8 playgrounds e 5 projetos listados; a URL abre o item
+- [x] Gate check passes: `npm run lint && npm run build && npm test`
 
 **Tests**: component
 **Gate**: build
 **Commit**: `feat(lab): laboratory page`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1828,12 +1945,13 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: SUM-01.1
 
 **Done when**:
-- [ ] `SummarySheet.test.tsx` com um resumo de fixture: todas as seções e os links das aulas
-- [ ] Gate check passes: `npm test`
+- [x] `SummarySheet.test.tsx` com um resumo de fixture: todas as seções e os links das aulas
+- [x] Gate check passes: `npm test`
 
 **Tests**: component
 **Gate**: quick
 **Commit**: `feat(summaries): module cheat sheet`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1846,12 +1964,13 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: SUM-01.2
 
 **Done when**:
-- [ ] O agente `qa` imprime o resumo do 03 em PDF e confere ≤ 2 páginas, sem header nem sidebar
-- [ ] Gate check passes: `npm run lint && npm run build && npm test`
+- [ ] O agente `qa` imprime o resumo do 03 em PDF e confere ≤ 2 páginas, sem header nem sidebar (pendente: verificação visual pelo agente qa (orquestrador); o resumo do 03 só existe a partir da T115, antes disso o `qa` pode usar um resumo de fixture)
+- [x] Gate check passes: `npm run lint && npm run build && npm test`
 
 **Tests**: none
 **Gate**: build
 **Commit**: `feat(summaries): print stylesheet`
+**Status**: ⚠️ Done exceto verificação visual (qa), sem commit
 
 ---
 
@@ -1864,12 +1983,13 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: SUM-01.1
 
 **Done when**:
-- [ ] `SummariesPage.test.tsx`: 18 itens; a URL abre o resumo; o botão Imprimir chama `window.print`
-- [ ] Gate check passes: `npm test`
+- [x] `SummariesPage.test.tsx`: 18 itens; a URL abre o resumo; o botão Imprimir chama `window.print`
+- [x] Gate check passes: `npm test`
 
 **Tests**: component
 **Gate**: quick
 **Commit**: `feat(summaries): summaries page`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1882,12 +2002,13 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: OPS-01.3, OPS-01.4
 
 **Done when**:
-- [ ] `analytics.test.ts`: em dev não injeta; um erro no inject não quebra o app; nenhum payload com dados do `ProgressStore`
-- [ ] Gate check passes: `npm test`
+- [x] `analytics.test.ts`: em dev não injeta; um erro no inject não quebra o app; nenhum payload com dados do `ProgressStore`
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(ops): cookieless analytics`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1900,12 +2021,13 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: OPS-01.1
 
 **Done when**:
-- [ ] O build gera o `index.html` com noscript e título corretos
-- [ ] Gate check passes: `npm run lint && npm run build && npm test`
+- [x] O build gera o `index.html` com noscript e título corretos
+- [x] Gate check passes: `npm run lint && npm run build && npm test`
 
 **Tests**: none
 **Gate**: build
 **Commit**: `chore(ops): update document metadata and noscript`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1918,12 +2040,13 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: OPS-01.5
 
 **Done when**:
-- [ ] Os dois arquivos estão na raiz com o texto oficial das licenças
-- [ ] Gate check passes: `npm run lint && npm run build && npm test`
+- [ ] Os dois arquivos estão na raiz com o texto oficial das licenças (`LICENSE` MIT e `LICENSE-CONTENT` CC BY-SA 4.0 estão na raiz, mais `LICENSE-FONTS` com a OFL 1.1 das fontes Geist Mono e Noto, copiada dos pacotes `@fontsource-variable`. Pendente: ação externa, exige autorização do usuário. O texto do CC BY-SA 4.0 foi escrito sem acesso à rede e precisa ser conferido contra https://creativecommons.org/licenses/by-sa/4.0/legalcode.txt)
+- [x] Gate check passes: `npm run lint && npm run build && npm test`
 
 **Tests**: none
 **Gate**: build
 **Commit**: `chore: add MIT and CC BY-SA 4.0 licenses`
+**Status**: ⚠️ Done exceto conferência do texto oficial do CC BY-SA (ação externa), sem commit
 
 ---
 
@@ -1936,12 +2059,13 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: CNT-01.1, CNT-01.3, CNT-01.5
 
 **Done when**:
-- [ ] `scripts/validate-content.test.ts` cobre: aula faltando → exit 1 com a lista; referência 404 → exit 1; tudo certo → exit 0 (rede mockada)
-- [ ] Gate check passes: `npm run lint && npm run build && npm test`
+- [x] `scripts/validate-content.test.ts` cobre: aula faltando → exit 1 com a lista; referência 404 → exit 1; tudo certo → exit 0 (rede mockada)
+- [x] Gate check passes: `npm run lint && npm run build && npm test`
 
 **Tests**: unit
 **Gate**: build
 **Commit**: `feat(ops): add release content validation`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1958,12 +2082,13 @@ Cada aula segue o padrão de 9 seções, com cerca de 10 passos e cena por passo
 **Requirement**: CNT-01
 
 **Done when**:
-- [ ] Passa no `content.test.ts`; o usuário ainda não revisou (a revisão é no checkpoint)
-- [ ] Gate check passes: `npm test`
+- [x] Passa no `content.test.ts`; o usuário ainda não revisou (a revisão é no checkpoint)
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(content): lesson 03.01 evolution of language models`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1976,12 +2101,13 @@ Cada aula segue o padrão de 9 seções, com cerca de 10 passos e cena por passo
 **Requirement**: CNT-01
 
 **Done when**:
-- [ ] Passa no `content.test.ts`
-- [ ] Gate check passes: `npm test`
+- [x] Passa no `content.test.ts`
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(content): lesson 03.02 tokenization`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -1994,12 +2120,13 @@ Cada aula segue o padrão de 9 seções, com cerca de 10 passos e cena por passo
 **Requirement**: CNT-01
 
 **Done when**:
-- [ ] Passa no `content.test.ts`
-- [ ] Gate check passes: `npm test`
+- [x] Passa no `content.test.ts`
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(content): lesson 03.03 tokens and vocabulary`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -2012,12 +2139,13 @@ Cada aula segue o padrão de 9 seções, com cerca de 10 passos e cena por passo
 **Requirement**: CNT-01
 
 **Done when**:
-- [ ] Passa no `content.test.ts`
-- [ ] Gate check passes: `npm test`
+- [x] Passa no `content.test.ts`
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(content): lesson 03.04 byte pair encoding`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -2030,12 +2158,13 @@ Cada aula segue o padrão de 9 seções, com cerca de 10 passos e cena por passo
 **Requirement**: CNT-01
 
 **Done when**:
-- [ ] Passa no `content.test.ts`
-- [ ] Gate check passes: `npm test`
+- [x] Passa no `content.test.ts`
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(content): lesson 03.05 word and token embeddings`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -2048,12 +2177,13 @@ Cada aula segue o padrão de 9 seções, com cerca de 10 passos e cena por passo
 **Requirement**: CNT-01
 
 **Done when**:
-- [ ] Passa no `content.test.ts`
-- [ ] Gate check passes: `npm test`
+- [x] Passa no `content.test.ts`
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(content): lesson 03.06 positional encoding`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -2066,12 +2196,13 @@ Cada aula segue o padrão de 9 seções, com cerca de 10 passos e cena por passo
 **Requirement**: CNT-01
 
 **Done when**:
-- [ ] Passa no `content.test.ts`
-- [ ] Gate check passes: `npm test`
+- [x] Passa no `content.test.ts`
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(content): lesson 03.07 attention mechanism`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -2084,12 +2215,13 @@ Cada aula segue o padrão de 9 seções, com cerca de 10 passos e cena por passo
 **Requirement**: CNT-01
 
 **Done when**:
-- [ ] Passa no `content.test.ts`; os números da cena são calculados (softmax real) e não fixos
-- [ ] Gate check passes: `npm run lint && npm run build && npm test`
+- [x] Passa no `content.test.ts`; os números da cena são calculados (softmax real) e não fixos
+- [x] Gate check passes: `npm run lint && npm run build && npm test`
 
 **Tests**: unit
 **Gate**: build
 **Commit**: `feat(content): lesson 03.08 self-attention`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -2104,12 +2236,13 @@ Cada aula segue o padrão de 9 seções, com cerca de 10 passos e cena por passo
 **Requirement**: CNT-01
 
 **Done when**:
-- [ ] Passa no `content.test.ts`
-- [ ] Gate check passes: `npm test`
+- [x] Passa no `content.test.ts`
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(content): lesson 03.09 query key value`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -2122,12 +2255,13 @@ Cada aula segue o padrão de 9 seções, com cerca de 10 passos e cena por passo
 **Requirement**: CNT-01
 
 **Done when**:
-- [ ] Passa no `content.test.ts`
-- [ ] Gate check passes: `npm test`
+- [x] Passa no `content.test.ts`
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(content): lesson 03.10 multi-head attention`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -2140,12 +2274,13 @@ Cada aula segue o padrão de 9 seções, com cerca de 10 passos e cena por passo
 **Requirement**: CNT-01
 
 **Done when**:
-- [ ] Passa no `content.test.ts`
-- [ ] Gate check passes: `npm test`
+- [x] Passa no `content.test.ts`
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(content): lesson 03.11 feed forward networks`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -2158,12 +2293,13 @@ Cada aula segue o padrão de 9 seções, com cerca de 10 passos e cena por passo
 **Requirement**: CNT-01
 
 **Done when**:
-- [ ] Passa no `content.test.ts`
-- [ ] Gate check passes: `npm test`
+- [x] Passa no `content.test.ts`
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(content): lesson 03.12 encoder vs decoder`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -2176,12 +2312,13 @@ Cada aula segue o padrão de 9 seções, com cerca de 10 passos e cena por passo
 **Requirement**: CNT-01
 
 **Done when**:
-- [ ] Passa no `content.test.ts`
-- [ ] Gate check passes: `npm test`
+- [x] Passa no `content.test.ts`
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(content): lesson 03.13 transformer architecture`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -2194,12 +2331,13 @@ Cada aula segue o padrão de 9 seções, com cerca de 10 passos e cena por passo
 **Requirement**: CNT-01
 
 **Done when**:
-- [ ] Passa no `content.test.ts`
-- [ ] Gate check passes: `npm test`
+- [x] Passa no `content.test.ts`
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(content): lesson 03.14 training a transformer`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -2212,12 +2350,13 @@ Cada aula segue o padrão de 9 seções, com cerca de 10 passos e cena por passo
 **Requirement**: CNT-01
 
 **Done when**:
-- [ ] Passa no `content.test.ts`
-- [ ] Gate check passes: `npm test`
+- [x] Passa no `content.test.ts`
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(content): lesson 03.15 hugging face ecosystem`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -2230,12 +2369,13 @@ Cada aula segue o padrão de 9 seções, com cerca de 10 passos e cena por passo
 **Requirement**: PRAC-01.1, PRAC-01.4
 
 **Done when**:
-- [ ] Passa no `content.test.ts`
-- [ ] Gate check passes: `npm test`
+- [x] Passa no `content.test.ts`
+- [x] Gate check passes: `npm test`
 
 **Tests**: unit
 **Gate**: quick
 **Commit**: `feat(content): module 03 quiz`
+**Status**: ✅ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim
 
 ---
 
@@ -2248,12 +2388,546 @@ Cada aula segue o padrão de 9 seções, com cerca de 10 passos e cena por passo
 **Requirement**: SUM-01.1
 
 **Done when**:
-- [ ] Passa no `content.test.ts`; o agente `qa` confirma que cabe em 2 A4
-- [ ] Gate check passes: `npm run lint && npm run build && npm test`
+- [x] Passa no `content.test.ts`
+- [ ] O agente `qa` confirma que cabe em 2 A4 (pendente: verificação visual pelo agente qa (orquestrador))
+- [x] Gate check passes: `npm run lint && npm run build && npm test`
 
 **Tests**: unit
 **Gate**: build
 **Commit**: `feat(content): module 03 summary`
+**Status**: ⚠️ Done (2026-11-18), sem commit: o usuário decide branch e commits no fim; falta a conferência de ≤ 2 páginas A4 pelo agente `qa`
+
+---
+
+### Phase 19: Alinhamento visual (fundação e shell)
+
+Gabarito de todas as tarefas desta fase: o código do Lucas em `origin/master` (ler com `git show origin/master:<arquivo>`) e os previews indicados em `design/previews/`. Regra comum: mudanças só de estilo e marcação. O comportamento, as rotas, a i18n (`t()`), os papéis ARIA e os testes de comportamento continuam como estão. Um teste existente só muda quando ele checa uma classe CSS ou um texto de marca que o design substitui; cada mudança dessas vai listada no relatório. Nenhuma cor fixa: só tokens.
+
+#### T116: Camada de tema do design
+
+**What**: Trazer a camada de tema do `src/styles/globals.css` do Lucas. São os nomes do `@theme` (`paper`, `surface`, `sunken`, `ink`, `muted`, `subtle`, `line`, `line-strong`, `brand`, `brand-soft`, `on-brand`, `success`, `info`, `danger` e os `-soft`), as sombras duras (`shadow-press-sm`, `shadow-press`, `shadow-press-lg`), a grade de 24 px atrás das cenas e as cores `--diagram-*`. Manter `src/styles/tokens.css` como fonte dos valores. Remover os aliases antigos quando nenhum componente os usar mais.
+**Where**: `src/styles/globals.css`, `src/styles/tokens.css`
+**Depends on**: None
+**Reuses**: `origin/master:src/styles/globals.css`, `design/previews/00-design-system-claro.png`, `00-design-system-escuro.png`
+**Requirement**: THM-01
+
+**Done when**:
+- [x] Os utilitários do design (`bg-paper`, `bg-brand`, `shadow-press` etc.) existem e resolvem para os tokens nos dois temas
+- [x] `src/styles/contrast.test.ts` continua passando e cobre também `on-brand` sobre `brand` (THM-01.3)
+- [x] Gate check passes: `npm run lint && npm run build && npm test`
+
+**Tests**: unit
+**Gate**: build
+**Commit**: `feat(theme): adopt design system theme layer`
+**Status**: ✅ Done (2026-11-19), sem commit: o usuário decide branch e commits no fim. Os aliases antigos (`canvas`, `surface-muted`, `green`, `paper-grid`...) continuam porque páginas e peças das Phases 20–21 ainda os usam; `surface`, `ink`, `muted` e `line` passaram a ser os nomes do design, com o mesmo valor.
+
+---
+
+#### T117: Primitivas de UI do design system
+
+**What**: Restilizar `Button`, `Badge`, `Kbd` e criar `Tag`, `Callout` e `BrandMark` como estão no `origin/master`. Manter a API atual do nosso `Button` (`tab`, `active`, `size="sm"`).
+**Where**: `src/components/ui/*`, `src/components/layout/BrandMark.tsx`
+**Depends on**: T116
+**Reuses**: `origin/master:src/components/ui/*`, `origin/master:src/components/layout/BrandMark.tsx`, `design/previews/00-design-system-claro.png`
+**Requirement**: THM-01
+
+**Done when**:
+- [x] As primitivas batem com a seção de componentes do preview 00, nos dois temas
+- [x] Os testes de comportamento de `Button.test.tsx` continuam passando
+- [x] Gate check passes: `npm test`
+
+**Tests**: component
+**Gate**: quick
+**Commit**: `feat(ui): restyle primitives with design system`
+**Status**: ✅ Done (2026-11-19), sem commit: o usuário decide branch e commits no fim. `BadgeTone` passou a `brand | success | info | neutral`; os mapas de tom de `LessonHeader`, `StepNarration` e `LessonFooterSections` seguiram junto.
+
+---
+
+#### T118: Cabeçalho do app
+
+**What**: Deixar o `AppHeader` igual ao preview 01: marca "Tokens to Agents" com o `BrandMark`, abas com borda e sombra dura, campo de busca com `Ctrl K`, botão de idioma e botão de tema.
+**Where**: `src/components/layout/AppHeader.tsx`
+**Depends on**: T117
+**Reuses**: `origin/master:src/components/layout/AppHeader.tsx`, `design/previews/01-aula-claro.png`, `02-aula-escuro.png`
+**Requirement**: NAV-01.5, THM-01
+
+**Done when**:
+- [x] O cabeçalho bate com os previews 01 e 02, e "AI Engineering" sai da interface
+- [x] Gate check passes: `npm test`
+
+**Tests**: component
+**Gate**: quick
+**Commit**: `feat(layout): header matches design`
+**Status**: ✅ Done (2026-11-19), sem commit: o usuário decide branch e commits no fim. Cabeçalho de 60 px; `top-15` e `100dvh-60px` acompanharam na gaveta, no overlay, no menu de idioma e no painel da aula. O avatar "AI" de perfil saiu (não está no design; as chaves `header.profile*` ficaram sem uso). A marca continua sem link para a home, para não mudar comportamento. Teste novo: `src/components/layout/AppHeader.test.tsx`.
+
+---
+
+#### T119: Trilha lateral
+
+**What**: Restilizar `CourseSidebar`, `ModuleTreeItem`, `LessonTreeItem` e `CourseProgress` conforme o preview 01: título "Trilha" com o total de aulas, cor do módulo, contador `x/y ✓`, aula atual com fundo `brand-soft` e borda, barra de progresso no rodapé.
+**Where**: `src/components/layout/CourseSidebar.tsx`, `src/components/course/*`
+**Depends on**: T118
+**Reuses**: `origin/master:src/components/layout/CourseSidebar.tsx`, `origin/master:src/components/course/*`, `design/previews/01-aula-claro.png`
+**Requirement**: NAV-01.1, NAV-01.2
+
+**Done when**:
+- [x] A trilha bate com a coluna esquerda dos previews 01 e 02
+- [x] Gate check passes: `npm test`
+
+**Tests**: component
+**Gate**: quick
+**Commit**: `feat(layout): course sidebar matches design`
+**Status**: ✅ Done (2026-11-19), sem commit: o usuário decide branch e commits no fim. `sidebar.title` virou "Trilha" e equivalentes nos 21 idiomas. A cor do módulo é um retângulo SVG com `color: var(--module-NN)`. A partir de 1280 px a trilha vira cartão e o shell (`App.tsx`) ganhou `xl:gap-4 xl:p-4`. Largura inicial 290 px (240–400), como no `origin/master`. "Expandir módulos" e o menu de progresso continuam, embora o preview não os mostre.
+
+---
+
+#### T120: Busca e seletor de idioma
+
+**What**: Restilizar o `SearchDialog` e o `LanguageMenu` conforme os previews 04 e 03.
+**Where**: `src/components/layout/SearchDialog.tsx`, `src/components/layout/LanguageMenu.tsx`
+**Depends on**: T119
+**Reuses**: `origin/master:src/components/layout/SearchDialog.tsx`, `origin/master:src/components/layout/LanguageMenu.tsx`, `design/previews/03-seletor-idioma.png`, `04-busca.png`
+**Requirement**: SRCH-01, I18N-01.2
+
+**Done when**:
+- [x] Os dois componentes batem com os previews 03 e 04
+- [x] Gate check passes: `npm test`
+
+**Tests**: component
+**Gate**: quick
+**Commit**: `feat(layout): search and language menu match design`
+**Status**: ✅ Done (2026-11-19), sem commit: o usuário decide branch e commits no fim. Chaves novas nos 21 idiomas: `search.shortcuts` e `search.resultCount` (plural por idioma); o contador só aparece quando há resultado. Conceitos e glossário mantêm à direita o contexto "NN.NN · aula", que os testes de SRCH-01.2 exigem; o preview mostra só o código. A duração da aula saiu das linhas de resultado, como no design.
+
+---
+
+#### T121: Moldura da aula
+
+**What**: Restilizar `LessonWorkspace`, `LessonHeader` e `LessonStats` conforme o preview 01: cartões com borda, breadcrumb, título grande, badges de duração, nível e passos, e a área da cena com a grade de papel. Conferir também o RTL (preview 05) e o mobile (preview 06).
+**Where**: `src/components/layout/LessonWorkspace.tsx`, `src/components/lesson/LessonHeader.tsx`, `src/components/lesson/LessonStats.tsx`
+**Depends on**: T120
+**Reuses**: `origin/master:src/components/layout/LessonWorkspace.tsx`, `origin/master:src/components/lesson/LessonHeader.tsx`, `design/previews/01-aula-claro.png`, `05-aula-rtl.png`, `06-aula-mobile.png`
+**Requirement**: LES-01.1, RSP-01
+
+**Done when**:
+- [x] A moldura bate com os previews 01, 05 e 06
+- [x] Gate check passes: `npm test`
+
+**Tests**: component
+**Gate**: quick
+**Commit**: `feat(lesson): lesson frame matches design`
+**Status**: ✅ Done (2026-11-19), sem commit: o usuário decide branch e commits no fim. As quatro áreas (`header`, `stage`, `panel`, `body`) continuam filhas diretas, na mesma ordem. A partir de 768 px, cabeçalho e cena formam um cartão; no celular ficam na largura toda, separados por linha. A cena usa `.scene-grid`; o título "Cena" ficou `sr-only`, porque o design não o mostra. O aviso de idioma do conteúdo virou caixa `info` (preview 05). `LessonStats` ganhou `isHighlighted` (cartão `brand-soft`). No celular os badges continuam badges; o preview 06 mostra texto corrido.
+
+---
+
+#### T122: Stepper, navegação e painel da narração
+
+**What**: Restilizar `LessonTimeline` ("Nesta lição", com os círculos ✓, atual e próximos), `StepNavigation`, `MobileStepBar` e o painel direito (`StepNarration`, `KeyIdea` como callout "Ideia-chave", `ObjectivesChecklist` "Você vai aprender") conforme os previews 01 e 06, incluindo a linha de atalhos sob os botões.
+**Where**: `src/components/lesson/*`, `src/components/layout/LessonRightPanel.tsx`
+**Depends on**: T121
+**Reuses**: `origin/master:src/components/lesson/*`, `origin/master:src/components/layout/LessonRightPanel.tsx`, `design/previews/01-aula-claro.png`, `06-aula-mobile.png`
+**Requirement**: LES-01.1, LES-01.2, RSP-01.3
+
+**Done when**:
+- [x] O stepper, a navegação e o painel batem com os previews 01 e 06
+- [x] Gate check passes: `npm run lint && npm run build && npm test`
+
+**Tests**: component
+**Gate**: build
+**Commit**: `feat(lesson): stepper and narration panel match design`
+**Status**: ✅ Done (2026-11-19), sem commit: o usuário decide branch e commits no fim. O `ObjectivesChecklist` passou do corpo para a coluna da narração (`LessonRightPanel` ganhou `children`). O "Próximo" tem duas linhas no desktop e uma no celular. Chaves novas nos 21 idiomas: `stepNav.nextCaption` e `stepNav.replayHint`. O callout continua com o rótulo `panel.keyIdea` ("Bom saber"), e não "Ideia-chave": trocar o texto quebraria uma asserção de comportamento em `StepNarration.test.tsx`, então o usuário decide. O "Ideia-chave" recolhível do preview 06 não foi feito, porque mudaria comportamento. Painel com 340 px (260–460).
+
+---
+
+### Phase 20: Alinhamento visual (cenas)
+
+#### T123: Cena RAG com piso isométrico
+
+**What**: Levar para a cena custom `rag-flow` os blocos isométricos, o piso, as pílulas e as arestas do `origin/master`, seguindo as regras de desenho da página "04 · Blocos do diagrama" do FigCraft.
+**Where**: `src/components/diagrams/*`, `src/scene/custom/RagFlowScene.tsx`
+**Depends on**: None
+**Reuses**: `origin/master:src/components/diagrams/{DiagramNode,DiagramPill,RagDiagram,ragDiagramLayout}.tsx`, `design/previews/11-blocos-diagrama-claro.png`, `12-blocos-diagrama-escuro.png`
+**Requirement**: SCN-01, THM-01.4
+
+**Done when**:
+- [x] Os blocos, nos estados padrão e ativo, batem com os previews 11 e 12
+- [x] `RagDiagram.test.tsx` e `ragDiagramLayout.test.ts` continuam passando
+- [x] Gate check passes: `npm test`
+
+**Tests**: component
+**Gate**: quick
+**Commit**: `feat(scene): isometric RAG scene matches design`
+**Status**: ✅ Done (2026-11-19), sem commit: o usuário decide branch e commits no fim. Geometria do `origin/master` (27abe4e): piso 2:1 de 30 × 15 px numa camada SVG estática, nós em vértices da grade (`i`, `j`), bloco 120 × 60 × 54, cilindro 96 × 48 × 68, plataforma 180 × 90 com 9 pessoas, pintura de trás para frente, setas só nos eixos do piso com dobra em L arredondada, 26 px acima do chão e 8 px fora da silhueta, pílulas afastadas pela normal do trecho e pontos animados numa camada própria. Cores só com `--diagram-*`, `--surface-raised` e `--ink-primary`. Textos, mapa passo → nó, clique e ARIA continuam vindo do conteúdo da cena. A conexão reta das peças ficou em `getRagEdgeGeometry`; a seta roteada do RAG é `getRagEdgePath`. Com a cena custom, o `LessonCanvas` troca a grade quadrada por `bg-paper`, porque o piso substitui a grade. `ragDiagramLayout.test.ts`: o teste de encurtamento reto (com `labelOffset`) deu lugar aos testes de geometria do design (vértice da grade, trechos paralelos aos eixos, encurtamento da seta roteada, afastamento do rótulo e enquadramento). Os testes de comportamento ficaram iguais.
+
+---
+
+#### T124: Peça TokenStream no estilo do design
+
+**What**: Deixar o `TokenStream` igual à cena do preview 01: tokens em caixas com sombra dura, arcos com espessura proporcional ao peso, pílulas de pontuação, query e key destacadas, e a linha de barras com legenda. A referência é `origin/master:src/components/diagrams/AttentionDiagram.tsx`.
+**Where**: `src/scene/pieces/TokenStream.tsx`, `src/scene/pieces/tokenStreamLayout.ts`
+**Depends on**: T123
+**Reuses**: `origin/master:src/components/diagrams/AttentionDiagram.tsx`, `attentionDiagramLayout.ts`, `design/previews/01-aula-claro.png`
+**Requirement**: SCN-01, THM-01.4
+
+**Done when**:
+- [x] A cena da aula 03.08, no passo 4, bate com o preview 01
+- [x] Gate check passes: `npm test`
+
+**Tests**: component
+**Gate**: quick
+**Commit**: `feat(scene): token stream matches design`
+**Status**: ✅ Done (2026-11-19), sem commit: o usuário decide branch e commits no fim. Caixas na largura do texto (8 px por caractere + 22), 40 px de altura, borda `line-strong` e sombra dura de 3 px; query na cor da peça (`brand` por padrão), keys em `info-soft`. Arcos em `ink-muted`; o arco que chega numa key fica em `info` com opacidade cheia. A espessura continua proporcional ao peso (máximo de 5 px), porque a asserção de comportamento exige a proporção. Pílula de pontuação no topo do arco, como no preview (o `origin/master` a põe a 30% do arco). Barras de 22 px com borda, linha de base e cor por papel (`ink-subtle`, query, key). Marcas "↑ query" e "↑ key" sob os tokens, com as chaves novas `scene.tokenStream.query` e `scene.tokenStream.key` nos 21 idiomas. Teste novo das marcas em `TokenStream.test.tsx`. Ficam de fora a pílula da fórmula, a legenda das barras e a legenda da cena: são textos da aula e exigiriam campo novo no tipo e mudança no conteúdo.
+
+---
+
+#### T125: Demais peças na linguagem do design
+
+**What**: Alinhar `Matrix`, `VectorSpace`, `Chart`, `MetricsPanel`, `Graph`, `Pipeline`, `AgentLoop` e `ClientServer` à linguagem do design. São as mesmas bordas, sombras duras, tipografia, pílulas e paleta `--diagram-*`/`--module-NN`. O `MetricsPanel` passa a usar os cartões de métrica do preview 01 ("TOKENS 10", "MAIOR PONTUAÇÃO").
+**Where**: `src/scene/pieces/*`
+**Depends on**: T124
+**Reuses**: `design/previews/01-aula-claro.png`, `11-blocos-diagrama-claro.png`
+**Requirement**: SCN-01, THM-01.4
+
+**Done when**:
+- [ ] O agente `qa` confirma consistência visual das 9 peças com o preview 01, nos dois temas (pendente: T133 (qa))
+- [x] Gate check passes: `npm test`
+
+**Tests**: component
+**Gate**: quick
+**Commit**: `feat(scene): pieces follow design language`
+**Status**: ⚠️ Done (2026-11-19), sem commit: o usuário decide branch e commits no fim. Pendente: T133 (qa) confirma no navegador. `MetricsPanel` com o cartão de `LessonStats` (rótulo em caixa alta sobre o valor; destaque em `brand-soft`, borda forte e `shadow-press-sm`); a cor declarada na métrica virou um marcador ao lado do rótulo, porque o design não tem a borda esquerda colorida. Sombra dura e contorno `line-strong` nas etapas de `Pipeline`/`AgentLoop`, nos nós de `Graph`, na célula em destaque de `Matrix`, na barra em destaque de `Chart` e na fila de `ClientServer`; barras de `Chart` com contorno. Etapa futura de `Pipeline`/`AgentLoop` mantém o contorno forte e só esmaece pela opacidade, como os blocos do RAG. Pontos de fluxo em `--diagram-orange`. Rótulos de distância (`VectorSpace`) e de corte (`Chart`) viraram `DiagramPill`. `ClientServer` desce a base das formas meia altura de bloco, porque `BlockShape` e `PlatformShape` agora apoiam a base em `(x, y)` (T123). `MetricsPanel.test.tsx`: o teste de cor trocou `borderLeftColor` por marcador e `bg-brand-soft`, porque o design substitui a borda colorida.
+
+---
+
+#### T126: Motion do app
+
+**What**: Trazer a motion do commit `27abe4e` (transições de passo, entrada de cartões e destaque de nós), respeitando `prefers-reduced-motion`.
+**Where**: `src/styles/globals.css`, `src/scene/Scene.tsx`
+**Depends on**: T125
+**Reuses**: `git show 27abe4e -- src/styles/globals.css`
+**Requirement**: SCN-01
+
+**Done when**:
+- [x] Com reduced motion ligado, nenhuma animação roda (o teste checa a regra CSS)
+- [x] Gate check passes: `npm test`
+
+**Tests**: unit
+**Gate**: quick
+**Commit**: `feat(theme): app-wide motion`
+**Status**: ✅ Done (2026-11-19), sem commit: o usuário decide branch e commits no fim. `globals.css` ganhou `--ease-spring`, `--ease-smooth` e os utilitários `animate-fade-in`, `animate-step-in`, `animate-rise`, `animate-pop-in` e `animate-zone-in`, com os keyframes do 27abe4e; as transições de opacidade, brilho e contorno dos nós RAG (`.rag-node`, `.rag-node-body`, `.rag-node-outline`, `.rag-edge`) e `.svg-anim-center`. A troca de passo da cena (`scene-enter`) agora sobe 6 px com `--ease-smooth`. Aplicado: zona verde (`zone-in`) e pílula "passo N" (`pop-in`) do nó ativo, narração do passo (`step-in`, remontada por `step.id`) e círculo do passo atual na trilha da lição (`pop-in`). Sob `prefers-reduced-motion`, a regra universal zera duração e atraso de animações e transições. Teste novo: `src/styles/motion.test.ts`. O `Scene.tsx` não precisou de mudança: ele já não aplica `scene-transition` com movimento reduzido. Ficam para a Phase 21 as entradas de cartões da home, da busca, do menu de idioma, do quiz, do laboratório e dos resumos, e o `draw`/`grow` da cena de atenção do `origin/master`, que não existe no nosso motor.
+
+---
+
+#### T127: Tema escuro e RTL da aula
+
+**What**: Conferir e ajustar a aula no tema escuro (preview 02) e em RTL (preview 05). Espelhar as setas do teclado em RTL para ficarem coerentes com o swipe e com os ícones; esse era um achado MEDIUM da revisão.
+**Where**: `src/hooks/useAppShortcuts.ts`, componentes da aula
+**Depends on**: T126
+**Reuses**: `design/previews/02-aula-escuro.png`, `05-aula-rtl.png`
+**Requirement**: THM-01, I18N-01.4
+
+**Done when**:
+- [x] Um teste com `dir="rtl"` mostra que `←` e `→` seguem o sentido do layout espelhado
+- [x] A aula bate com os previews 02 e 05
+- [x] Gate check passes: `npm run lint && npm run build && npm test`
+
+**Tests**: unit
+**Gate**: build
+**Commit**: `feat(lesson): dark and rtl lesson match design`
+**Status**: ✅ Done (2026-11-19), sem commit: o usuário decide branch e commits no fim. `useAppShortcuts` lê o `dir` do `<html>` na hora da tecla: em RTL, `←` avança e `→` volta, como o swipe e os ícones espelhados; teste novo em `useAppShortcuts.test.ts`, e o teste de LTR ficou igual. A figure da `Scene` ganhou `dir="ltr"`: a cena é desenhada da esquerda para a direita (e o `alt` da 03.08 fala em "à esquerda"), e no preview 05 só a moldura espelha; teste novo em `Scene.test.tsx`. No escuro, a sombra suave dos blocos RAG deixou o `rgb()` fixo e usa `--shadow-hard` a 20%. O resto do tema escuro já vinha dos tokens. A conferência no navegador fica para a T133 (qa). Aliases sem uso removidos de `globals.css`: `--muted`, `--line`, `--blue`, `--purple`, `--orange`, `--on-accent`, `--color-blue`, `--color-purple`, `--color-orange` e `--color-on-accent`.
+
+---
+
+### Phase 21: Alinhamento visual (páginas, docs e QA)
+
+#### T128: Home
+
+**What**: Restilizar a `HomePage` conforme o preview 07, com os 18 cards de módulo (`ModuleCard`), o cartão de progresso e o "continuar".
+**Where**: `src/pages/HomePage.tsx`, `src/components/home/ModuleCard.tsx`
+**Depends on**: None
+**Reuses**: `origin/master:src/components/home/{HomeView,ModuleCard}.tsx`, `design/previews/07-home.png`
+**Requirement**: NAV-01.6
+
+**Done when**:
+- [x] A Home bate com o preview 07
+- [x] Gate check passes: `npm test`
+
+**Tests**: component
+**Gate**: quick
+**Commit**: `feat(home): home matches design`
+**Status**: ✅ Done (2026-11-19), sem commit: o usuário decide branch e commits no fim. Classes, marcação e motion de `origin/master:HomeView`/`ModuleCard`: página com `animate-fade-in`, hero com `animate-rise`, título 28/38 px em negrito, botões grandes com `shadow-press-lg`, cartão de progresso de 400 px (`bg-surface`, `shadow-press-lg`, barra de 10 px), legenda e status com os glifos ●◐○ em `success`/`brand`/`subtle`, grade 1/2/3/4/6 colunas com entrada `animate-rise` escalonada em 30 ms, e pílulas de projeto com elevação no hover. O card virou `src/components/home/ModuleCard.tsx`: faixa de 8 px na cor do módulo, elevação no hover, e o módulo da última aula aberta ganha borda de 1,5 px e `shadow-press-lg`. O `ProgressMenu` ganhou o modo `inline` (ações em linha de texto, com "Salvo só neste navegador." abrindo a linha); a sidebar continua no modo em pilha. O `SiteFooter` perdeu a borda e usa `text-subtle` a 10,5 px. Fica de fora o "de N" de "passo 4 de 10": o catálogo não tem o número de passos sem carregar a aula, e a chave `home.lastVisited` e o teste de texto continuam iguais. Testes inalterados.
+
+---
+
+#### T129: Prática
+
+**What**: Restilizar a `PracticePage` e o `QuizRunner` conforme o preview 08, com o card de questão e o feedback de resposta.
+**Where**: `src/pages/PracticePage.tsx`, `src/components/practice/QuizRunner.tsx`
+**Depends on**: T128
+**Reuses**: `origin/master:src/components/practice/{PracticeView,QuizCard}.tsx`, `design/previews/08-pratica.png`
+**Requirement**: PRAC-01
+
+**Done when**:
+- [x] A Prática bate com o preview 08
+- [x] Gate check passes: `npm test`
+
+**Tests**: component
+**Gate**: quick
+**Commit**: `feat(practice): practice matches design`
+**Status**: ✅ Done (2026-11-19), sem commit: o usuário decide branch e commits no fim. Classes, marcação e motion de `origin/master:PracticeView`/`QuizCard`/`SectionList`: página com `animate-fade-in` e duas colunas a partir de `lg`; lista "Quiz por módulo" de 290 px com o item atual em `brand-soft` e borda forte; card de questão com título de 22 px, barra por questão em `success`/`danger`/`line`, enunciado de 18 px e questão remontada com `animate-step-in`. As opções (`AnswerOptions`, compartilhadas com o `KnowledgeCheck`) ganharam a letra A–D, os estados do design (certa em `success-soft` com borda de 1,5 px, escolhida errada com borda de 2 px em `danger` e `shadow-press`, demais esmaecidas), entrada escalonada em 40 ms e as marcas "✓ correta" e "× sua resposta" com `animate-pop-in`. O retorno (`AnswerFeedback`) virou o callout em `info` "✦ Por que B", com a frase de acerto/erro, a explicação e o link de revisão. "Próxima questão" no canto, `lg`, com `animate-pop-in`; nota final com `animate-rise` e ícone em "Refazer o quiz". Letras e marcas ficam fora do nome acessível das opções. Chaves novas nos 21 idiomas: `knowledgeCheck.why`, `knowledgeCheck.correctTag` e `knowledgeCheck.chosenTag`. `KnowledgeCheck` e `LessonFooterSections` saíram de `shadow-paper`, `canvas`, `surface-muted`, `green`, `green-dark` e `red`. Teste novo em `QuizRunner.test.tsx` (letras, marcas, nome acessível e título do callout). Fica de fora o "passo N" no link de revisão: a questão do quiz não guarda o passo.
+
+---
+
+#### T130: Laboratório
+
+**What**: Restilizar a `LabPage` e o `PlaygroundShell` conforme o preview 09, com os sliders, a coluna de parâmetros e a cena.
+**Where**: `src/pages/LabPage.tsx`, `src/components/lab/PlaygroundShell.tsx`
+**Depends on**: T129
+**Reuses**: `origin/master:src/components/lab/{LabView,SamplingPlayground}.tsx`, `design/previews/09-laboratorio.png`
+**Requirement**: LAB-01
+
+**Done when**:
+- [x] O Laboratório e o playground de sampling batem com o preview 09
+- [x] Gate check passes: `npm test`
+
+**Tests**: component
+**Gate**: quick
+**Commit**: `feat(lab): lab matches design`
+**Status**: ✅ Done (2026-11-19), sem commit: o usuário decide branch e commits no fim. Classes, marcação e motion de `origin/master:LabView`/`SamplingPlayground`/`SectionList`: página com `animate-fade-in` e três colunas a partir de `lg` (lista de 290 px, cena e parâmetros de 320 px); lista com títulos "Playgrounds"/"Projetos guiados" em caixa alta, item atual em `brand-soft` com borda forte e o marcador "▶" no playground aberto (espelhado em RTL, fora do nome acessível). `PlaygroundShell`: painel da cena com eyebrow "Laboratório", título de 24 px, legenda de 11 px e "O que observar" no callout `info` com "✦"; painel de parâmetros com rótulo de 13 px, valor em negrito e o slider `.range-track` do design (trilho de 8 px preenchido até o valor por `--range-progress`, botão redondo, preenchimento invertido em RTL), dicas de 10,5 px e aviso offline em `subtle`. Sampling: "Sortear um token" com o ícone de dados em largura total e o histórico com `animate-fade-in`. `ProjectView` com as seções e pílulas do design. Saíram `shadow-paper`, `canvas` e `surface-muted` do Laboratório. O preenchimento e o valor do slider usam `info`, não o azul `module-04` do preview: o azul em texto de 13 px fica abaixo de 4,5:1 sobre `surface`. As barras de probabilidade continuam sendo a peça `Chart` do motor, não as linhas de token do `origin/master`. Teste novo em `PlaygroundShell.test.tsx` (preenchimento do trilho).
+
+---
+
+#### T131: Resumos
+
+**What**: Restilizar a `SummariesPage` e a `SummarySheet` conforme o preview 10.
+**Where**: `src/pages/SummariesPage.tsx`, `src/components/summaries/SummarySheet.tsx`
+**Depends on**: T130
+**Reuses**: `origin/master:src/components/summaries/{SummariesView,SummarySheet}.tsx`, `design/previews/10-resumos.png`
+**Requirement**: SUM-01
+
+**Done when**:
+- [x] Os Resumos batem com o preview 10
+- [x] Gate check passes: `npm test`
+
+**Tests**: component
+**Gate**: quick
+**Commit**: `feat(summaries): summaries match design`
+**Status**: ✅ Done (2026-11-19), sem commit: o usuário decide branch e commits no fim. Classes, marcação e motion de `origin/master:SummariesView`/`SummarySheet`/`SectionList`: página com `animate-fade-in`, lista "Resumos (cheat sheets)" de 290 px no estilo do `SectionList`, coluna central de até 900 px com a linha "Cabe em até 2 páginas A4 · sem navegação na impressão" e "Imprimir / PDF" em negrito. A folha entra com `animate-rise`: faixa de 10 px na cor do módulo (a cor vai em `--sheet-color` no `style` do `article`), eyebrow de 10 px, título de 26 px e, à direita, "15 aulas · ~3 h de estudo" (chave nova `summary.meta`, com plural nos 21 idiomas e a duração formatada por `Intl.NumberFormat` em hora ou minuto abreviados). O diagrama continua sendo o `<Scene>`, agora numa faixa `bg-paper` entre bordas. Conceitos e fórmulas com título em `info`, pegadinhas em `danger`, marcadores quadrados, texto de 11,5 px, fórmula em caixa `bg-paper` com borda forte, e as aulas numa linha "Aulas: 03.01 … · 03.08 …" em `info` sublinhado. A impressão continua pelo `print.css`; saiu a regra `.summary-sheet .text-sm`, que não casa mais com nada. Saíram `shadow-paper`, `canvas` e `surface-muted`. Os títulos de seção usam `info`, não a cor do módulo como no `origin/master`: `--module-NN` em texto de 10,5 px não garante 4,5:1. Teste novo em `SummarySheet.test.tsx` (aulas e tempo de estudo); os testes de impressão de `SummariesPage.test.tsx` passam sem mudança.
+
+---
+
+#### T132: README
+
+**What**: Partir do `README.md` do Lucas e reescrever as seções que descrevem a arquitetura antiga: estrutura (`src/content`, `src/scene`, `src/i18n`, `src/lab`, `src/pages`), "How lessons work" (`LessonContent`, catálogo, registry, cenas por peças), atalhos (R repete o passo atual), testes e status do projeto (21 idiomas, piloto do módulo 03, 8 playgrounds). As licenças apontam para `src/content/`.
+**Where**: `README.md`
+**Depends on**: T131
+**Reuses**: `origin/master:README.md`
+**Requirement**: OPS-01
+
+**Done when**:
+- [x] Nenhuma seção cita `src/data/` nem o fluxo antigo de aulas
+- [x] Gate check passes: `npm run lint && npm run build && npm test`
+
+**Tests**: none
+**Gate**: build
+**Commit**: `docs: add README for the current architecture`
+**Status**: ✅ Done (2026-11-19), sem commit: o usuário decide branch e commits no fim. `README.md` partiu do `origin/master` e reescreveu estrutura (`src/app`, `src/pages`, `src/content` com catálogo, registry, aulas, quizzes, resumos, playgrounds, cenas, glossário e regras, `src/scene`, `src/lab`, `src/i18n`, `src/components`, `src/hooks`, `src/lib`, `src/styles`, `src/types` e `scripts`), "How lessons work" (catálogo, `LessonContent` com um passo real da 03.02, registry com `import.meta.glob`, cenas por peças ou custom), atalhos (R repete o passo atual; em RTL as setas se invertem; swipe), testes, scripts reais do `package.json` com `validate:content`, status (21 idiomas, piloto do módulo 03 com 15 aulas, quiz e resumo, 08.02 com a cena RAG, 8 playgrounds, 5 projetos "em produção") e licenças apontando para `src/content/` e `LICENSE-FONTS`. Fecho da fase: aliases antigos removidos de `globals.css` (`--canvas`, `--surface`, `--surface-muted`, `--ink`, `--green`, `--green-dark`, `--red`, `--yellow`, `--grid-line`, `--paper-shadow`, `--color-canvas`, `--color-surface-muted`, `--color-green`, `--color-green-dark`, `--color-red`, `--color-yellow`, `--shadow-paper` e `.paper-grid`); o `body` e o `:focus-visible` usam `--bg-paper` e `--ink-primary`, e o `--paper-shadow` saiu do `print.css`. `NotFoundPage` e o `SectionPlaceholder` (sem uso, mantido) trocaram `paper-grid`, `shadow-paper`, `yellow` e `ink/60` por `scene-grid`, `shadow-press-lg`, `brand-soft` e `line-strong`. As constantes de status da home saíram para `src/components/home/moduleStatus.ts` (aviso `only-export-components` do oxlint).
+
+---
+
+#### T133: QA visual contra o design
+
+**What**: O orquestrador dispara o agente `qa`. Ele abre o app com `npm run dev` e compara cada tela com o seu preview (00 a 12), nos dois temas, em RTL e nas larguras 375, 1024 e 1440 px. Fecha também as pendências visuais de T74, T93 e T115. As divergências viram tarefas de correção.
+**Where**: nenhum arquivo de código (relatório do `qa`)
+**Depends on**: T132
+**Reuses**: agente `qa`, `design/previews/*`
+**Requirement**: THM-01.3, RSP-01, SUM-01.2
+
+**Done when**:
+- [ ] O `qa` aprova todas as telas, ou as divergências viram tarefas e são corrigidas
+- [ ] Gate check passes: `npm run lint && npm run build && npm test`
+
+**Tests**: none
+**Gate**: build
+**Commit**: `chore(qa): visual pass against design`
+**Status**: ❌ QA reprovado (2026-11-19). As divergências viraram T134–T140 (Phase 22). A re-verificação é a T141. As capturas e as medições estão em `scratchpad\qa133\`.
+
+---
+
+### Phase 22: Correções do QA visual (T133)
+
+Origem: o relatório do agente `qa` na T133, de 2026-11-19. Valem as mesmas regras de alinhamento das Phases 19–21. Os previews de `design/previews/` e o código do Lucas (`git show origin/master:<arquivo>`) são o gabarito.
+
+#### T134: Telas de seção sem a trilha
+
+**What**: Na Home, na Prática, no Laboratório (índice e playground) e nos Resumos, o layout passa a ocupar a largura total, sem `#course-sidebar`, como nos previews 07–10. A trilha fica só na aula. O índice de Prática, Laboratório e Resumos ocupa 2 colunas, como nos previews.
+**Where**: `src/app/App.tsx`
+**Depends on**: None
+**Reuses**: `origin/master:src/app/App.tsx`, `design/previews/07-home.png` a `10-resumos.png`
+**Requirement**: NAV-01, RSP-01
+
+**Done when**:
+- [x] Em `/`, `/practice/03`, `/lab`, `/lab/playground/sampling` e `/summaries/03`, a trilha não é renderizada; em `/learn/:id` ela continua
+- [x] Gate check passes: `npm test`
+
+**Tests**: component
+**Gate**: quick
+**Commit**: `fix(layout): section pages without course sidebar`
+**Status**: ✅ Done (2026-11-19), sem commit: o usuário decide branch e commits no fim. `App.tsx` só monta a `CourseSidebar`, o overlay e o respiro `xl:gap-4 xl:p-4` na rota da aula; as telas de seção ficam em largura total, com a lista e o conteúdo em 2 colunas. O botão da trilha no `AppHeader` ganhou `hasCourseMenu` (padrão `true`, como no `origin/master`) e some fora da aula, para o `aria-controls` não apontar para um elemento ausente. Testes novos em `App.test.tsx`: as cinco rotas sem `#course-sidebar` e sem o botão, e a aula com os dois.
+
+---
+
+#### T135: Sem scroll horizontal na aula
+
+**What**: A legenda do exemplo de código e os links de referência longos passam a quebrar linha (`min-w-0`, `break-words`/`overflow-wrap:anywhere`). O botão Copiar não sai da largura. Assim `/learn/03-08` deixa de ter scroll horizontal entre 320 e 767 px.
+**Where**: `src/components/lesson/LessonFooterSections.tsx`
+**Depends on**: T134
+**Reuses**: relatório T133, seção 2
+**Requirement**: RSP-01.5
+
+**Done when**:
+- [x] A legenda e os links levam as classes de quebra, e o container do código tem `min-w-0`
+- [x] Gate check passes: `npm test`
+
+**Tests**: component
+**Gate**: quick
+**Commit**: `fix(lesson): wrap long code captions and references`
+**Status**: ✅ Done (2026-11-19), sem commit: o usuário decide branch e commits no fim. `LessonFooterSections`: rodapé, seções, `figure` e a linha da legenda com `min-w-0`; a legenda e os links de referência com `wrap-anywhere` (`overflow-wrap: anywhere`), e o link deixou de ser `inline-flex` para o texto quebrar com o ícone na última linha. O Copiar já era `shrink-0`. Teste novo em `LessonFooterSections.test.tsx` (classes de quebra e `min-w-0`).
+
+---
+
+#### T136: Contraste de texto renderizado
+
+**What**: Nenhum texto fica abaixo de 4,5:1, nos dois temas. Os casos a corrigir são estes:
+- `ink-subtle` usado em texto (placeholder da busca, dicas de atalho, rodapé, linhas cortadas do playground): passa a usar um token de texto com contraste suficiente;
+- `state-info` e `state-danger` como texto sobre `surface` no claro, e "BOM SABER"/"O QUE OBSERVAR" sobre `info-soft`: entram tokens de texto `*-ink` derivados, nos dois temas;
+- "MAIOR PONTUAÇÃO" no escuro;
+- textos de SVG: a pílula sobre roxo, "↑ key", "attention + FFN", e as opacidades 0,55 e 0,3 aplicadas a texto.
+
+`ink-subtle` continua valendo para bordas e ícones decorativos.
+**Where**: `src/styles/tokens.css`, componentes e peças que usam esses textos
+**Depends on**: T135
+**Reuses**: `scratchpad\qa133\contrast.json`
+**Requirement**: THM-01.3
+
+**Done when**:
+- [x] `contrast.test.ts` cobre os pares novos de texto (`*-ink` sobre `surface`, `paper` e `*-soft`) nos dois temas, com ≥ 4,5:1
+- [x] Nenhum componente usa `text-subtle` em texto legível
+- [x] Gate check passes: `npm test`
+
+**Tests**: unit
+**Gate**: quick
+**Commit**: `fix(theme): text contrast meets AA in both themes`
+**Status**: ✅ Done (2026-11-19), sem commit: o usuário decide branch e commits no fim. Tokens novos em `tokens.css`, nos dois temas: `--state-success-ink` (#376E34 / #7CC478), `--state-info-ink` (#5E4AAE / #A595E6) e `--state-danger-ink` (#AD3832 / #E8736D), expostos no `@theme` como `success-ink`, `info-ink`, `danger-ink` e `state-*-ink`. Texto em `ink-subtle` passou a `ink-muted`: busca do cabeçalho e placeholder do diálogo, dicas de atalho, rodapé do site, aviso offline do Laboratório, linhas cortadas do sampling, merges sem uso do BPE e o glifo "○" da Home; o `disabled:text-subtle` do `Button` fica (texto desabilitado é isento no WCAG 1.4.3). Texto em cor de estado passou aos `*-ink`: "Bom saber", "O que observar", "Por que…", valores dos sliders, títulos e aulas do resumo, "Pegadinhas", link do quiz, "§" da busca, tags e feedback do knowledge check, contagem concluída da trilha, erros do `ProgressMenu`, `PlaygroundShell` e agent loop. Sobre `brand-soft`, o rótulo em destaque de `MetricsPanel`/`LessonStats` e o texto secundário do resultado escolhido na busca usam `ink`. SVG: a pílula e a marca "↑ key" do `TokenStream` usam `state-info-ink`; etapa, nó e bloco futuros (`Pipeline`, `Graph`, `DiagramNode`) esmaecem a `FADED_TEXT_OPACITY` = 0,7 (`scene/colors.ts`), o mínimo em que o rótulo passa de 4,5:1 no claro; no `Chart`, só a marca abaixo do corte fica a 0,3 e o rótulo mantém opacidade cheia. Testes novos: pares `*-ink`, pílula da key, `ink` sobre `brand-soft`, texto esmaecido composto sobre paper e grade, e a varredura de `text-subtle` (`contrast.test.ts`); opacidade de `Pipeline`/`Graph`, rótulo do `Chart`, cores do `TokenStream` e rótulo do `MetricsPanel`. Fora da lista do QA e não corrigido: caixa preenchida com `info`, `module-09`, `module-16` ou `module-17` e texto `ink` no tema claro (3,2–4,2:1), como a query em `info` das cenas 03.02, 03.04, 03.08 e 03.10 e a célula de `Matrix` em nível 1.
+
+---
+
+#### T137: Impressão a partir do tema escuro
+
+**What**: O `print.css` passa a sobrescrever, na mídia print, os tokens de texto (`--state-info`, `--state-danger`, os `*-ink` da T136 e `--ink-*`) com os valores do tema claro. Assim os títulos e os links do resumo ficam legíveis no papel branco.
+**Where**: `src/styles/print.css`
+**Depends on**: T136
+**Reuses**: relatório T133, seção 5
+**Requirement**: SUM-01.2
+
+**Done when**:
+- [x] O teste lê o `print.css` e confirma os overrides dos tokens de texto em `@media print`
+- [x] Gate check passes: `npm test`
+
+**Tests**: unit
+**Gate**: quick
+**Commit**: `fix(summaries): print legible from dark theme`
+**Status**: ✅ Done (2026-11-19), sem commit: o usuário decide branch e commits no fim. No bloco `:root, :root[data-theme="dark"]` de `@media print`, o `print.css` passa a fixar `--state-success`, `--state-info`, `--state-danger` e os três `*-ink` da T136 nos valores do tema claro; `--ink-primary` e `--ink-muted` já eram `CanvasText`. Os títulos de seção e as aulas do resumo saem em #5E4AAE e "Pegadinhas" em #AD3832 sobre o branco, também a partir do tema escuro. Teste novo `src/styles/print.test.ts`: lê o `print.css` e o `tokens.css` e confere que cada override está em `@media print`, vale para o tema escuro e é igual ao valor claro.
+
+---
+
+#### T138: Legibilidade das cenas
+
+**What**: Corrigir três problemas de leitura nas cenas:
+- **RAG (08.02):** a legenda deixa de cobrir o bloco "Sem resultado". A cena aproveita a largura disponível, e os rótulos ficam com pelo menos 11 px renderizados em 1440 px.
+- **Pipeline do resumo 03:** passa a usar chips legíveis, como no preview 10: "multi-head attention" em roxo, a caixa tracejada "× N" e "logits → próximo token" em âmbar.
+- **TokenStream abaixo de 768 px:** ganha o layout mobile do preview 06, uma lista vertical de barras com o token e o valor, no lugar da cena desktop encolhida.
+**Where**: `src/components/diagrams/RagDiagram.tsx`, `src/scene/pieces/Pipeline.tsx`, `src/scene/pieces/TokenStream.tsx`
+**Depends on**: T137
+**Reuses**: `design/previews/06-aula-mobile.png`, `10-resumos.png`, `11-blocos-diagrama-claro.png`
+**Requirement**: SCN-01, RSP-01
+
+**Done when**:
+- [x] A legenda da RAG não sobrepõe nenhum bloco (o teste confere a geometria ou o posicionamento)
+- [x] O TokenStream renderiza a variante em lista quando `matchMedia("(max-width: 767.98px)")` casa
+- [x] Gate check passes: `npm test`
+
+**Tests**: component
+**Gate**: quick
+**Commit**: `fix(scene): legible RAG, summary pipeline and mobile token stream`
+**Status**: ✅ Done (2026-11-19), sem commit: o usuário decide branch e commits no fim. **RAG**: a legenda saiu do overlay absoluto e entrou no fluxo, abaixo da cena (11 px); a cena ganhou a proporção da viewBox (`aspect-ratio`) e passou a ocupar a largura do quadro em vez de caber na altura que sobrava; as margens da viewBox caíram para a folga real do desenho (top 230 → 140, bottom 70 → 45, laterais 50 → 25/35, viewBox 1210 × 735 → 1170 × 620). Medido com Chrome a 1440 px: escala de 0,42 → 0,59, rótulos de 4,6–5,5 px → 6,5–7,6 px, legenda sem cobrir "Sem resultado". **Divergência aberta**: os 11 px renderizados a 1440 px não cabem no quadro de 687 px sem redesenhar o diagrama (os textos precisariam de ~19 unidades na viewBox, maiores que os blocos de 120); o preview 11 tem a mesma proporção. Fica para o usuário decidir. **Resumo 03**: `PipelineSpec` ganhou `display: "chips"` e `repeat` (marcação, sem mudar o SVG); o fluxo sai em chips HTML que quebram linha, como no preview 10: "multi-head attention" em `module-03`, a caixa tracejada "× N" com FFN e "logits → próximo token" em `brand`, tinta `accent-on-brand`; a `SummarySheet` só aplica `min-h-48` a cenas em SVG. **TokenStream abaixo de 768 px**: lista do preview 06, uma linha por token com o chip, a barra proporcional e o valor (rótulo do arco, ou o valor da barra quando nenhum arco tem rótulo), da maior para a menor; sem barras nem arcos, chips que quebram linha. O `useMediaQuery` saiu da `MobileStepBar` para `src/hooks/useMediaQuery.ts` e serve as duas. Testes novos: `RagDiagram.test.tsx` (legenda fora da cena, proporção da viewBox), `Pipeline.test.tsx` (chips e repetição), `SummarySheet.test.tsx` (resumo 03 em chips, faixa mínima só em SVG), `TokenStream.test.tsx` (lista, ordem, valores, chips).
+
+---
+
+#### T139: Cena do playground de sampling
+
+**What**: A cena do sampling passa a seguir o preview 09:
+- caixa "prompt › O céu hoje está";
+- barras horizontais por token, com o chip do token, o valor e o acumulado;
+- tokens cortados por top-k ou top-p esmaecidos com contraste AA, como manda a T136;
+- top-k inicial 40.
+
+A referência é `origin/master:src/components/lab/SamplingPlayground.tsx`.
+**Where**: `src/lab/playgrounds/sampling.tsx`
+**Depends on**: T138
+**Reuses**: `origin/master:src/components/lab/SamplingPlayground.tsx`, `design/previews/09-laboratorio.png`
+**Requirement**: LAB-01
+
+**Done when**:
+- [x] O teste confere a caixa de prompt, uma barra por token com valor e acumulado, e top-k inicial 40; a resposta abaixo de 100 ms continua sem timer
+- [x] Gate check passes: `npm test`
+
+**Tests**: component
+**Gate**: quick
+**Commit**: `fix(lab): sampling scene matches design`
+**Status**: ✅ Done (2026-11-19), sem commit: o usuário decide branch e commits no fim. `sampling.tsx` trocou o `Chart` e a tabela pela marcação do `origin/master:SamplingPlayground`: caixa "prompt › O céu hoje está ▁", legenda entre o prompt e as barras, e uma linha por token com o chip (o primeiro em `brand`), a barra horizontal em `module-04` proporcional ao mais provável (até 58% da linha), o valor e o acumulado ("acum. 0.97  ← passa de 0.95: último que entra" no último que entra; "✂ cortado pelo top-p/top-k" nos cortados). Cortados sem opacidade: chip com borda suave, texto e valor em `ink-muted`, barra em `ink-subtle`. A derivação continua síncrona no `derive` (sem timer nem debounce). Conteúdo em PT em `src/content/playgrounds/sampling.ts`: `promptLabel`, `prompt`, `cumulative`, `lastKept`, `topKMax: 100` e `initial.topK: 40`; saíram `columns` e `kept`, que eram da tabela. Testes alterados em `sampling.test.tsx` (geometria que o design substituiu): `data-height` do `Chart` → `data-width` da barra horizontal, `td` → `[data-value]`, e "mover a temperatura" passou a ler a probabilidade do primeiro token (1 → < 0,4) em vez da altura da barra, porque a barra agora é relativa ao mais provável. Testes novos: abertura do preview 09 (prompt, top-k 40, 10 barras, acumulado, último que entra, corte) e cortado sem opacidade.
+
+---
+
+#### T140: RTL com conteúdo em PT e escritas sem caixa alta
+
+**What**: Corrigir dois problemas de RTL e escrita:
+- **Conteúdo em PT dentro do RTL:** narração, títulos de passo, títulos de aula e módulo na trilha, e o rodapé da aula passam a ficar isolados em LTR (`dir="ltr"` no bloco de conteúdo ou `<bdi>`), para a pontuação não inverter. O conteúdo é sempre PT (AD-003). O cromo da interface continua seguindo o idioma.
+- **Rótulos em caixa alta com letter-spacing:** param de aplicar `uppercase` e `tracking` em escritas sem caixa (ar, he, hi, zh, ja, ko), usando `:lang()`, porque isso quebra o shaping.
+**Where**: `src/components/lesson/StepNarration.tsx`, `src/components/course/*`, `src/styles/globals.css`
+**Depends on**: T139
+**Reuses**: `design/previews/05-aula-rtl.png`
+**Requirement**: I18N-01.4, I18N-01.6
+
+**Done when**:
+- [x] Com `dir="rtl"`, os blocos de conteúdo em PT levam `dir="ltr"`, e o teste confere isso
+- [x] O `globals.css` desliga o uppercase e o tracking para `:lang(ar|he|hi|zh|ja|ko)`, e o teste lê a regra
+- [x] Gate check passes: `npm run lint && npm run build && npm test`
+
+**Tests**: component
+**Gate**: build
+**Commit**: `fix(i18n): isolate pt content in rtl and keep script shaping`
+**Status**: ✅ Done (2026-11-19), sem commit: o usuário decide branch e commits no fim. Blocos de conteúdo em PT com `dir="ltr"`: título e parágrafos do passo e o texto da ideia-chave (`StepNarration`), subtítulo da aula (`LessonHeader`), objetivos, exemplo real, listas de trade-offs, legenda e código, explicação e enunciado do knowledge check. Títulos que ficam alinhados pelo idioma vão em `<bdi dir="ltr">`: módulo e aula na trilha (`ModuleTreeItem`, `LessonTreeItem`), breadcrumb e título da aula, rótulos da timeline, conceitos relacionados, títulos das referências e opções do knowledge check. O cromo (posição do passo, tag, títulos de seção, botões) segue o idioma. `globals.css`: regra fora de camada `.uppercase:is(:lang(ar), :lang(he), :lang(hi), :lang(zh), :lang(ja), :lang(ko))` com `text-transform: none` e `letter-spacing: normal`. Conferido no Chrome em árabe: "Quem combina com quem?", "00. Introduction to AI" e "03. Transformers Architecture" saem na ordem certa, e `.uppercase` computa `none`. Efeito colateral: rótulos de conteúdo em caixa alta (por exemplo "maior pontuação" da cena) também ficam sem caixa nessas escritas, porque o `lang` é o do documento. Testes novos: `StepNarration.test.tsx`, `CourseSidebar.test.tsx` e `LessonFooterSections.test.tsx` (direção em RTL) e `src/styles/i18n.test.ts` (regra do `:lang()`).
+
+---
+
+#### T141: Re-verificação visual
+
+**What**: O orquestrador dispara de novo o agente `qa` com o mesmo escopo da T133 e confirma que as divergências altas e médias foram fechadas. As que sobrarem voltam para o usuário decidir.
+**Where**: nenhum arquivo de código
+**Depends on**: T140
+**Reuses**: agente `qa`, relatório T133
+**Requirement**: THM-01.3, RSP-01, SUM-01.2
+
+**Done when**:
+- [ ] O `qa` aprova, ou as divergências restantes estão listadas para o usuário
+- [ ] Gate check passes: `npm run lint && npm run build && npm test`
+
+**Tests**: none
+**Gate**: build
+**Commit**: `chore(qa): visual re-check after fixes`
+**Status**: ⚠️ QA de 2026-11-19 fechou 8 das 10 divergências da T133, sem nenhuma regressão.
+- A impressão do pipeline do resumo apareceu como defeito novo, de severidade alta. A regra `.summary-diagram svg` do `print.css` esticava as setas Lucide. O orquestrador corrigiu com `svg:not(.lucide)` e um teste em `print.test.ts`, e conferiu no Chrome: setas com 13 px e nenhum chip cortado, nos dois temas.
+- Ficam abertos para o usuário: o contraste dos rótulos da RAG no tema escuro, que o próprio preview 12 tem; os rótulos da RAG em 6,6–7,8 px; caixas `info`/`module-*` com texto escuro; a lista do TokenStream no mobile sem o valor de todos os tokens e sem a fórmula; e os itens baixos. Evidências em `scratchpad\qa141\`.
 
 ---
 
@@ -2292,7 +2966,8 @@ A publicação só acontece depois do último módulo, com o gate Release passan
 ```
 Phase 1 → Phase 2 → Phase 3 → Phase 4 → Phase 5 → Phase 6 → Phase 7 → Phase 8 → Phase 9
         → Phase 10 → Phase 11 → Phase 12 → Phase 13 → Phase 14 → Phase 15 → Phase 16
-        → Phase 17 → Phase 18 → [checkpoint: revisão do piloto] → rollout content-module-NN
+        → Phase 17 → Phase 18 → Phase 19 → Phase 20 → Phase 21
+        → [checkpoint: revisão do piloto] → rollout content-module-NN
 ```
 
 A execução é estritamente sequencial: um agente (ou worker de batch) faz uma tarefa por vez, em ordem. Com 115 tarefas, o Execute empacota fases inteiras em batches de cerca de 7 tarefas (por volta de 16 workers) e oferece sub-agentes antes de começar.
@@ -2312,6 +2987,9 @@ A execução é estritamente sequencial: um agente (ou worker de batch) faz uma 
 | T51–T65 | 1 arquivo de glossário, busca, tipo, runtime ou peça cada | ✅ Granular |
 | T66–T98 | 1 hook, componente, página, CSS, lib, config ou script cada | ✅ Granular |
 | T99–T115 | 1 arquivo de conteúdo cada | ✅ Granular |
+| T116–T132 | 1 camada de tema, grupo de primitivas, região de tela, peça ou página cada, só estilo | ✅ Granular |
+| T125 | 8 peças de cena | ⚠️ Coeso: a mesma linguagem visual aplicada a todas, revertível num commit |
+| T133 | passe de QA visual, sem código | ✅ Granular |
 
 ## Diagram-Definition Cross-Check
 
@@ -2337,6 +3015,9 @@ Em todas as fases, o diagrama é uma cadeia linear e cada tarefa depende só da 
 | 16 | T92 → … → T98 | T93:T92 … T98:T97 | ✅ Match |
 | 17 | T99 → … → T106 | T100:T99 … T106:T105 | ✅ Match |
 | 18 | T107 → … → T115 | T108:T107 … T115:T114 | ✅ Match |
+| 19 | T116 → … → T122 | T117:T116 … T122:T121 | ✅ Match |
+| 20 | T123 → … → T127 | T124:T123 … T127:T126 | ✅ Match |
+| 21 | T128 → … → T133 | T129:T128 … T133:T132 | ✅ Match |
 
 ## Test Co-location Validation
 
@@ -2350,3 +3031,6 @@ Em todas as fases, o diagrama é uma cadeia linear e cada tarefa depende só da 
 | T7, T8, T9, T10 | catálogo, validador, registry, teste de conteúdo | unit | unit | ✅ OK |
 | T11, T99–T115 | arquivos de conteúdo | unit parametrizado | unit | ✅ OK |
 | T25, T31–T50 | mensagens de idioma | unit parametrizado | unit | ✅ OK |
+| T116, T126, T127 | CSS com teste de regra e hook | unit | unit | ✅ OK |
+| T117–T125, T128–T131 | componentes, páginas e peças | component | component | ✅ OK |
+| T132, T133 | docs e QA visual | none | none | ✅ OK |

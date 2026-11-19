@@ -1,4 +1,3 @@
-import { FolderOpen } from "lucide-react";
 import { useState, type CSSProperties } from "react";
 import {
   countCompletedLessons,
@@ -6,30 +5,33 @@ import {
   countModuleCompletedLessons,
   type LessonStatusMap,
 } from "../../lib/course";
+import { useI18n } from "../../i18n/useI18n";
 import { cn } from "../../lib/utils";
-import type { CourseModule } from "../../types/course";
+import type { ModuleMeta } from "../../types/content";
 import { usePanelResize } from "../../hooks/usePanelResize";
 import { CourseProgress } from "../course/CourseProgress";
 import { ModuleTreeItem } from "../course/ModuleTreeItem";
+import { ProgressMenu } from "../course/ProgressMenu";
 import { ResizeHandle } from "./ResizeHandle";
 
-const SIDEBAR_MIN_WIDTH = 200;
-const SIDEBAR_MAX_WIDTH = 380;
-const SIDEBAR_INITIAL_WIDTH = 240;
+const SIDEBAR_MIN_WIDTH = 240;
+const SIDEBAR_MAX_WIDTH = 400;
+const SIDEBAR_INITIAL_WIDTH = 290;
 
 interface CourseSidebarProps {
-  modules: CourseModule[];
+  modules: ModuleMeta[];
   selectedLessonId: string;
   statuses: LessonStatusMap;
   isOpen: boolean;
   onSelectLesson: (lessonId: string) => void;
 }
 
-function findModuleIdByLesson(modules: CourseModule[], lessonId: string): string | undefined {
+function findModuleIdByLesson(modules: ModuleMeta[], lessonId: string): string | undefined {
   return modules.find((module) => module.lessons.some((lesson) => lesson.id === lessonId))?.id;
 }
 
 export function CourseSidebar({ modules, selectedLessonId, statuses, isOpen, onSelectLesson }: CourseSidebarProps) {
+  const { t } = useI18n();
   const selectedModuleId = findModuleIdByLesson(modules, selectedLessonId);
   const [expandedModuleIds, setExpandedModuleIds] = useState<string[]>(() =>
     selectedModuleId ? [selectedModuleId] : [],
@@ -66,23 +68,25 @@ export function CourseSidebar({ modules, selectedLessonId, statuses, isOpen, onS
   return (
     <aside
       id="course-sidebar"
-      aria-label="Currículo do curso"
+      aria-label={t("sidebar.label")}
       style={{ "--sidebar-width": `${width}px` } as CSSProperties}
       className={cn(
-        "fixed bottom-0 left-0 top-12 z-40 flex w-[248px] flex-col border-r border-line bg-surface transition-transform duration-200 xl:relative xl:top-0 xl:z-auto xl:w-(--sidebar-width) xl:shrink-0 xl:translate-x-0 xl:visible xl:transition-none",
+        "fixed bottom-0 left-0 top-15 z-40 flex w-[290px] flex-col border-r border-line bg-surface transition-transform duration-200 print:hidden xl:relative xl:top-0 xl:z-auto xl:w-(--sidebar-width) xl:shrink-0 xl:translate-x-0 xl:visible xl:rounded-lg xl:border xl:transition-none",
         isOpen ? "visible translate-x-0" : "invisible -translate-x-full",
       )}
     >
-      <div className="flex items-center gap-2.5 border-b border-line px-4 py-3">
-        <FolderOpen size={16} aria-hidden="true" className="text-muted" />
-        <div className="min-w-0">
-          <p className="text-sm font-semibold text-ink">Curso</p>
-          <p className="font-mono text-[11px] text-muted">{countLessons(modules)} lições</p>
-        </div>
+      <div className="flex items-center justify-between gap-2 px-3.5 pb-2.5 pt-3.5">
+        <p className="text-sm font-bold leading-[18px] text-ink">
+          <span aria-hidden="true">■ </span>
+          {t("sidebar.title")}
+        </p>
+        <p className="text-[11px] leading-[14px] text-muted">
+          {t("sidebar.lessonCount", { count: countLessons(modules) })}
+        </p>
       </div>
 
-      <nav aria-label="Módulos" className="no-scrollbar min-h-0 flex-1 overflow-y-auto px-2 py-3">
-        <ul className="flex flex-col gap-1">
+      <nav aria-label={t("sidebar.modules")} className="no-scrollbar min-h-0 flex-1 overflow-y-auto px-2 pb-2">
+        <ul className="flex flex-col gap-0.5">
           {modules.map((module) => (
             <ModuleTreeItem
               key={module.id}
@@ -105,7 +109,9 @@ export function CourseSidebar({ modules, selectedLessonId, statuses, isOpen, onS
         onToggleAll={toggleAllModules}
       />
 
-      <ResizeHandle label="Redimensionar sidebar do curso" edge="right" separatorProps={separatorProps} />
+      <ProgressMenu />
+
+      <ResizeHandle label={t("sidebar.resize")}edge="right" separatorProps={separatorProps} />
     </aside>
   );
 }
