@@ -1,0 +1,103 @@
+/*
+ * Impressão das cheat sheets (SUM-01.2): sem navegação, fundo branco e no máximo 2 páginas A4.
+ * As cores continuam vindo dos tokens; na impressão, os tokens de fundo e de tinta passam a apontar
+ * para as cores de sistema Canvas e CanvasText do esquema claro (papel branco, tinta preta), em qualquer tema.
+ */
+@media print {
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+
+  /* O main.tsx importa este arquivo depois do globals.css: com a mesma especificidade, estes valores vencem os do tema. */
+  :root,
+  :root[data-theme="dark"] {
+    color-scheme: light;
+    --bg-paper: Canvas;
+    --bg-grid: transparent;
+    --surface-raised: Canvas;
+    --surface-sunken: Canvas;
+    --ink-primary: CanvasText;
+    --ink-muted: CanvasText;
+    --ink-subtle: GrayText;
+    --line-strong: CanvasText;
+    --line-soft: GrayText;
+    --accent-brand-soft: Canvas;
+    --state-success-soft: Canvas;
+    --state-info-soft: Canvas;
+    /*
+     * Tinta de estado no papel branco: os valores do tema claro de tokens.css, também a partir do
+     * tema escuro, cujo #A595E6 ficaria com 2,4:1 sobre o branco. print.test.ts confere a igualdade.
+     */
+    --state-success: #5FA35B;
+    --state-info: #7B68C4;
+    --state-danger: #D2554F;
+    --state-success-ink: #376E34;
+    --state-info-ink: #5E4AAE;
+    --state-danger-ink: #AD3832;
+  }
+
+  /* O app ocupa a tela com rolagem interna; no papel, o conteúdo flui por páginas. */
+  html,
+  body,
+  #root,
+  #root > div,
+  #root main {
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  #root > div,
+  #root main {
+    display: block !important;
+  }
+
+  /* Navegação: cabeçalho com as abas, árvore do curso, lista de resumos, botões e avisos. */
+  #root > div > header,
+  #root > div > [role="status"],
+  #course-sidebar,
+  .print-hidden {
+    display: none !important;
+  }
+
+  .summary-print-area {
+    padding: 0 !important;
+    gap: 0 !important;
+  }
+
+  .summary-sheet {
+    border-radius: 0;
+    box-shadow: none;
+    font-size: 10pt;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  /* O diagrama fica numa faixa baixa para sobrar a página para o texto. */
+  .summary-diagram {
+    min-height: 0 !important;
+    max-height: 70mm;
+    overflow: hidden;
+  }
+
+  /* Só o SVG da cena: os ícones Lucide dos chips do pipeline mantêm o tamanho próprio. */
+  .summary-diagram svg:not(.lucide) {
+    max-height: 66mm;
+    width: 100%;
+  }
+
+  .summary-section,
+  .summary-diagram,
+  .summary-sheet li {
+    break-inside: avoid;
+  }
+
+  .summary-sheet h1,
+  .summary-sheet h2 {
+    break-after: avoid;
+  }
+
+  .summary-sheet a {
+    text-decoration: none;
+  }
+}

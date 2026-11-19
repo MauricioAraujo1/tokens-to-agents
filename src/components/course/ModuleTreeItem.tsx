@@ -1,11 +1,11 @@
 import { ChevronRight } from "lucide-react";
-import { getModuleColor, type LessonStatusMap } from "../../lib/course";
+import type { LessonStatusMap } from "../../lib/course";
 import { cn } from "../../lib/utils";
-import type { CourseModule } from "../../types/course";
+import type { ModuleMeta } from "../../types/content";
 import { LessonTreeItem } from "./LessonTreeItem";
 
 interface ModuleTreeItemProps {
-  module: CourseModule;
+  module: ModuleMeta;
   completedCount: number;
   isExpanded: boolean;
   selectedLessonId: string;
@@ -33,34 +33,42 @@ export function ModuleTreeItem({
         aria-expanded={isExpanded}
         aria-controls={panelId}
         onClick={onToggle}
-        className="flex w-full items-center gap-2 rounded-[5px] py-1.5 pl-1 pr-2 text-left text-xs leading-4 text-ink transition-colors hover:bg-sunken"
+        className="flex w-full items-center gap-2 rounded-[5px] py-1.5 pl-1 pr-2 text-start text-xs leading-4 text-ink transition-colors hover:bg-sunken"
       >
         <ChevronRight
           size={14}
           aria-hidden="true"
           className={cn("shrink-0 transition-transform", isExpanded ? "rotate-90 text-ink" : "text-muted")}
         />
-        <span
+        <svg
           aria-hidden="true"
-          className="h-[11px] w-3.5 shrink-0 rounded-[2px] border border-line-strong"
-          style={{ backgroundColor: getModuleColor(module) }}
-        />
+          width="14"
+          height="11"
+          viewBox="0 0 14 11"
+          className="shrink-0"
+          style={{ color: `var(--module-${module.id})` }}
+        >
+          <rect x="0.5" y="0.5" width="13" height="10" rx="2" fill="currentColor" className="stroke-line-strong" />
+        </svg>
+        {/* "08. RAG Architecture" é conteúdo: em RTL o número não pode ir para o fim ("RAG Architecture .08"). */}
         <span className={cn("min-w-0 flex-1", isExpanded && "font-semibold")}>
-          {module.number}. {module.title}
+          <bdi dir="ltr">
+            {module.id}. {module.title}
+          </bdi>
         </span>
-        <span className={cn("shrink-0 text-[11px] leading-[14px]", isComplete ? "text-success" : "text-muted")}>
+        <span className={cn("shrink-0 text-[11px] leading-[14px]", isComplete ? "text-success-ink" : "text-muted")}>
           {completedCount}/{module.lessons.length}
-          {isComplete && " ✓"}
+          {isComplete && <span aria-hidden="true"> ✓</span>}
         </span>
       </button>
 
       {isExpanded && (
-        <ul id={panelId} className="mt-0.5 flex animate-step-in flex-col gap-0.5">
+        <ul id={panelId} className="mt-0.5 flex flex-col gap-0.5">
           {module.lessons.map((lesson) => (
             <LessonTreeItem
               key={lesson.id}
               lesson={lesson}
-              status={statuses[lesson.id] ?? lesson.status}
+              status={statuses[lesson.id] ?? "not-started"}
               isCurrent={lesson.id === selectedLessonId}
               onSelect={() => onSelectLesson(lesson.id)}
             />

@@ -1,3 +1,4 @@
+/** Marca "t→a" do design system: decorativa, o nome do produto vem ao lado. */
 export function BrandMark() {
   return (
     <span

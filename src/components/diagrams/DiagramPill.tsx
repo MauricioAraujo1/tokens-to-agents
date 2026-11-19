@@ -14,6 +14,7 @@ interface DiagramPillProps {
 const PILL_HEIGHT = 22;
 const PILL_SHADOW_OFFSET = 2.5;
 
+// "Pílulas e conexões" (FigCraft): neutra em surface, passo com 45% de verde, erro com 28% de vermelho.
 const PILL_FILL: Record<DiagramPillTone, string> = {
   neutral: "var(--surface-raised)",
   success: "color-mix(in srgb, var(--diagram-green) 45%, var(--surface-raised))",

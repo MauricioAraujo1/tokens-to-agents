@@ -1,56 +1,34 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { createStatusMap, type LessonStatusMap } from "../lib/course";
-import { createEmptyProgress, parseProgress, readStoredProgress, serializeProgress, writeStoredProgress } from "../lib/progress";
-import type { CourseModule } from "../types/course";
+import { progressStore, type ProgressStore } from "../lib/progress/store";
+import type { LessonId, ModuleMeta } from "../types/content";
+import { useProgress } from "./useProgress";
 
 export interface CourseProgress {
   statuses: LessonStatusMap;
   startLesson: (lessonId: string) => void;
   completeLesson: (lessonId: string) => void;
-  resetProgress: () => void;
-  exportProgress: () => string;
-  importProgress: (raw: string) => boolean;
 }
 
-export function useCourseProgress(modules: CourseModule[]): CourseProgress {
-  const baseStatuses = useMemo(() => createStatusMap(modules), [modules]);
-  const [statuses, setStatuses] = useState<LessonStatusMap>(() => readStoredProgress(baseStatuses));
+/** Fachada do `ProgressStore` com a API antiga; "em andamento" vale só para a sessão. */
+export function useCourseProgress(modules: ModuleMeta[], store: ProgressStore = progressStore): CourseProgress {
+  const { completed } = useProgress(store);
+  const [started, setStarted] = useState<ReadonlySet<string>>(() => new Set());
 
-  useEffect(() => {
-    writeStoredProgress(statuses);
-  }, [statuses]);
+  const statuses = useMemo(() => {
+    const map = createStatusMap(modules);
+    for (const id of Object.keys(map)) {
+      if (completed[id as LessonId]) map[id] = "completed";
+      else if (started.has(id)) map[id] = "in-progress";
+    }
+    return map;
+  }, [modules, completed, started]);
 
   const startLesson = useCallback((lessonId: string) => {
-    setStatuses((previous) =>
-      previous[lessonId] === "not-started" ? { ...previous, [lessonId]: "in-progress" } : previous,
-    );
+    setStarted((previous) => (previous.has(lessonId) ? previous : new Set(previous).add(lessonId)));
   }, []);
 
-  const completeLesson = useCallback((lessonId: string) => {
-    setStatuses((previous) =>
-      previous[lessonId] === "completed" ? previous : { ...previous, [lessonId]: "completed" },
-    );
-  }, []);
+  const completeLesson = useCallback((lessonId: string) => store.completeLesson(lessonId as LessonId), [store]);
 
-  const resetProgress = useCallback(() => {
-    setStatuses(createEmptyProgress(baseStatuses));
-  }, [baseStatuses]);
-
-  const exportProgress = useCallback(() => serializeProgress(statuses), [statuses]);
-
-  const importProgress = useCallback(
-    (raw: string) => {
-      const imported = parseProgress(raw, createEmptyProgress(baseStatuses));
-
-      if (!imported) {
-        return false;
-      }
-
-      setStatuses(imported);
-      return true;
-    },
-    [baseStatuses],
-  );
-
-  return { statuses, startLesson, completeLesson, resetProgress, exportProgress, importProgress };
+  return { statuses, startLesson, completeLesson };
 }

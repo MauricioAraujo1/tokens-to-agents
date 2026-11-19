@@ -1,98 +1,46 @@
 @import "tailwindcss";
+@import "./tokens.css";
 
 :root {
   color-scheme: light;
-  --bg-paper: #f4eee2;
-  --bg-grid: #e6ddcb;
-  --surface-raised: #fbf8f2;
-  --surface-sunken: #efe7d8;
-  --ink-primary: #1b1916;
-  --ink-muted: #6e675c;
-  --ink-subtle: #9a9284;
-  --line-strong: #1b1916;
-  --line-soft: #ddd3c1;
-  --accent-brand: #f2b33d;
-  --accent-brand-soft: #fce7b8;
-  --accent-on-brand: #1b1916;
-  --state-success: #5fa35b;
-  --state-success-soft: #ddefd6;
-  --state-info: #7b68c4;
-  --state-info-soft: #e9e3f7;
-  --state-danger: #d2554f;
-  --shadow-hard: #1b1916;
-  --module-00: #9aa5b1;
-  --module-01: #7fb77e;
-  --module-02: #5fa8a0;
-  --module-03: #8e7cc3;
-  --module-04: #6c8ee0;
-  --module-05: #e0a458;
-  --module-06: #d98c6a;
-  --module-07: #c9a227;
-  --module-08: #d16a8b;
-  --module-09: #a47148;
-  --module-10: #4fa3c7;
-  --module-11: #b07cc6;
-  --module-12: #e07a5f;
-  --module-13: #5b9e6f;
-  --module-14: #c4864a;
-  --module-15: #7a8c3e;
-  --module-16: #c25b5b;
-  --module-17: #4c6a92;
-  --diagram-green: #b9d99b;
-  --diagram-blue: #8db9de;
-  --diagram-purple: #b8a2d8;
-  --diagram-orange: #efb47d;
-  --diagram-red: #d96b65;
-  --diagram-yellow: #e9d58b;
 }
 
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --bg-paper: #15130f;
-  --bg-grid: #24211b;
-  --surface-raised: #1e1b16;
-  --surface-sunken: #1a1813;
-  --ink-primary: #f3ede1;
-  --ink-muted: #a69f91;
-  --ink-subtle: #7a7366;
-  --line-strong: #e9e1d2;
-  --line-soft: #34302a;
-  --accent-brand: #f2b33d;
-  --accent-brand-soft: #4a3a18;
-  --accent-on-brand: #1b1916;
-  --state-success: #7cc478;
-  --state-success-soft: #24361f;
-  --state-info: #a595e6;
-  --state-info-soft: #2b2640;
-  --state-danger: #e8736d;
-  --shadow-hard: #5c5549;
-  --module-00: #aeb8c3;
-  --module-01: #93c792;
-  --module-02: #74bbb3;
-  --module-03: #a595e6;
-  --module-04: #86a3ea;
-  --module-05: #e8b46f;
-  --module-06: #e3a083;
-  --module-07: #d8b445;
-  --module-08: #de85a1;
-  --module-09: #b98861;
-  --module-10: #69b5d6;
-  --module-11: #c194d4;
-  --module-12: #e89279;
-  --module-13: #72b286;
-  --module-14: #d29b63;
-  --module-15: #93a556;
-  --module-16: #d47575;
-  --module-17: #6a88b0;
-  --diagram-green: #9cc27c;
-  --diagram-blue: #7aa6cc;
-  --diagram-purple: #a78ecb;
-  --diagram-orange: #d99a64;
-  --diagram-red: #e07f78;
-  --diagram-yellow: #d7c16e;
+}
+
+/*
+ * Fonte da escrita do idioma (I18N-01.6), carregada sob demanda por src/i18n/fonts.ts.
+ * A Geist Mono continua na frente para o latim; o `lang` do <html> escolhe a Noto certa,
+ * o que também separa os ideogramas de chinês simplificado, tradicional e japonês.
+ */
+:root {
+  --font-script: "Noto Sans Variable";
+}
+:root:lang(ar) {
+  --font-script: "Noto Sans Arabic Variable";
+}
+:root:lang(he) {
+  --font-script: "Noto Sans Hebrew Variable";
+}
+:root:lang(hi) {
+  --font-script: "Noto Sans Devanagari Variable";
+}
+:root:lang(zh-Hans) {
+  --font-script: "Noto Sans SC Variable";
+}
+:root:lang(zh-Hant) {
+  --font-script: "Noto Sans TC Variable";
+}
+:root:lang(ja) {
+  --font-script: "Noto Sans JP Variable";
+}
+:root:lang(ko) {
+  --font-script: "Noto Sans KR Variable";
 }
 
 @theme inline {
+  /* Nomes do design system (origin/master): os valores vêm de tokens.css. */
   --color-paper: var(--bg-paper);
   --color-grid: var(--bg-grid);
   --color-surface: var(--surface-raised);
@@ -110,11 +58,21 @@
   --color-info: var(--state-info);
   --color-info-soft: var(--state-info-soft);
   --color-danger: var(--state-danger);
-  --font-sans: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  /* Texto em cor de estado usa os *-ink (T136); success, info e danger ficam para bordas, ícones e preenchimentos. */
+  --color-success-ink: var(--state-success-ink);
+  --color-info-ink: var(--state-info-ink);
+  --color-danger-ink: var(--state-danger-ink);
+  --color-diagram-green: var(--diagram-green);
+  --color-diagram-blue: var(--diagram-blue);
+  --color-diagram-purple: var(--diagram-purple);
+  --color-diagram-orange: var(--diagram-orange);
+  --color-diagram-red: var(--diagram-red);
+  --color-diagram-yellow: var(--diagram-yellow);
   --shadow-press-sm: 1.5px 1.5px 0 var(--shadow-hard);
   --shadow-press: 2px 2px 0 var(--shadow-hard);
   --shadow-press-lg: 3px 3px 0 var(--shadow-hard);
+
+  /* Motion do app (origin/master 27abe4e): troca de passo, entrada de cartões e destaque de nós. */
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease-smooth: cubic-bezier(0.22, 1, 0.36, 1);
   --animate-fade-in: fade-in 260ms var(--ease-smooth) both;
@@ -122,8 +80,6 @@
   --animate-rise: rise 420ms var(--ease-smooth) both;
   --animate-pop-in: pop-in 360ms var(--ease-spring) both;
   --animate-zone-in: zone-in 460ms var(--ease-smooth) both;
-  --animate-draw: draw 700ms var(--ease-smooth) backwards;
-  --animate-grow: grow 620ms var(--ease-smooth) backwards;
 
   @keyframes fade-in {
     from {
@@ -159,17 +115,47 @@
     }
   }
 
-  @keyframes draw {
-    from {
-      stroke-dashoffset: 1;
-    }
-  }
+  --color-bg-paper: var(--bg-paper);
+  --color-bg-grid: var(--bg-grid);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-sunken: var(--surface-sunken);
+  --color-ink-primary: var(--ink-primary);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-subtle: var(--ink-subtle);
+  --color-line-soft: var(--line-soft);
+  --color-accent-brand: var(--accent-brand);
+  --color-accent-brand-soft: var(--accent-brand-soft);
+  --color-accent-on-brand: var(--accent-on-brand);
+  --color-state-success: var(--state-success);
+  --color-state-success-soft: var(--state-success-soft);
+  --color-state-info: var(--state-info);
+  --color-state-info-soft: var(--state-info-soft);
+  --color-state-danger: var(--state-danger);
+  --color-state-success-ink: var(--state-success-ink);
+  --color-state-info-ink: var(--state-info-ink);
+  --color-state-danger-ink: var(--state-danger-ink);
+  --color-shadow-hard: var(--shadow-hard);
+  --color-module-00: var(--module-00);
+  --color-module-01: var(--module-01);
+  --color-module-02: var(--module-02);
+  --color-module-03: var(--module-03);
+  --color-module-04: var(--module-04);
+  --color-module-05: var(--module-05);
+  --color-module-06: var(--module-06);
+  --color-module-07: var(--module-07);
+  --color-module-08: var(--module-08);
+  --color-module-09: var(--module-09);
+  --color-module-10: var(--module-10);
+  --color-module-11: var(--module-11);
+  --color-module-12: var(--module-12);
+  --color-module-13: var(--module-13);
+  --color-module-14: var(--module-14);
+  --color-module-15: var(--module-15);
+  --color-module-16: var(--module-16);
+  --color-module-17: var(--module-17);
 
-  @keyframes grow {
-    from {
-      transform: scaleY(0);
-    }
-  }
+  --font-sans: "Geist Mono Variable", "Geist Mono", var(--font-script), ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  --font-mono: "Geist Mono Variable", "Geist Mono", var(--font-script), ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
 }
 
 @layer base {
@@ -183,17 +169,18 @@
     margin: 0;
     background-color: var(--bg-paper);
     color: var(--ink-primary);
-    font-family: var(--font-mono);
+    font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
   }
 
   :focus-visible {
-    outline: 2px solid var(--line-strong);
+    outline: 2px solid var(--ink-primary);
     outline-offset: 2px;
   }
 }
 
 @layer components {
+  /* Grade da cena do design: linhas de 1 px a cada 24 px em bg/grid. */
   .scene-grid {
     background-color: var(--bg-paper);
     background-image:
@@ -220,6 +207,18 @@
     display: none;
   }
 
+  /* Motor de cenas: as peças marcam com .scene-animate o que anima entre passos (SCN-01.4). */
+  .scene-animate {
+    transition-property: transform, opacity, fill, stroke, stroke-width, width, height, x, y, cx, cy, r;
+    transition-duration: 450ms;
+    transition-timing-function: ease-in-out;
+  }
+
+  .scene-transition .scene-piece {
+    animation: scene-enter 450ms var(--ease-smooth);
+  }
+
+  /* Destaque de nós da cena RAG: opacidade, brilho e contorno mudam com o passo. */
   .rag-node {
     transition: opacity 420ms var(--ease-smooth);
   }
@@ -233,14 +232,10 @@
     transition: stroke-width 300ms var(--ease-smooth);
   }
 
+  /* Escala de formas SVG a partir do próprio centro. */
   .svg-anim-center {
     transform-box: fill-box;
     transform-origin: center;
-  }
-
-  .svg-anim-bottom {
-    transform-box: fill-box;
-    transform-origin: bottom;
   }
 
   .rag-node:focus-visible {
@@ -251,6 +246,7 @@
     stroke-width: 3.4;
   }
 
+  /* Slider do design (preview 09): trilho de 8 px com o trecho preenchido até o valor e o botão redondo. */
   .range-track {
     appearance: none;
     height: 8px;
@@ -262,6 +258,14 @@
       var(--surface-sunken) var(--range-progress) 100%
     );
     cursor: pointer;
+  }
+
+  .range-track:dir(rtl) {
+    background: linear-gradient(
+      to left,
+      var(--range-fill) 0 var(--range-progress),
+      var(--surface-sunken) var(--range-progress) 100%
+    );
   }
 
   .range-track::-webkit-slider-thumb {
@@ -282,6 +286,16 @@
   }
 }
 
+/*
+ * Rótulos em caixa alta com letter-spacing (I18N-01.6, T140): árabe, hebraico, devanágari, chinês,
+ * japonês e coreano não têm caixa, e o espaçamento entre letras quebra a ligação dos glifos. Nessas
+ * escritas o rótulo fica no texto normal. Fora de camada, para vencer `uppercase` e `tracking-*`.
+ */
+.uppercase:is(:lang(ar), :lang(he), :lang(hi), :lang(zh), :lang(ja), :lang(ko)) {
+  text-transform: none;
+  letter-spacing: normal;
+}
+
 @keyframes flow-travel {
   from {
     offset-distance: 0%;
@@ -292,8 +306,20 @@
   }
 }
 
+@keyframes scene-enter {
+  from {
+    opacity: 0.6;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .flow-dot {
+  .flow-dot,
+  .scene-transition .scene-piece {
     animation: none;
   }
 

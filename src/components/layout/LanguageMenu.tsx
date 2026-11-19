@@ -1,106 +1,176 @@
 import { Check, ChevronDown, Globe } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { CURRENT_LANGUAGE_CODE, INTERFACE_LANGUAGES } from "../../data/languages";
+import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { getLocale, LOCALES, type LocaleTag } from "../../i18n/locales";
+import { useI18n } from "../../i18n/useI18n";
 import { cn } from "../../lib/utils";
 
+// Coluna da esquerda: escrita latina (EN…VI); da direita: as outras escritas (EL…HE), como no print de referência.
+const LEFT_COLUMN_SIZE = 11;
+const COLUMNS = [LOCALES.slice(0, LEFT_COLUMN_SIZE), LOCALES.slice(LEFT_COLUMN_SIZE)];
+
+function capitalize(text: string, locale: LocaleTag): string {
+  return text.charAt(0).toLocaleUpperCase(locale) + text.slice(1);
+}
+
+/** Índice do item na mesma linha da outra coluna. */
+function otherColumnIndex(index: number): number {
+  if (index < LEFT_COLUMN_SIZE) return Math.min(LEFT_COLUMN_SIZE + index, LOCALES.length - 1);
+  return Math.min(index - LEFT_COLUMN_SIZE, LEFT_COLUMN_SIZE - 1);
+}
+
 export function LanguageMenu() {
+  const { t, locale, setLocale } = useI18n();
   const [isOpen, setIsOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const menuId = useId();
+  const rootRef = useRef<HTMLDivElement>(null);
+  const itemRefs = useRef<Array<HTMLButtonElement | null>>([]);
+
+  // Nome de cada idioma no idioma atual da interface (I18N-01.1), sem precisar de 21 × 21 mensagens.
+  const displayNames = useMemo(() => new Intl.DisplayNames([locale], { type: "language" }), [locale]);
 
   useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
+    if (!isOpen) return;
+    itemRefs.current[LOCALES.findIndex((option) => option.tag === locale)]?.focus();
 
     function handlePointerDown(event: PointerEvent) {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
+      if (!rootRef.current?.contains(event.target as Node)) setIsOpen(false);
     }
-
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        setIsOpen(false);
-      }
-    }
-
     document.addEventListener("pointerdown", handlePointerDown);
-    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, [isOpen, locale]);
 
-    return () => {
-      document.removeEventListener("pointerdown", handlePointerDown);
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [isOpen]);
+  function close() {
+    setIsOpen(false);
+    rootRef.current?.querySelector<HTMLButtonElement>("[aria-haspopup='menu']")?.focus();
+  }
+
+  function choose(tag: LocaleTag) {
+    setLocale(tag);
+    close();
+  }
+
+  function handleKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    const current = itemRefs.current.findIndex((element) => element === document.activeElement);
+    const isRtl = document.documentElement.dir === "rtl";
+    let next: number | null = null;
+
+    switch (event.key) {
+      case "Escape":
+        event.preventDefault();
+        close();
+        return;
+      case "ArrowDown":
+        next = (current + 1) % LOCALES.length;
+        break;
+      case "ArrowUp":
+        next = (current - 1 + LOCALES.length) % LOCALES.length;
+        break;
+      case "Home":
+        next = 0;
+        break;
+      case "End":
+        next = LOCALES.length - 1;
+        break;
+      case "ArrowRight":
+      case "ArrowLeft": {
+        // No RTL a coluna da esquerda (início) fica à direita: as setas seguem o lado visual.
+        const towardsEnd = (event.key === "ArrowRight") !== isRtl;
+        const isInFirstColumn = current < LEFT_COLUMN_SIZE;
+        next = towardsEnd === isInFirstColumn ? otherColumnIndex(current) : current;
+        break;
+      }
+      default:
+        return;
+    }
+
+    // preventDefault também impede que as setas troquem o passo da aula (useAppShortcuts).
+    event.preventDefault();
+    itemRefs.current[next]?.focus();
+  }
+
+  const current = getLocale(locale);
 
   return (
-    <div ref={containerRef} className="relative">
+    <div ref={rootRef} className="relative">
       <button
         type="button"
-        aria-haspopup="dialog"
+        aria-label={t("header.language")}
+        aria-haspopup="menu"
         aria-expanded={isOpen}
-        aria-controls="language-menu"
-        aria-label={`Idioma da interface: ${CURRENT_LANGUAGE_CODE}`}
-        onClick={() => setIsOpen((current) => !current)}
-        className="flex h-[37px] items-center gap-1.5 rounded-md border border-line-strong bg-surface px-2.5 text-[13px] font-medium text-ink transition-colors hover:bg-sunken sm:px-3"
+        aria-controls={isOpen ? menuId : undefined}
+        onClick={() => setIsOpen((open) => !open)}
+        className="flex h-[37px] items-center gap-1.5 rounded-md border-line-strong px-2 text-[13px] font-medium text-ink transition-colors hover:bg-sunken sm:border sm:bg-surface sm:px-3"
       >
         <Globe size={15} aria-hidden="true" />
-        <span className="hidden sm:inline">{CURRENT_LANGUAGE_CODE}</span>
+        <span className="hidden sm:inline">{current.code}</span>
         <ChevronDown size={12} aria-hidden="true" className="hidden sm:block" />
       </button>
 
       {isOpen && (
         <div
-          id="language-menu"
-          role="dialog"
-          aria-label="Idioma da interface"
-          className="fixed inset-x-3 top-[64px] z-50 origin-top-right animate-pop-in max-h-[calc(100dvh-80px)] overflow-y-auto rounded-lg border-[1.5px] border-line-strong bg-surface p-4 shadow-press-lg sm:absolute sm:inset-x-auto sm:right-0 sm:top-[calc(100%+8px)] sm:w-[560px]"
+          id={menuId}
+          role="menu"
+          aria-label={t("languageMenu.title")}
+          onKeyDown={handleKeyDown}
+          // Abaixo de 640 px o menu se prende às bordas da tela, para não sair dela (RSP-01.5).
+          className="absolute end-0 top-full z-50 mt-2 max-h-[calc(100dvh-80px)] w-[min(35rem,calc(100vw-2rem))] overflow-y-auto rounded-lg border-[1.5px] border-line-strong bg-surface p-4 shadow-press-lg max-sm:fixed max-sm:inset-x-4 max-sm:top-15 max-sm:w-auto"
         >
-          <p className="border-b border-line pb-3 text-[11px] font-semibold uppercase tracking-[1px] text-ink">
-            Idioma da interface
+          <p
+            aria-hidden="true"
+            className="border-b border-line pb-3 text-[11px] font-semibold uppercase tracking-[1px] text-ink"
+          >
+            {t("languageMenu.title")}
           </p>
-          <ul className="mt-3 grid grid-cols-1 gap-x-4 gap-y-1 sm:grid-cols-2">
-            {INTERFACE_LANGUAGES.map((language) => {
-              const isCurrent = language.code === CURRENT_LANGUAGE_CODE;
+          <div className="mt-3 grid grid-cols-2 gap-x-4">
+            {COLUMNS.map((column, columnIndex) => (
+              <div key={columnIndex} role="group" className="flex min-w-0 flex-col gap-1">
+                {column.map((option, rowIndex) => {
+                  const index = columnIndex * LEFT_COLUMN_SIZE + rowIndex;
+                  const isSelected = option.tag === locale;
+                  const localName = capitalize(displayNames.of(option.tag) ?? option.nativeName, locale);
 
-              return (
-                <li key={language.code}>
-                  <button
-                    type="button"
-                    disabled={!language.isAvailable}
-                    aria-pressed={isCurrent}
-                    title={language.isAvailable ? undefined : "Em breve"}
-                    onClick={() => setIsOpen(false)}
-                    className={cn(
-                      "flex w-full items-center gap-3 rounded-md border-[1.5px] px-2 py-1.5 text-left transition-colors",
-                      isCurrent
-                        ? "border-line-strong bg-brand-soft shadow-press"
-                        : "border-transparent enabled:hover:bg-sunken disabled:cursor-not-allowed",
-                    )}
-                  >
-                    <span
-                      aria-hidden="true"
+                  return (
+                    <button
+                      key={option.tag}
+                      ref={(element) => {
+                        itemRefs.current[index] = element;
+                      }}
+                      type="button"
+                      role="menuitemradio"
+                      aria-checked={isSelected}
+                      tabIndex={-1}
+                      data-locale={option.tag}
+                      lang={option.tag}
+                      onClick={() => choose(option.tag)}
                       className={cn(
-                        "grid size-7 shrink-0 place-items-center rounded-md border border-line-strong text-[9px] font-bold",
-                        isCurrent ? "bg-brand text-on-brand" : "bg-surface text-ink",
+                        "flex items-center gap-3 rounded-md border-[1.5px] px-2 py-1.5 text-start transition-colors",
+                        "focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-line-strong",
+                        isSelected ? "border-line-strong bg-brand-soft shadow-press" : "border-transparent hover:bg-sunken",
                       )}
                     >
-                      {isCurrent ? <Check size={13} strokeWidth={3} /> : language.code}
-                    </span>
-                    <span className={cn("min-w-0", !language.isAvailable && "opacity-60")}>
-                      <span className="block truncate text-xs font-bold uppercase text-ink">{language.nativeName}</span>
-                      <span className="block truncate text-[11px] text-muted">
-                        {language.portugueseName}
-                        {!language.isAvailable && " · em breve"}
+                      <span
+                        aria-hidden="true"
+                        className={cn(
+                          "grid size-7 shrink-0 place-items-center rounded-md border border-line-strong text-[9px] font-bold",
+                          isSelected ? "bg-brand text-on-brand" : "bg-surface text-ink",
+                        )}
+                      >
+                        {isSelected ? <Check size={13} strokeWidth={3} /> : option.code}
                       </span>
-                    </span>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
+                      <span className="min-w-0">
+                        <span className="block truncate text-xs font-bold uppercase text-ink">{option.nativeName}</span>
+                        <span lang={locale} className="block truncate text-[11px] text-muted">
+                          {localName}
+                        </span>
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
           <p className="mt-3 text-[10.5px] leading-[1.4] text-muted">
-            As aulas estão em português. Em outros idiomas, a interface é traduzida e a aula mostra um aviso.
+            {t("languageMenu.note")}
           </p>
         </div>
       )}
