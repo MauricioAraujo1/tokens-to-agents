@@ -1918,8 +1918,8 @@ Cada tarefa cria um arquivo tipado como `Messages`. Uma chave faltando quebra o 
 **Requirement**: OPS-01.5
 
 **Done when**:
-- [ ] Os dois arquivos estão na raiz com o texto oficial das licenças
-- [ ] Gate check passes: `npm run lint && npm run build && npm test`
+- [x] Os dois arquivos estão na raiz com o texto oficial das licenças
+- [x] Gate check passes: `npm run lint && npm run build && npm test`
 
 **Tests**: none
 **Gate**: build

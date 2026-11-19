@@ -196,7 +196,7 @@ export function HomeView({
         </section>
 
         <footer className="whitespace-pre-wrap text-[10.5px] text-subtle">
-          Inspirado em designed-to-scale  ·  conteúdo aberto  ·  sem login, sem cookies
+          Inspirado em designed-to-scale  ·  código MIT  ·  conteúdo CC BY-SA 4.0  ·  sem login, sem cookies
         </footer>
       </div>
     </div>

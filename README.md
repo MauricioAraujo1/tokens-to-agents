@@ -205,4 +205,9 @@ Contributions are welcome — new lessons and scenes, quizzes, cheat sheets, pla
 
 ## License
 
-A license has not been chosen yet. Until one is added, all rights are reserved by the authors.
+Tokens to Agents is open source under two licenses:
+
+- **Code** — [MIT License](LICENSE).
+- **Educational content** (lessons, quizzes, summaries and labs in `src/data/`, and the curriculum in `docs/`) — [Creative Commons Attribution-ShareAlike 4.0 International](LICENSE-CONTENT) (CC BY-SA 4.0).
+
+You are free to reuse, adapt and translate the content as long as you give appropriate credit and share your adaptations under the same license.

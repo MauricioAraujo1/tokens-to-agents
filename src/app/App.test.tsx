@@ -25,6 +25,7 @@ describe("App", () => {
     expect(screen.getByText("6 / 59 · 10%")).toBeInTheDocument();
     expect(screen.getByRole("heading", { level: 2, name: "18 módulos" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Aprender" })).toHaveAttribute("aria-current", "page");
+    expect(screen.getByText(/código MIT\s+·\s+conteúdo CC BY-SA 4\.0/)).toBeInTheDocument();
   });
 
   it("continua a aula RAG com o primeiro passo, a timeline e o painel explicativo", async () => {
