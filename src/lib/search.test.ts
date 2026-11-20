@@ -8,6 +8,9 @@ import { buildSearchIndex, loadFullSearchIndex, MAX_SEARCH_RESULTS, searchAll, s
 const entries = flattenLessons(catalog);
 const index = buildSearchIndex({ catalog, glossary, lessons: [ragLesson] });
 
+// O índice completo carrega o conteúdo de todos os módulos publicados; na suíte inteira, passa de 5 s.
+const FULL_INDEX_TIMEOUT_MS = 20_000;
+
 describe("searchAll", () => {
   it("encontra Attention Mechanism e Self-Attention digitando 'atencao', sem acento (SRCH-01.2)", () => {
     const titles = searchAll("atencao", index).map((result) => result.lesson.title);
@@ -61,11 +64,12 @@ describe("searchAll", () => {
 
   it("o índice completo acrescenta os títulos dos passos das aulas carregadas", async () => {
     const full = await loadFullSearchIndex();
+    const everyMatch = searchAll("similaridade", full, full.concept.length);
 
-    expect(searchAll("similaridade", full).filter((result) => result.group === "concept")).toContainEqual(
+    expect(everyMatch.filter((result) => result.group === "concept")).toContainEqual(
       expect.objectContaining({ label: "Os documentos são comparados por similaridade" }),
     );
-  });
+  }, FULL_INDEX_TIMEOUT_MS);
 });
 
 describe("searchLessons", () => {

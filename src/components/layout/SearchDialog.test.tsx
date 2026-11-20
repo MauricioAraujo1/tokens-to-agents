@@ -2,6 +2,7 @@ import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useState } from "react";
 import { describe, expect, it, vi } from "vitest";
+import { loadFullSearchIndex } from "../../lib/search";
 import { SearchDialog } from "./SearchDialog";
 
 // O grupo "Conceitos" carrega o conteúdo de todos os módulos publicados; com a suíte inteira em paralelo,
@@ -84,17 +85,20 @@ describe("SearchDialog", () => {
   }, CONCEPT_INDEX_TIMEOUT_MS);
 
   it("acha as aulas de attention digitando 'atencao' e abre a escolhida com as setas e Enter (SRCH-01.3)", async () => {
+    // Com o índice completo já carregado, a lista não muda enquanto o teste navega pelo teclado.
+    await loadFullSearchIndex();
     const { user, onSelectLesson } = renderDialog();
 
     await user.type(searchbox(), "atencao");
     const glossaryTerms = screen.getByRole("list", { name: "Glossário" });
     expect(within(glossaryTerms).getByRole("button", { name: /Attention Mechanism/ })).toBeInTheDocument();
-    expect(within(glossaryTerms).getByRole("button", { name: /Self-Attention/ })).toBeInTheDocument();
+    const selfAttention = within(glossaryTerms).getByRole("button", { name: /Self-Attention/ });
+    const position = screen.getAllByRole("listitem").findIndex((item) => item.contains(selfAttention));
 
-    await user.keyboard("{ArrowDown}{Enter}");
+    await user.keyboard(`${"{ArrowDown}".repeat(position)}{Enter}`);
 
     expect(onSelectLesson).toHaveBeenCalledWith("03-08");
-  });
+  }, CONCEPT_INDEX_TIMEOUT_MS);
 
   it("mostra no rodapé os atalhos e quantos resultados a busca achou", async () => {
     const { user } = renderDialog();
