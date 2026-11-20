@@ -1,0 +1,230 @@
+import type { GlossaryEntry } from "../glossary";
+
+// Termos do módulo 07: Information Retrieval.
+
+const entries: GlossaryEntry[] = [
+  {
+    id: "information-retrieval",
+    term: "Information Retrieval",
+    explanation: "Área que encontra, numa coleção grande de textos não estruturados, os itens que atendem a uma necessidade de informação, e os ordena por relevância.",
+    lesson: "07-01",
+  },
+  {
+    id: "information-need",
+    term: "Information Need",
+    explanation: "O que a pessoa quer saber de fato. A consulta é só a tentativa, em poucas palavras, de expressar essa necessidade.",
+    lesson: "07-01",
+  },
+  {
+    id: "relevance",
+    term: "Relevance",
+    explanation: "Quanto um documento atende à necessidade de informação de quem buscou. É julgada por pessoas, não pela contagem de palavras em comum.",
+    lesson: "07-01",
+  },
+  {
+    id: "ranking",
+    term: "Ranking",
+    explanation: "Lista de resultados ordenada por uma pontuação de relevância, do mais provável ao menos provável.",
+    lesson: "07-01",
+  },
+  {
+    id: "corpus",
+    term: "Corpus",
+    explanation: "A coleção de documentos onde a busca acontece: páginas, artigos, chamados, trechos.",
+    lesson: "07-01",
+  },
+  {
+    id: "lexical-search",
+    term: "Lexical Search",
+    explanation: "Busca por palavras: um documento só pontua quando tem os mesmos termos da consulta, depois da normalização. Também chamada de keyword search.",
+    lesson: "07-02",
+  },
+  {
+    id: "stopword",
+    term: "Stopword",
+    explanation: "Palavra muito comum, como “de” ou “o”, que costuma ser descartada porque quase não ajuda a separar documentos.",
+    lesson: "07-02",
+  },
+  {
+    id: "stemming",
+    term: "Stemming",
+    explanation: "Corte das palavras até um radical comum, para que “devolver” e “devolução” virem o mesmo termo no índice.",
+    lesson: "07-02",
+  },
+  {
+    id: "boolean-retrieval",
+    term: "Boolean Retrieval",
+    explanation: "Busca com operadores E, OU e NÃO: o documento casa ou não casa, sem ordem de relevância.",
+    lesson: "07-02",
+  },
+  {
+    id: "vocabulary-mismatch",
+    term: "Vocabulary Mismatch",
+    explanation: "Quando a consulta e o documento falam da mesma coisa com palavras diferentes, como “estorno” e “devolução do valor”, e a busca lexical não acha.",
+    lesson: "07-02",
+  },
+  {
+    id: "analyzer",
+    term: "Analyzer",
+    explanation: "A cadeia de normalização de um buscador (tokenizar, minúsculas, acentos, stopwords, radical). A mesma precisa rodar na indexação e na consulta.",
+    lesson: "07-02",
+  },
+  {
+    id: "inverted-index",
+    term: "Inverted Index",
+    explanation: "Estrutura que guarda, para cada termo, a lista dos documentos onde ele aparece. É o índice remissivo do fim do livro, feito para o buscador.",
+    lesson: "07-03",
+  },
+  {
+    id: "posting-list",
+    term: "Posting List",
+    explanation: "A lista de documentos (e, às vezes, contagens e posições) de um termo no índice invertido, ordenada pelo id do documento.",
+    lesson: "07-03",
+  },
+  {
+    id: "index-segment",
+    term: "Index Segment",
+    explanation: "Pedaço imutável de um índice invertido, como no Lucene. Documentos novos viram segmentos novos, que são fundidos em segundo plano.",
+    lesson: "07-03",
+  },
+  {
+    id: "term-frequency",
+    term: "Term Frequency (TF)",
+    explanation: "Quantas vezes um termo aparece num documento.",
+    lesson: "07-04",
+  },
+  {
+    id: "document-frequency",
+    term: "Document Frequency (DF)",
+    explanation: "Em quantos documentos da coleção um termo aparece. É o tamanho da posting list do termo.",
+    lesson: "07-04",
+  },
+  {
+    id: "idf",
+    term: "Inverse Document Frequency (IDF)",
+    explanation: "Peso que cresce quando o termo é raro na coleção, por exemplo log(N / df). Termo presente em todos os documentos pesa 0.",
+    lesson: "07-04",
+  },
+  {
+    id: "tf-idf",
+    term: "TF-IDF",
+    explanation: "Peso de um termo num documento: frequência no documento vezes raridade na coleção. Palavra repetida e rara pesa muito; palavra em todo lugar, nada.",
+    lesson: "07-04",
+  },
+  {
+    id: "bm25",
+    term: "BM25",
+    explanation: "Função de ranking lexical (Okapi BM25) que soma, por termo da consulta, IDF vezes uma frequência saturada (k1) e ajustada ao tamanho do documento (b). Padrão do Lucene e do Elasticsearch.",
+    lesson: "07-05",
+  },
+  {
+    id: "term-saturation",
+    term: "Term Frequency Saturation",
+    explanation: "No BM25, cada repetição de um termo vale menos que a anterior, e a contribuição tende a um teto de k1 + 1.",
+    lesson: "07-05",
+  },
+  {
+    id: "length-normalization",
+    term: "Length Normalization",
+    explanation: "Ajuste que desconta documentos longos, que contêm mais palavras por acaso. No BM25, o parâmetro b controla quanto.",
+    lesson: "07-05",
+  },
+  {
+    id: "semantic-search",
+    term: "Semantic Search",
+    explanation: "Busca por significado: consulta e documentos viram embeddings, e os mais próximos da consulta saem primeiro, mesmo sem palavras em comum.",
+    lesson: "07-06",
+  },
+  {
+    id: "dense-retrieval",
+    term: "Dense Retrieval",
+    explanation: "Recuperação com vetores densos (todas as dimensões preenchidas) gerados por um modelo, comparados por cosseno ou produto escalar.",
+    lesson: "07-06",
+  },
+  {
+    id: "bi-encoder",
+    term: "Bi-Encoder",
+    explanation: "Modelo que codifica consulta e documento separados, cada um no seu vetor. Os documentos são codificados uma vez, antes da busca.",
+    lesson: "07-06",
+  },
+  {
+    id: "sparse-retrieval",
+    term: "Sparse Retrieval",
+    explanation: "Recuperação com vetores esparsos, do tamanho do vocabulário e quase todos zero, como TF-IDF e BM25 sobre um índice invertido.",
+    lesson: "07-07",
+  },
+  {
+    id: "hybrid-search",
+    term: "Hybrid Search",
+    explanation: "Busca que roda a lexical e a semântica para a mesma consulta e funde os dois rankings num só.",
+    lesson: "07-08",
+  },
+  {
+    id: "score-normalization",
+    term: "Score Normalization",
+    explanation: "Levar pontuações de escalas diferentes para a mesma faixa, por exemplo de 0 a 1 com min-max, antes de somá-las.",
+    lesson: "07-08",
+  },
+  {
+    id: "reciprocal-rank-fusion",
+    term: "Reciprocal Rank Fusion (RRF)",
+    explanation: "Fusão de rankings que soma 1 / (k + posição) de cada lista, com k = 60 no artigo original. Usa só a posição, nunca a pontuação.",
+    lesson: "07-09",
+  },
+  {
+    id: "reranking",
+    term: "Reranking",
+    explanation: "Segunda etapa da busca: um modelo mais caro e mais preciso reordena só os primeiros candidatos da etapa rápida.",
+    lesson: "07-10",
+  },
+  {
+    id: "two-stage-retrieval",
+    term: "Two-Stage Retrieval",
+    explanation: "Arquitetura em que uma busca barata traz centenas de candidatos e um reranker escolhe a ordem final dos poucos que importam.",
+    lesson: "07-10",
+  },
+  {
+    id: "cross-encoder",
+    term: "Cross-Encoder",
+    explanation: "Modelo que lê consulta e documento juntos, na mesma entrada, e devolve uma pontuação de relevância do par. Preciso, mas pede uma passada por par.",
+    lesson: "07-11",
+  },
+  {
+    id: "late-interaction",
+    term: "Late Interaction",
+    explanation: "Meio-termo entre bi-encoder e cross-encoder, como no ColBERT: guarda um vetor por token e compara token a token só na hora da busca.",
+    lesson: "07-11",
+  },
+  {
+    id: "relevance-judgment",
+    term: "Relevance Judgment",
+    explanation: "Nota dada por uma pessoa a um par consulta e documento (por exemplo 0, 1 ou 2). O conjunto dessas notas, os qrels, é o gabarito da avaliação.",
+    lesson: "07-12",
+  },
+  {
+    id: "precision-at-k",
+    term: "Precision@k",
+    explanation: "Dos k primeiros resultados, quantos são relevantes, dividido por k.",
+    lesson: "07-12",
+  },
+  {
+    id: "recall-at-k",
+    term: "Recall@k",
+    explanation: "Dos documentos relevantes que existem para a consulta, quantos aparecem entre os k primeiros.",
+    lesson: "07-12",
+  },
+  {
+    id: "mrr",
+    term: "Mean Reciprocal Rank (MRR)",
+    explanation: "Média, sobre as consultas, de 1 / posição do primeiro resultado relevante. Mede o quão cedo aparece a primeira resposta boa.",
+    lesson: "07-12",
+  },
+  {
+    id: "ndcg",
+    term: "nDCG",
+    explanation: "Normalized Discounted Cumulative Gain: soma as notas de relevância descontadas pela posição e divide pela soma do ranking ideal. Vai de 0 a 1.",
+    lesson: "07-12",
+  },
+];
+
+export default entries;
