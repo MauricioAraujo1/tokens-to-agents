@@ -4,6 +4,10 @@ import { useState } from "react";
 import { describe, expect, it, vi } from "vitest";
 import { SearchDialog } from "./SearchDialog";
 
+// O grupo "Conceitos" carrega o conteúdo de todos os módulos publicados; com a suíte inteira em paralelo,
+// isso passa do limite padrão de 5 s por teste.
+const CONCEPT_INDEX_TIMEOUT_MS = 20_000;
+
 function renderDialog() {
   const onSelectLesson = vi.fn();
   const onClose = vi.fn();
@@ -66,7 +70,7 @@ describe("SearchDialog", () => {
 
     const lessons = screen.getByRole("list", { name: "Aulas" });
     // Os conceitos vêm dos passos das aulas, carregados sob demanda de todos os módulos publicados.
-    const concepts = await screen.findByRole("list", { name: "Conceitos" }, { timeout: 5000 });
+    const concepts = await screen.findByRole("list", { name: "Conceitos" }, { timeout: CONCEPT_INDEX_TIMEOUT_MS });
     const glossaryTerms = screen.getByRole("list", { name: "Glossário" });
 
     expect(within(lessons).getByRole("button", { name: /Word & Token Embeddings/ })).toBeInTheDocument();
@@ -77,7 +81,7 @@ describe("SearchDialog", () => {
       "03.05 · Word & Token Embeddings",
     );
     expect(screen.getAllByRole("listitem").length).toBeLessThanOrEqual(10);
-  });
+  }, CONCEPT_INDEX_TIMEOUT_MS);
 
   it("acha as aulas de attention digitando 'atencao' e abre a escolhida com as setas e Enter (SRCH-01.3)", async () => {
     const { user, onSelectLesson } = renderDialog();
