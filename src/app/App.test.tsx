@@ -216,14 +216,13 @@ describe("App", () => {
     expect(document.documentElement.dataset.theme).toBe("light");
   });
 
-  it("abre pela sidebar uma aula do catálogo ainda sem conteúdo e marca a aula como em andamento", async () => {
+  it("abre pela sidebar uma aula de outro módulo e marca a aula como em andamento", async () => {
     const { user } = await renderApp();
 
     await user.click(screen.getByRole("button", { name: /^17\. AI Infrastructure & Deployment/ }));
     await user.click(screen.getByRole("button", { name: /^AI Application Architecture/ }));
 
     expect(await screen.findByRole("heading", { level: 1, name: "AI Application Architecture" })).toBeInTheDocument();
-    expect(screen.getByText("Aula em preparação")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^AI Application Architecture.*Em andamento/ })).toHaveAttribute(
       "aria-current",
       "page",

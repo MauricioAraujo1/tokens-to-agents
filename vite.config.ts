@@ -11,5 +11,7 @@ export default defineConfig({
     // Os testes de App montam o app inteiro no jsdom; com um worker por núcleo, a disputa de CPU
     // estoura o timeout de 5 s. Metade dos núcleos mantém a suíte estável (decisão do usuário).
     maxWorkers: '50%',
+    // Com os 18 módulos publicados, os testes que montam o app carregam módulos de conteúdo maiores.
+    testTimeout: 15_000,
   },
 })
