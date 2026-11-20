@@ -292,7 +292,7 @@ def buscar_pedido(numero: str) -> str:
     return f"Pedido {numero}: enviado"
 
 agent = create_agent(
-    model="anthropic:claude-sonnet-5-5",
+    model="anthropic:claude-opus-5-5",
     tools=[buscar_pedido],
     system_prompt="Você atende clientes de uma loja.",
 )

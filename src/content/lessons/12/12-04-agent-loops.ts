@@ -260,7 +260,7 @@ const lesson: LessonContent = {
 def run(client, messages):
     for _ in range(MAX_ITERATIONS):
         response = client.messages.create(
-            model=MODEL, max_tokens=1024, system=SYSTEM, tools=TOOLS, messages=messages
+            model=MODEL, max_tokens=16_000, system=SYSTEM, tools=TOOLS, messages=messages
         )
         messages.append({"role": "assistant", "content": response.content})
         if response.stop_reason != "tool_use":
