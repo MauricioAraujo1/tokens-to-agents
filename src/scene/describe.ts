@@ -61,6 +61,11 @@ function describePiece(piece: PieceSpec, { t, locale }: DescribeOptions): string
         t("scene.piece.metrics-panel", { items: list(piece.metrics.map((metric) => `${metric.label} ${metric.value}`)) }),
         piece.metrics.find((metric) => metric.id === piece.highlight)?.label,
       );
+    case "block-diagram":
+      return withHighlight(
+        t("scene.piece.block-diagram", { items: list(piece.blocks.map((block) => block.label)) }),
+        piece.blocks.find((block) => block.id === piece.active)?.label,
+      );
   }
 }
 

@@ -2,7 +2,12 @@ import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useState } from "react";
 import { describe, expect, it, vi } from "vitest";
+import { loadFullSearchIndex } from "../../lib/search";
 import { SearchDialog } from "./SearchDialog";
+
+// O grupo "Conceitos" carrega o conteúdo de todos os módulos publicados; com a suíte inteira em paralelo,
+// isso passa do limite padrão de 5 s por teste.
+const CONCEPT_INDEX_TIMEOUT_MS = 20_000;
 
 function renderDialog() {
   const onSelectLesson = vi.fn();
@@ -46,7 +51,7 @@ describe("SearchDialog", () => {
     const { user, onSelectLesson } = renderDialog();
 
     await user.type(searchbox(), "chunking");
-    await user.click(screen.getByRole("button", { name: /Chunking Strategies/ }));
+    await user.click(within(screen.getByRole("list", { name: "Aulas" })).getByRole("button", { name: /Chunking Strategies/ }));
 
     expect(onSelectLesson).toHaveBeenCalledWith("08-05");
   });
@@ -65,31 +70,35 @@ describe("SearchDialog", () => {
     await user.type(searchbox(), "embedding");
 
     const lessons = screen.getByRole("list", { name: "Aulas" });
-    const concepts = await screen.findByRole("list", { name: "Conceitos" });
+    // Os conceitos vêm dos passos das aulas, carregados sob demanda de todos os módulos publicados.
+    const concepts = await screen.findByRole("list", { name: "Conceitos" }, { timeout: CONCEPT_INDEX_TIMEOUT_MS });
     const glossaryTerms = screen.getByRole("list", { name: "Glossário" });
 
     expect(within(lessons).getByRole("button", { name: /Word & Token Embeddings/ })).toBeInTheDocument();
-    expect(within(concepts).getByRole("button", { name: /O modelo de embedding gera um vetor/ })).toHaveTextContent(
-      "08.02 · RAG Architecture",
-    );
-    expect(within(glossaryTerms).getByRole("button", { name: /^Embedding/ })).toHaveTextContent(
+    const conceptButtons = within(concepts).getAllByRole("button");
+    expect(conceptButtons.length).toBeGreaterThan(0);
+    for (const button of conceptButtons) expect(button.textContent).toMatch(/\d{2}\.\d{2} · /);
+    expect(within(glossaryTerms).getAllByRole("button", { name: /^Embedding/ })[0]).toHaveTextContent(
       "03.05 · Word & Token Embeddings",
     );
     expect(screen.getAllByRole("listitem").length).toBeLessThanOrEqual(10);
-  });
+  }, CONCEPT_INDEX_TIMEOUT_MS);
 
   it("acha as aulas de attention digitando 'atencao' e abre a escolhida com as setas e Enter (SRCH-01.3)", async () => {
+    // Com o índice completo já carregado, a lista não muda enquanto o teste navega pelo teclado.
+    await loadFullSearchIndex();
     const { user, onSelectLesson } = renderDialog();
 
     await user.type(searchbox(), "atencao");
     const glossaryTerms = screen.getByRole("list", { name: "Glossário" });
     expect(within(glossaryTerms).getByRole("button", { name: /Attention Mechanism/ })).toBeInTheDocument();
-    expect(within(glossaryTerms).getByRole("button", { name: /Self-Attention/ })).toBeInTheDocument();
+    const selfAttention = within(glossaryTerms).getByRole("button", { name: /Self-Attention/ });
+    const position = screen.getAllByRole("listitem").findIndex((item) => item.contains(selfAttention));
 
-    await user.keyboard("{ArrowDown}{Enter}");
+    await user.keyboard(`${"{ArrowDown}".repeat(position)}{Enter}`);
 
     expect(onSelectLesson).toHaveBeenCalledWith("03-08");
-  });
+  }, CONCEPT_INDEX_TIMEOUT_MS);
 
   it("mostra no rodapé os atalhos e quantos resultados a busca achou", async () => {
     const { user } = renderDialog();

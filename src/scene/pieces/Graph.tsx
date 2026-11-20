@@ -8,6 +8,9 @@ const WIDTH = 480;
 const HEIGHT = 300;
 const PADDING = 44;
 const NODE_RADIUS = 20;
+const LABEL_CHAR_WIDTH = 7.2;
+/** Folga entre o rótulo e a borda do nó. */
+const LABEL_PADDING = 9;
 const ARROW_GAP = 4;
 const SHADOW_OFFSET = 2.5;
 
@@ -40,6 +43,17 @@ export function Graph({ spec, transition }: PieceProps<GraphSpec>) {
     ]),
   );
 
+  // Rótulo curto cabe no círculo; rótulo longo alarga o nó numa pílula da mesma altura.
+  const halfWidthOf = (id: string) => {
+    const label = spec.nodes.find((node) => node.id === id)?.label ?? "";
+    return Math.max(NODE_RADIUS, (label.length * LABEL_CHAR_WIDTH) / 2 + LABEL_PADDING);
+  };
+  // Distância do centro até a borda do nó na direção da aresta (a pílula aproximada por uma elipse).
+  const reachOf = (id: string, unit: { x: number; y: number }) => {
+    const halfWidth = halfWidthOf(id);
+    return 1 / Math.hypot(unit.x / halfWidth, unit.y / NODE_RADIUS);
+  };
+
   return (
     <svg viewBox={`0 0 ${WIDTH} ${HEIGHT}`} aria-hidden="true" className="block h-full max-h-full w-full">
       <defs>
@@ -57,8 +71,8 @@ export function Graph({ spec, transition }: PieceProps<GraphSpec>) {
         if (!from || !to) return null;
         const length = Math.hypot(to.x - from.x, to.y - from.y) || 1;
         const unit = { x: (to.x - from.x) / length, y: (to.y - from.y) / length };
-        const trimStart = NODE_RADIUS;
-        const trimEnd = NODE_RADIUS + ARROW_GAP;
+        const trimStart = reachOf(edge.from, unit);
+        const trimEnd = reachOf(edge.to, unit) + ARROW_GAP;
         const active = isOnPath(spec.path, edge.from, edge.to);
         const width = (active ? 2.4 : 1.4) + (edge.weight ?? 0) * 3;
 
@@ -84,6 +98,7 @@ export function Graph({ spec, transition }: PieceProps<GraphSpec>) {
         const point = position.get(node.id);
         if (!point) return null;
         const state = nodeState(spec, node.id);
+        const halfWidth = halfWidthOf(node.id);
         const color = sceneColor(node.color ?? (state === "visited" ? "success" : "brand"));
         const fill =
           state === "active"
@@ -103,17 +118,22 @@ export function Graph({ spec, transition }: PieceProps<GraphSpec>) {
             className={animate}
           >
             {/* Sombra dura e contorno forte, como as caixas de token do design. */}
-            <circle
-              cx={point.x + SHADOW_OFFSET}
-              cy={point.y + SHADOW_OFFSET}
-              r={NODE_RADIUS}
+            <rect
+              x={point.x - halfWidth + SHADOW_OFFSET}
+              y={point.y - NODE_RADIUS + SHADOW_OFFSET}
+              width={halfWidth * 2}
+              height={NODE_RADIUS * 2}
+              rx={NODE_RADIUS}
               className={animate}
               style={{ fill: "var(--shadow-hard)" }}
             />
-            <circle
-              cx={point.x}
-              cy={point.y}
-              r={NODE_RADIUS}
+            <rect
+              data-node-shape="true"
+              x={point.x - halfWidth}
+              y={point.y - NODE_RADIUS}
+              width={halfWidth * 2}
+              height={NODE_RADIUS * 2}
+              rx={NODE_RADIUS}
               strokeWidth={state === "active" ? 2.4 : 1.5}
               className={animate}
               style={{ fill, stroke: "var(--line-strong)" }}

@@ -158,6 +158,7 @@ const ko: Messages = {
   "scene.piece.client-server": "클라이언트와 서버: {items}",
   "scene.piece.chart": "차트: {items}",
   "scene.piece.metrics-panel": "지표: {items}",
+  "scene.piece.block-diagram": "블록 다이어그램: {items}",
   "scene.highlight": "{description} (강조: {item})",
   "scene.tokenStream.query": "쿼리",
   "scene.tokenStream.key": "키",

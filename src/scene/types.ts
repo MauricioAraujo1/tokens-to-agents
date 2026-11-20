@@ -1,6 +1,7 @@
 // Motor de cenas (AD-002): cada passo declara a sua cena como dados. O tipo é o
 // contrato: uma cena com campo errado não compila, e o build falha (SCN-01.6).
 
+import type { IsoBlockKind } from "../components/diagrams/isoBlocks";
 import type { ModuleId } from "../types/content";
 
 /** Cenas feitas sob medida, renderizadas no lugar das peças (SCN-01.3). */
@@ -187,7 +188,29 @@ export interface MetricsPanelSpec extends PieceBase {
   highlight?: string;
 }
 
-/** As 9 peças do motor (SCN-01.2), discriminadas por `piece`. */
+/** Bloco isométrico da página "05 · Blocos · Exploração", numa grade de colunas e linhas. */
+export interface DiagramBlock {
+  id: string;
+  kind: IsoBlockKind;
+  label: string;
+  /** Coluna da grade, a partir de 0; aceita meio passo (0.5) para alinhar ramos. */
+  col: number;
+  /** Linha da grade, a partir de 0; aceita meio passo. */
+  row: number;
+}
+
+/** Diagrama com os blocos isométricos (celular, robô, bancos, filas…), setas com rótulo e o bloco do passo. */
+export interface BlockDiagramSpec extends PieceBase {
+  piece: "block-diagram";
+  blocks: DiagramBlock[];
+  edges?: Array<{ from: string; to: string; label?: string; variant?: "main" | "alternative" }>;
+  /** Bloco do passo: zona verde, brilho e o bloco flutuando. As setas que chegam nele mostram o dado fluindo. */
+  active?: string;
+  /** Declarado, os blocos fora dele e fora de `active` aparecem esmaecidos, como etapas futuras. */
+  done?: string[];
+}
+
+/** As peças do motor (SCN-01.2), discriminadas por `piece`. */
 export type PieceSpec =
   | TokenStreamSpec
   | VectorSpaceSpec
@@ -197,7 +220,8 @@ export type PieceSpec =
   | AgentLoopSpec
   | ClientServerSpec
   | ChartSpec
-  | MetricsPanelSpec;
+  | MetricsPanelSpec
+  | BlockDiagramSpec;
 
 export type PieceKind = PieceSpec["piece"];
 

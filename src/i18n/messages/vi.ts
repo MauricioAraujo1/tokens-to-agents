@@ -159,6 +159,7 @@ const vi: Messages = {
   "scene.piece.client-server": "Máy khách và máy chủ: {items}",
   "scene.piece.chart": "Biểu đồ: {items}",
   "scene.piece.metrics-panel": "Chỉ số: {items}",
+  "scene.piece.block-diagram": "Sơ đồ khối: {items}",
   "scene.highlight": "{description} (nổi bật: {item})",
   "scene.tokenStream.query": "query",
   "scene.tokenStream.key": "key",

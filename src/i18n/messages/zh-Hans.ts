@@ -155,6 +155,7 @@ const zhHans: Messages = {
   "scene.piece.client-server": "客户端与服务器：{items}",
   "scene.piece.chart": "图表：{items}",
   "scene.piece.metrics-panel": "指标：{items}",
+  "scene.piece.block-diagram": "框图：{items}",
   "scene.highlight": "{description}（突出显示：{item}）",
   "scene.tokenStream.query": "查询",
   "scene.tokenStream.key": "键",

@@ -198,6 +198,27 @@
     animation-play-state: paused;
   }
 
+  /* Blocos isométricos (página 05): o bloco do passo flutua, a antena pisca, a chave do agente gira e a lupa procura. */
+  .iso-float {
+    animation: iso-float 2.4s var(--ease-smooth) infinite alternate;
+  }
+
+  .iso-blink {
+    animation: iso-blink 1.6s ease-in-out infinite;
+  }
+
+  .iso-wrench {
+    animation: iso-wrench 1.8s ease-in-out infinite alternate;
+  }
+
+  .iso-search {
+    animation: iso-search 2.2s ease-in-out infinite alternate;
+  }
+
+  .is-paused :is(.iso-float, .iso-blink, .iso-wrench, .iso-search) {
+    animation-play-state: paused;
+  }
+
   .no-scrollbar {
     scrollbar-width: none;
     -ms-overflow-style: none;
@@ -296,6 +317,14 @@
   letter-spacing: normal;
 }
 
+/*
+ * A cena cresce com o conteúdo; sem teto, uma peça quadrada larga passaria da altura da tela. Fora de
+ * camada, para vencer o `max-h-full` das peças.
+ */
+.scene-piece > svg {
+  max-height: 58vh;
+}
+
 @keyframes flow-travel {
   from {
     offset-distance: 0%;
@@ -303,6 +332,34 @@
 
   to {
     offset-distance: 100%;
+  }
+}
+
+@keyframes iso-float {
+  to {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes iso-blink {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@keyframes iso-wrench {
+  from {
+    transform: rotate(-12deg);
+  }
+
+  to {
+    transform: rotate(10deg);
+  }
+}
+
+@keyframes iso-search {
+  to {
+    transform: translate(-4px, 3px);
   }
 }
 
@@ -318,6 +375,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .iso-float,
+  .iso-blink,
+  .iso-wrench,
+  .iso-search,
   .flow-dot,
   .scene-transition .scene-piece {
     animation: none;

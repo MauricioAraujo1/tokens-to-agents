@@ -43,6 +43,15 @@
   - busca por "atencao";
   - ícone do tema;
   - limpeza do pnpm: um sub-agente rodou `pnpm install` às 12:00, o que criou `pnpm-lock.yaml` e `node_modules/.pnpm`, contra a escolha de usar npm.
+- **Pendências conhecidas (rollout dos módulos, 2026-11-19):**
+  - a peça `matrix` mostra decimais com ponto (`toFixed`), não com vírgula; o usuário decidiu não mexer no componente por enquanto;
+  - a referência de Jurafsky e Martin (`https://web.stanford.edu/~jurafsky/slp3/`) dá timeout na checagem daqui; o usuário decidiu manter.
+- **Rollout dos módulos:** aulas enxutas (cerca de 6 passos), em lotes de uns 4 módulos, com a peça `block-diagram` dos blocos da página 05. Guia em `.specs/features/lesson-rollout/authoring-guide.md`. Concluído em 2026-11-20: as 237 aulas, 18 quizzes, 18 resumos e os 5 projetos do Laboratório estão no branch `design/blocos-exploracao`; o `validate:content` não tem pendências de conteúdo.
+- **Próximo passo combinado com o usuário:** carregar sob demanda o glossário e os módulos da busca, em commits separados e com os testes de busca cobrindo a mudança. Hoje a busca baixa todos os módulos para o grupo "Conceitos", e o pacote inicial passou de 500 kB (607 kB) por causa do glossário (778 termos).
+- **Pendências conhecidas do rollout:**
+  - a abertura de uma aula leva de 3 a 4 s no build de produção nesta máquina; o build anterior ao rollout (`8e78b13`) mede o mesmo, então não é regressão, mas vale medir depois da mudança acima;
+  - as aulas 06-12 e 03-09 fazem contas de cerca de 0,5 s ao carregar o módulo;
+  - links que falham só pela rede daqui e existem no Internet Archive: os 6 do livro de IR de Stanford (decisão do usuário: manter) e a Lei 13.709 no Planalto.
 - **Próximo passo:** checkpoint do piloto do módulo 03 no navegador, com o usuário. Branch e commits só por decisão dele.
 - **Revisão (`reviewer`):** aprovada, sem BLOCKER nem HIGH. Os itens MEDIUM e LOW estão no resumo da sessão, entre eles setas em RTL, aviso de quota e Ctrl+clique nos links.
 - **Depois:** checkpoint da Phase 18. O usuário revisa o módulo 03 no navegador antes do rollout dos outros 17 módulos.

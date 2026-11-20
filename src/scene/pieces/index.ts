@@ -1,6 +1,7 @@
 import type { ComponentType } from "react";
 import type { PieceKind, PieceProps, PieceSpec } from "../types";
 import { AgentLoop } from "./AgentLoop";
+import { BlockDiagram } from "./BlockDiagram";
 import { Chart } from "./Chart";
 import { ClientServer } from "./ClientServer";
 import { Graph } from "./Graph";
@@ -12,7 +13,7 @@ import { VectorSpace } from "./VectorSpace";
 
 export type PieceComponent<K extends PieceKind> = ComponentType<PieceProps<Extract<PieceSpec, { piece: K }>>>;
 
-/** Componente de cada uma das 9 peças (SCN-01.2). O tipo exige todas: peça nova sem componente não compila. */
+/** Componente de cada peça (SCN-01.2). O tipo exige todas: peça nova sem componente não compila. */
 export const pieceComponents: { [K in PieceKind]: PieceComponent<K> } = {
   "token-stream": TokenStream,
   matrix: Matrix,
@@ -23,4 +24,5 @@ export const pieceComponents: { [K in PieceKind]: PieceComponent<K> } = {
   "client-server": ClientServer,
   chart: Chart,
   "metrics-panel": MetricsPanel,
+  "block-diagram": BlockDiagram,
 };

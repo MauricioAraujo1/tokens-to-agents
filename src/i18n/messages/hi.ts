@@ -158,6 +158,7 @@ const hi: Messages = {
   "scene.piece.client-server": "क्लाइंट और सर्वर: {items}",
   "scene.piece.chart": "चार्ट: {items}",
   "scene.piece.metrics-panel": "मेट्रिक्स: {items}",
+  "scene.piece.block-diagram": "ब्लॉक आरेख: {items}",
   "scene.highlight": "{description} (हाइलाइट: {item})",
   "scene.tokenStream.query": "क्वेरी",
   "scene.tokenStream.key": "की",

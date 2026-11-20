@@ -191,7 +191,7 @@ describe("App", () => {
     await user.keyboard("{Control>}k{/Control}");
     await user.type(screen.getByRole("searchbox", { name: "Buscar lições e conceitos" }), "chunking");
     const dialog = screen.getByRole("dialog", { name: "Buscar lições" });
-    await user.click(within(dialog).getByRole("button", { name: /Chunking Strategies/ }));
+    await user.click(within(within(dialog).getByRole("list", { name: "Aulas" })).getByRole("button", { name: /Chunking Strategies/ }));
 
     expect(await screen.findByRole("heading", { level: 1, name: "Chunking Strategies" })).toBeInTheDocument();
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
@@ -216,15 +216,14 @@ describe("App", () => {
     expect(document.documentElement.dataset.theme).toBe("light");
   });
 
-  it("abre pela sidebar uma aula do catálogo ainda sem conteúdo e marca a aula como em andamento", async () => {
+  it("abre pela sidebar uma aula de outro módulo e marca a aula como em andamento", async () => {
     const { user } = await renderApp();
 
-    await user.click(screen.getByRole("button", { name: /^01\. Machine Learning/ }));
-    await user.click(screen.getByRole("button", { name: /^Supervised Learning/ }));
+    await user.click(screen.getByRole("button", { name: /^17\. AI Infrastructure & Deployment/ }));
+    await user.click(screen.getByRole("button", { name: /^AI Application Architecture/ }));
 
-    expect(await screen.findByRole("heading", { level: 1, name: "Supervised Learning" })).toBeInTheDocument();
-    expect(screen.getByText("Aula em preparação")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /^Supervised Learning.*Em andamento/ })).toHaveAttribute(
+    expect(await screen.findByRole("heading", { level: 1, name: "AI Application Architecture" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^AI Application Architecture.*Em andamento/ })).toHaveAttribute(
       "aria-current",
       "page",
     );

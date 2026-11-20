@@ -159,6 +159,7 @@ const it: Messages = {
   "scene.piece.client-server": "Client e server: {items}",
   "scene.piece.chart": "Grafico: {items}",
   "scene.piece.metrics-panel": "Metriche: {items}",
+  "scene.piece.block-diagram": "Diagramma a blocchi: {items}",
   "scene.highlight": "{description} (in evidenza: {item})",
   "scene.tokenStream.query": "query",
   "scene.tokenStream.key": "key",

@@ -155,6 +155,7 @@ const he: Messages = {
   "scene.piece.client-server": "לקוח ושרת: {items}",
   "scene.piece.chart": "תרשים: {items}",
   "scene.piece.metrics-panel": "מדדים: {items}",
+  "scene.piece.block-diagram": "תרשים בלוקים: {items}",
   "scene.highlight": "{description} (מודגש: {item})",
   "scene.tokenStream.query": "שאילתה",
   "scene.tokenStream.key": "מפתח",

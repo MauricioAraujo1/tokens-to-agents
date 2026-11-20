@@ -48,6 +48,17 @@ describe("Graph", () => {
     expect(c.y).toBeGreaterThan(a.y);
   });
 
+  it("rótulo curto deixa o nó redondo; rótulo longo alarga o nó para caber o texto", () => {
+    const { node } = renderPiece({
+      ...graph,
+      nodes: graph.nodes.map((item, index) => (index === 0 ? { ...item, label: "Fortaleza" } : { ...item, label: "A" })),
+    });
+    const width = (id: string) => Number(node(id).querySelector("[data-node-shape]")?.getAttribute("width"));
+
+    expect(width(graph.nodes[1].id)).toBe(40);
+    expect(width(graph.nodes[0].id)).toBeGreaterThan("Fortaleza".length * 7);
+  });
+
   it("desenha uma aresta por ligação, com rótulo e espessura pelo peso", () => {
     const { container, edge } = renderPiece(graph);
 
