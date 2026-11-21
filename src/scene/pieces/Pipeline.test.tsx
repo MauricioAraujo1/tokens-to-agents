@@ -1,12 +1,13 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { setReducedMotionPreference } from "../../test/reducedMotion";
 import { FADED_TEXT_OPACITY } from "../colors";
 import { Scene } from "../Scene";
 import type { PipelineSpec } from "../types";
 import { Pipeline } from "./Pipeline";
+import trainingLesson from "../../content/lessons/03/03-14-training-a-transformer";
 
 const pipeline: PipelineSpec = {
   piece: "pipeline",
@@ -129,6 +130,93 @@ describe("Pipeline", () => {
     expect(screen.getByRole("figure")).toHaveAccessibleName(
       "Pipeline com as etapas embed, search, rerank e answer (destaque: fallback)",
     );
+  });
+
+  it("com 6 etapas, vira chips sozinho e mantém a etapa ativa e o ramo (COL-01.2)", () => {
+    const { container } = renderPiece({
+      piece: "pipeline",
+      stages: ["a", "b", "c", "d", "e", "f"].map((id) => ({ id, label: `etapa ${id}` })),
+      active: "c",
+      done: ["a", "b"],
+      branch: { id: "x", label: "rejeitar", from: "c", edgeLabel: "audiência errada" },
+    });
+
+    expect(container.querySelector('[data-display="chips"]')).not.toBeNull();
+    expect(container.querySelector("svg:not([class*='lucide'])")).toBeNull();
+    expect(container.querySelector('[data-stage="c"]')).toHaveAttribute("aria-current", "step");
+    const branch = container.querySelector('[data-branch="c"]') as HTMLElement;
+    expect(branch).toHaveTextContent("audiência errada");
+    expect(branch.querySelector('[data-stage="x"]')).toHaveTextContent("rejeitar");
+  });
+
+  it("quando a fila não cabe na largura com texto de 11 px, vira chips; com espaço, volta à cena (COL-01.2)", () => {
+    let width = 300;
+    vi.stubGlobal(
+      "ResizeObserver",
+      class {
+        observe() {}
+        disconnect() {}
+      },
+    );
+    const rect = vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(() => ({ width, height: 2000 }) as DOMRect);
+    try {
+      const narrow = renderPiece(pipeline);
+      expect(narrow.container.querySelector('[data-display="chips"]')).not.toBeNull();
+
+      width = 1400;
+      const wide = renderPiece(pipeline);
+      expect(wide.container.querySelector('[data-display="chips"]')).toBeNull();
+      const text = wide.container.querySelector('[data-stage="embed"] text') as SVGTextElement;
+      const viewBoxWidth = Number(wide.container.querySelector("svg")?.getAttribute("viewBox")?.split(" ")[2]);
+      expect(Number.parseFloat(text.style.fontSize) * (1400 / viewBoxWidth)).toBeCloseTo(12, 1);
+    } finally {
+      rect.mockRestore();
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("03-14#1: com o rótulo do ramo, a cena só fica se a pílula chegar a 11 px; senão, vira chips", () => {
+    const scene = trainingLesson.steps[0].scene;
+    const spec = scene.kind === "pieces" ? scene.pieces.find((piece): piece is PipelineSpec => piece.piece === "pipeline") : undefined;
+    if (!spec?.branch?.edgeLabel) throw new Error("caso incompleto");
+    let width = 670;
+    vi.stubGlobal(
+      "ResizeObserver",
+      class {
+        observe() {}
+        disconnect() {}
+      },
+    );
+    const rect = vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(() => ({ width, height: 2000 }) as DOMRect);
+    try {
+      // 1440: quadro de 670 px; a pílula "repete" ficava com 10,8 px.
+      expect(renderPiece(spec).container.querySelector('[data-display="chips"]')).not.toBeNull();
+
+      width = 1400;
+      const wide = renderPiece(spec).container;
+      const svg = wide.querySelector("svg") as SVGSVGElement;
+      const scale = 1400 / Number(svg.getAttribute("viewBox")?.split(" ")[2]);
+      const sizes = [...svg.querySelectorAll("text")].map((text) => Number.parseFloat(text.style.fontSize) * scale);
+      expect(sizes.length).toBeGreaterThan(0);
+      for (const size of sizes) expect(size).toBeGreaterThanOrEqual(10.95);
+    } finally {
+      rect.mockRestore();
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("rótulo longo quebra em 2 linhas dentro da caixa, com a fonte da cena", () => {
+    const { container } = renderPiece({
+      piece: "pipeline",
+      stages: [
+        { id: "a", label: "extrair cláusulas" },
+        { id: "b", label: "comparar com a política" },
+      ],
+    });
+    const text = container.querySelector('[data-stage="b"] text') as SVGTextElement;
+
+    expect([...text.querySelectorAll("tspan")].map((line) => line.textContent)).toEqual(["comparar com", "a política"]);
+    expect(text.style.fontSize).toBe("12px");
   });
 
   it("com movimento reduzido, o fluxo não anima", () => {

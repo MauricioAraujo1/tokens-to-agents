@@ -1,36 +1,30 @@
-import { useId } from "react";
+import { useId, useRef } from "react";
 import { BlockShape, PlatformShape } from "../../components/diagrams/DiagramNode";
 import { DiagramPill } from "../../components/diagrams/DiagramPill";
 import { RAG_BLOCK_HEIGHT, type Point } from "../../components/diagrams/ragDiagramLayout";
+import { useParentWidth } from "../../hooks/useParentWidth";
+import { useSvgTextScale } from "../../hooks/useSvgTextScale";
+import { useI18n } from "../../i18n/useI18n";
 import { sceneColor } from "../colors";
+import { describeScene } from "../describe";
+import { SceneScroll } from "../SceneScroll";
+import { fitToFrame, isWideFrame } from "../textScale";
 import type { ClientServerNode, ClientServerSpec, PieceProps, SceneColor } from "../types";
-import { ConnectionMarkers, PipelineConnection } from "./Pipeline";
-import type { ConnectionLayout } from "./pipelineLayout";
+import {
+  layoutClientServer,
+  NODE_PILL_OFFSET,
+  UTILIZATION_BAR_HEIGHT as BAR_HEIGHT,
+  UTILIZATION_BAR_WIDTH as BAR_WIDTH,
+  UTILIZATION_LABEL_GAP,
+  UTILIZATION_TOP,
+} from "./clientServerLayout";
+import { ConnectionLine, ConnectionMarkers, PipelineConnection } from "./Pipeline";
 
-const COLUMN_SPACING = 300;
-const ROW_SPACING = 180;
-/** Cada coluna desce um pouco em relação à anterior, como na vista isométrica do diagrama RAG. */
-const ISO_SHIFT = 40;
-const MARGIN_X = 130;
-const MARGIN_TOP = 110;
-const MARGIN_BOTTOM = 120;
-/** Distância entre o centro do nó e a ponta da seta: a plataforma do cliente é mais larga. */
-const CLEARANCE: Record<ClientServerNode["role"], number> = {
-  client: 112,
-  queue: 80,
-  server: 80,
-  database: 80,
-  cache: 80,
-  model: 80,
-};
-const COLUMN: Record<ClientServerNode["role"], number> = {
-  client: 0,
-  queue: 1,
-  server: 2,
-  cache: 3,
-  database: 3,
-  model: 3,
-};
+/** Fonte máxima, em unidades: as formas dos nós não crescem com o texto (como os blocos, T5). */
+const CLIENT_SERVER_MAX_FONT = 24;
+/** Teto no quadro largo, quando a peça não cabe com o teto normal: as formas ficam com 3/4 do tamanho. */
+const CLIENT_SERVER_FIT_MAX_FONT = 32;
+
 const ROLE_COLOR: Record<Exclude<ClientServerNode["role"], "client" | "queue">, SceneColor> = {
   server: "module-04",
   database: "info",
@@ -45,52 +39,10 @@ const QUEUE_ITEM_GAP = 4;
 const QUEUE_PADDING = 6;
 /** Quantos itens cabem na bandeja da fila; acima disso, só o número mostra o tamanho real. */
 const QUEUE_SLOTS = Math.floor((QUEUE_WIDTH - 2 * QUEUE_PADDING + QUEUE_ITEM_GAP) / (QUEUE_ITEM_WIDTH + QUEUE_ITEM_GAP));
-const BAR_WIDTH = 120;
-const BAR_HEIGHT = 8;
 const SHAPE_BASE_DROP = RAG_BLOCK_HEIGHT / 2;
 const SHADOW_OFFSET = 2.5;
 
-interface PlacedNode {
-  node: ClientServerNode;
-  center: Point;
-}
-
-/** Colunas por papel (só as usadas, em sequência) e linhas dentro de cada coluna. */
-function layoutNodes(nodes: ClientServerNode[]): PlacedNode[] {
-  const columns = [...new Set(nodes.map((node) => COLUMN[node.role]))].sort((a, b) => a - b);
-  const rows = new Map<number, number>();
-  return nodes.map((node) => {
-    const column = columns.indexOf(COLUMN[node.role]);
-    const row = rows.get(column) ?? 0;
-    rows.set(column, row + 1);
-    return {
-      node,
-      center: { x: MARGIN_X + column * COLUMN_SPACING, y: MARGIN_TOP + row * ROW_SPACING + column * ISO_SHIFT },
-    };
-  });
-}
-
-function connectionBetween(from: PlacedNode, to: PlacedNode, id: string, label: string, flowing: boolean): ConnectionLayout {
-  const dx = to.center.x - from.center.x;
-  const dy = to.center.y - from.center.y;
-  const distance = Math.hypot(dx, dy) || 1;
-  const unit = { x: dx / distance, y: dy / distance };
-  const startClear = Math.min(CLEARANCE[from.node.role], distance / 2);
-  const endClear = Math.min(CLEARANCE[to.node.role], distance / 2);
-  return {
-    id,
-    variant: "main",
-    label,
-    flowing,
-    geometry: {
-      start: { x: from.center.x + unit.x * startClear, y: from.center.y + unit.y * startClear },
-      end: { x: to.center.x - unit.x * endClear, y: to.center.y - unit.y * endClear },
-      labelPoint: { x: (from.center.x + to.center.x) / 2, y: (from.center.y + to.center.y) / 2 },
-    },
-  };
-}
-
-function QueueTray({ center, size }: { center: Point; size: number }) {
+function QueueTray({ center, size, font }: { center: Point; size: number; font: number }) {
   const left = center.x - QUEUE_WIDTH / 2;
   const top = center.y - QUEUE_HEIGHT / 2;
   const drawn = Math.min(size, QUEUE_SLOTS);
@@ -130,11 +82,11 @@ function QueueTray({ center, size }: { center: Point; size: number }) {
       <text
         data-queue-count={size}
         x={center.x}
-        y={top + QUEUE_HEIGHT + 16}
+        y={top + QUEUE_HEIGHT + 4 + font}
         textAnchor="middle"
         dominantBaseline="central"
-        className="font-mono text-[12px] font-bold"
-        style={{ fill: "var(--ink-primary)" }}
+        className="font-mono font-bold"
+        style={{ fontSize: font, fill: "var(--ink-primary)" }}
       >
         {size}
       </text>
@@ -142,10 +94,10 @@ function QueueTray({ center, size }: { center: Point; size: number }) {
   );
 }
 
-function UtilizationBar({ center, value, animate }: { center: Point; value: number; animate: boolean }) {
+function UtilizationBar({ center, value, animate, font }: { center: Point; value: number; animate: boolean; font: number }) {
   const clamped = Math.min(Math.max(value, 0), 1);
   const left = center.x - BAR_WIDTH / 2;
-  const top = center.y + 74;
+  const top = center.y + UTILIZATION_TOP;
 
   return (
     <g data-utilization={value}>
@@ -171,11 +123,11 @@ function UtilizationBar({ center, value, animate }: { center: Point; value: numb
       />
       <text
         x={center.x}
-        y={top + BAR_HEIGHT + 14}
+        y={top + BAR_HEIGHT + UTILIZATION_LABEL_GAP + font}
         textAnchor="middle"
         dominantBaseline="central"
-        className="font-mono text-[11px] font-semibold"
-        style={{ fill: "var(--ink-primary)" }}
+        className="font-mono font-semibold"
+        style={{ fontSize: font, fill: "var(--ink-primary)" }}
       >
         {`${Math.round(clamped * 100)}%`}
       </text>
@@ -187,48 +139,57 @@ function UtilizationBar({ center, value, animate }: { center: Point; value: numb
 export function ClientServer({ spec, transition }: PieceProps<ClientServerSpec>) {
   const uid = useId().replace(/:/g, "");
   const markerId = `client-server-arrow-${uid}`;
-  const placed = layoutNodes(spec.nodes);
-  const byId = new Map(placed.map((item) => [item.node.id, item]));
-  const connections = spec.messages.flatMap((message, index) => {
-    const from = byId.get(message.from);
-    const to = byId.get(message.to);
-    if (!from || !to) return [];
-    return [connectionBetween(from, to, `${message.from}-${message.to}-${index}`, message.label, index === spec.active)];
-  });
-  const width = MARGIN_X * 2 + Math.max(...placed.map((item) => item.center.x - MARGIN_X), 0);
-  const height = Math.max(...placed.map((item) => item.center.y), MARGIN_TOP) + MARGIN_BOTTOM;
+  const ref = useRef<SVGSVGElement>(null);
+  const { t, locale } = useI18n();
+  const sizeAt = (candidate: number) => layoutClientServer(spec, candidate);
+  // Num quadro estreito (375), o desenho mantém a largura do texto em 11 px e o quadro rola (LEG-01.4).
+  // No quadro largo (1440), a peça cabe: as formas encolhem um pouco, e o texto fica em 11 px.
+  const frameWidth = useParentWidth(ref);
+  const { maxFont, minWidth } = fitToFrame(sizeAt, CLIENT_SERVER_MAX_FONT, frameWidth, CLIENT_SERVER_FIT_MAX_FONT);
+  // No quadro largo, a célula baixa também pode encolher as formas até o teto alto.
+  const { font } = useSvgTextScale(ref, sizeAt, undefined, isWideFrame(frameWidth) ? CLIENT_SERVER_FIT_MAX_FONT : maxFont);
+  const { width, height, placed, connections, pillFont } = layoutClientServer(spec, font);
 
   return (
-    <svg viewBox={`0 0 ${width} ${height}`} aria-hidden="true" className="block h-full max-h-full w-full">
-      <ConnectionMarkers id={markerId} />
-      {placed.map(({ node, center }) => (
-        <g
-          key={node.id}
-          data-node={node.id}
-          data-role={node.role}
-          data-x={center.x}
-          data-y={center.y}
-          data-queue-size={node.role === "queue" ? (node.size ?? 0) : undefined}
-        >
-          {/* As formas do RAG apoiam a base em (x, y); a base desce meia altura para centrar o volume no nó. */}
-          {node.role === "client" && <PlatformShape x={center.x} y={center.y + SHAPE_BASE_DROP} />}
-          {node.role === "queue" && <QueueTray center={center} size={node.size ?? 0} />}
-          {node.role !== "client" && node.role !== "queue" && (
-            <BlockShape
-              nodeId={`${uid}-${node.id}`}
-              x={center.x}
-              y={center.y + SHAPE_BASE_DROP}
-              color={sceneColor(ROLE_COLOR[node.role])}
-              isActive={false}
-            />
-          )}
-          <DiagramPill x={center.x} y={center.y - 80} text={node.label} />
-          {node.utilization !== undefined && <UtilizationBar center={center} value={node.utilization} animate={transition.animate} />}
-        </g>
-      ))}
-      {connections.map((connection) => (
-        <PipelineConnection key={connection.id} connection={connection} markerId={markerId} animate={transition.animate} />
-      ))}
-    </svg>
+    <SceneScroll label={describeScene({ kind: "pieces", layout: "single", pieces: [spec] }, { t, locale })} className="h-full" contentWidth={minWidth}>
+      <svg ref={ref} viewBox={`0 0 ${width} ${height}`} aria-hidden="true" className="block h-full max-h-full w-full" style={{ minWidth }}>
+        <ConnectionMarkers id={markerId} />
+        {/* As linhas ficam abaixo dos nós: nenhuma passa por cima do rótulo de um nó (T22). */}
+        {connections.map((connection) => (
+          <ConnectionLine key={connection.id} connection={connection} markerId={markerId} />
+        ))}
+        {placed.map(({ node, center }) => (
+          <g
+            key={node.id}
+            data-node={node.id}
+            data-role={node.role}
+            data-x={center.x}
+            data-y={center.y}
+            data-queue-size={node.role === "queue" ? (node.size ?? 0) : undefined}
+          >
+            {/* As formas do RAG apoiam a base em (x, y); a base desce meia altura para centrar o volume no nó. */}
+            {node.role === "client" && <PlatformShape x={center.x} y={center.y + SHAPE_BASE_DROP} />}
+            {node.role === "queue" && <QueueTray center={center} size={node.size ?? 0} font={font} />}
+            {node.role !== "client" && node.role !== "queue" && (
+              <BlockShape
+                nodeId={`${uid}-${node.id}`}
+                x={center.x}
+                y={center.y + SHAPE_BASE_DROP}
+                color={sceneColor(ROLE_COLOR[node.role])}
+                isActive={false}
+              />
+            )}
+            <DiagramPill x={center.x} y={center.y - NODE_PILL_OFFSET} text={node.label} fontSize={pillFont} />
+            {node.utilization !== undefined && (
+              <UtilizationBar center={center} value={node.utilization} animate={transition.animate} font={pillFont} />
+            )}
+          </g>
+        ))}
+        {connections.map((connection) => (
+          // Por cima de tudo, só os pontos que andam e o rótulo de cada mensagem.
+          <PipelineConnection key={connection.id} connection={connection} markerId={markerId} animate={transition.animate} withLine={false} />
+        ))}
+      </svg>
+    </SceneScroll>
   );
 }

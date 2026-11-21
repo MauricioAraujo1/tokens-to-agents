@@ -1,7 +1,9 @@
 import { render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import type { ChartSpec } from "../types";
+import { getPillSize } from "../../components/diagrams/ragDiagramLayout";
 import { Chart } from "./Chart";
+import { layoutChart, LINE_POINT_RADIUS } from "./chartLayout";
 
 const distribution: ChartSpec = {
   piece: "chart",
@@ -95,6 +97,117 @@ describe("Chart", () => {
     const { container } = renderPiece({ ...distribution, highlight: 1 });
 
     expect([...container.querySelectorAll('[data-highlight="true"]')].map((element) => element.getAttribute("data-series"))).toEqual(["1"]);
+  });
+
+  // Casos da auditoria de 2026-11-20: o primeiro rótulo inclinado saía pela esquerda da viewBox.
+  const auditCases: Record<string, ChartSpec> = {
+    "06-02#5": {
+      piece: "chart",
+      kind: "bar",
+      series: [
+        { label: "senha antes", value: 0.24 },
+        { label: "senha depois", value: 0.89 },
+        { label: "entrega antes", value: 0.24 },
+        { label: "entrega depois", value: 0.81 },
+        { label: "devolver antes", value: 0.25 },
+        { label: "devolver depois", value: 0.91 },
+        { label: "pagamento antes", value: 0.24 },
+        { label: "pagamento depois", value: 0.92 },
+      ],
+      max: 1,
+      highlight: 1,
+    },
+    "05-04#2": {
+      piece: "chart",
+      kind: "bar",
+      series: [
+        { label: "instrução", value: 60 },
+        { label: "contrato", value: 1200 },
+        { label: "aditivo", value: 900 },
+        { label: "e-mails", value: 700 },
+        { label: "histórico", value: 300 },
+        { label: "pergunta", value: 25 },
+      ],
+      max: 1200,
+      highlight: 0,
+    },
+  };
+
+  it.each(Object.keys(auditCases))("%s: cada rótulo inclinado fica inteiro dentro da viewBox (GEO-01.2)", (name) => {
+    for (const font of [7, 12, 20]) {
+      const layout = layoutChart(auditCases[name], font);
+
+      if (font >= 12) expect(layout.tilt).toBe(true);
+      layout.labelBoxes.forEach((box, index) => {
+        expect(box.left, `${name} @${font} #${index}`).toBeGreaterThanOrEqual(0);
+        expect(box.right).toBeLessThanOrEqual(layout.width);
+        expect(box.top).toBeGreaterThanOrEqual(0);
+        expect(box.bottom, `${name} @${font} #${index}`).toBeLessThanOrEqual(layout.height);
+      });
+    }
+  });
+
+  it("06-05#4: no gráfico de linha, o rótulo fica abaixo do ponto de valor zero, sem cobri-lo", () => {
+    const dimensions: ChartSpec = {
+      piece: "chart",
+      kind: "line",
+      series: [
+        { label: "d = 2", value: 0 },
+        { label: "d = 8", value: 0.42 },
+        { label: "d = 32", value: 0.6 },
+        { label: "d = 128", value: 0.85 },
+        { label: "d = 512", value: 0.95 },
+      ],
+      max: 1,
+      highlight: 0,
+    };
+
+    for (const font of [7, 12, 20]) {
+      const layout = layoutChart(dimensions, font);
+      const pointBottom = layout.baseline - layout.heightOf(0) + LINE_POINT_RADIUS.highlighted;
+
+      layout.labelBoxes.forEach((box, index) => expect(box.top, `@${font} #${index}`).toBeGreaterThan(pointBottom));
+    }
+  });
+
+  it("a pílula de referência não cobre nenhuma barra (GEO-01.4)", () => {
+    const meta: ChartSpec = {
+      piece: "chart",
+      kind: "bar",
+      series: [
+        { label: "1 bi", value: 0.7 },
+        { label: "2 bi", value: 1.4 },
+        { label: "5 bi", value: 3.5 },
+        { label: "10 bi", value: 7 },
+        { label: "20 bi", value: 14 },
+      ],
+      cutoff: { mode: "threshold", value: 5.65, label: "próprio US$ 5.650" },
+    };
+
+    for (const font of [7, 12, 20]) {
+      const layout = layoutChart(meta, font);
+      const pill = getPillSize("próprio US$ 5.650", layout.labelFont);
+      const center = layout.cutoffPill;
+      if (!center) throw new Error("sem pílula");
+      meta.series.forEach((point, index) => {
+        const barLeft = layout.centerX(index) - 14;
+        const barRight = layout.centerX(index) + 14;
+        const barTop = layout.baseline - layout.heightOf(point.value);
+        const overlap =
+          center.x - pill.width / 2 < barRight &&
+          center.x + pill.width / 2 > barLeft &&
+          center.y - pill.height / 2 < layout.baseline &&
+          center.y + pill.height / 2 > barTop;
+        expect(overlap, `barra ${index} @${font}`).toBe(false);
+      });
+      expect(center.x + pill.width / 2).toBeLessThanOrEqual(layout.width);
+    }
+  });
+
+  it("os rótulos usam a fonte da cena, em unidades da viewBox", () => {
+    const { container } = renderPiece(distribution);
+
+    expect((container.querySelector('[data-label="0"]') as SVGTextElement).style.fontSize).toBe("11px");
   });
 
   it("no modo linha, liga um ponto por valor", () => {

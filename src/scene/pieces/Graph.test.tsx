@@ -1,5 +1,6 @@
-import { render } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
+import { stubSceneFrame, svgTextOnScreen } from "../../test/sceneFrame";
 import { FADED_TEXT_OPACITY } from "../colors";
 import type { GraphSpec } from "../types";
 import { Graph } from "./Graph";
@@ -110,5 +111,88 @@ describe("Graph", () => {
 
     const { container } = renderPiece(graph);
     expect(container.querySelectorAll(".scene-animate")).toHaveLength(0);
+  });
+});
+
+describe("Graph em tela estreita (LEG-01.4)", () => {
+  // 09-02#1: a 375 (quadro de 309 px), o texto subia para 11 px estreitando o desenho, e as pílulas das
+  // arestas caíam sobre os nós.
+  const knowledge: GraphSpec = {
+    piece: "graph",
+    nodes: [
+      { id: "Ana", label: "Ana", x: 0.33, y: 0 },
+      { id: "Acme", label: "Acme", x: 0.33, y: 0.5 },
+      { id: "Bruno", label: "Bruno", x: 0, y: 0 },
+      { id: "Atlas", label: "Atlas", x: 0.66, y: 0 },
+      { id: "Postgres", label: "Postgres", x: 1, y: 0 },
+      { id: "Recife", label: "Recife", x: 0.33, y: 1 },
+      { id: "Pernambuco", label: "Pernambuco", x: 0.66, y: 1 },
+      { id: "Brasil", label: "Brasil", x: 1, y: 1 },
+    ],
+    edges: [
+      { from: "Ana", to: "Acme", label: "trabalha_em" },
+      { from: "Bruno", to: "Acme", label: "trabalha_em" },
+      { from: "Bruno", to: "Ana", label: "mentora" },
+      { from: "Ana", to: "Atlas", label: "lidera" },
+      { from: "Atlas", to: "Postgres", label: "usa" },
+      { from: "Acme", to: "Recife", label: "sediada_em" },
+      { from: "Recife", to: "Pernambuco", label: "fica_em" },
+      { from: "Pernambuco", to: "Brasil", label: "fica_em" },
+    ],
+  };
+  const rectOf = (element: Element) => {
+    const [x, y, width, height] = ["x", "y", "width", "height"].map((name) => Number(element.getAttribute(name)));
+    return { left: x, top: y, right: x + width, bottom: y + height };
+  };
+  const overlaps = (a: ReturnType<typeof rectOf>, b: ReturnType<typeof rectOf>) =>
+    a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+
+  it("a 375, o desenho fica com a largura de referência, o texto com 11 px e as pílulas fora dos nós", () => {
+    const restore = stubSceneFrame(309);
+    try {
+      const { container } = renderPiece(knowledge);
+      const svg = container.querySelector("svg") as SVGSVGElement;
+      const nodes = [...container.querySelectorAll("[data-node-shape]")].map(rectOf);
+      const pills = [...container.querySelectorAll("[data-edge] rect.stroke-ink")].map(rectOf);
+
+      expect(Number.parseFloat(svg.style.minWidth)).toBe(600);
+      expect(container.querySelector(".scene-scroll")).toHaveAttribute("data-scene-scroll", "scroll");
+      expect(screen.getByRole("group", { name: /^Grafo/ })).toHaveAttribute("tabindex", "0");
+      for (const size of svgTextOnScreen(container)) expect(size).toBeGreaterThanOrEqual(10.95);
+      expect(pills).toHaveLength(8);
+      for (const pill of pills) for (const node of nodes) expect(overlaps(pill, node)).toBe(false);
+    } finally {
+      restore();
+    }
+  });
+
+  it("a 1440, o grafo cabe no quadro: não rola nem entra no Tab", () => {
+    const restore = stubSceneFrame(655);
+    try {
+      const { container } = renderPiece(knowledge);
+      const frame = container.querySelector(".scene-scroll") as HTMLElement;
+
+      expect(frame).toHaveAttribute("data-scene-scroll", "fit");
+      expect(frame).not.toHaveAttribute("tabindex");
+      expect(frame).not.toHaveAttribute("role");
+    } finally {
+      restore();
+    }
+  });
+});
+
+describe("Graph: ponta das setas (08-13#2, T22)", () => {
+  it("a ponta tem tamanho da cena, não da espessura: a aresta com peso não ganha ponta maior", () => {
+    const { container } = render(
+      <Graph
+        spec={{ ...graph, edges: graph.edges.map((edge, index) => ({ ...edge, weight: index === 0 ? 0.9 : undefined })) }}
+        transition={{ from: null, animate: false }}
+        reducedMotion
+      />,
+    );
+    const markers = [...container.querySelectorAll("marker")];
+
+    expect(markers.length).toBeGreaterThan(0);
+    for (const marker of markers) expect(marker).toHaveAttribute("markerUnits", "userSpaceOnUse");
   });
 });

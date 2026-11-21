@@ -72,6 +72,103 @@ describe("TokenStream", () => {
     expect(renderPiece({ ...sentence, bars: undefined }).querySelectorAll("[data-bar]")).toHaveLength(0);
   });
 
+  it("com a escala medida, tokens ficam com 13 px e marcas e pontuações com 11 px na tela (LEG-01.1)", () => {
+    vi.stubGlobal(
+      "ResizeObserver",
+      class {
+        observe() {}
+        disconnect() {}
+      },
+    );
+    const rect = vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(() => ({ width: 670, height: 2000 }) as DOMRect);
+    try {
+      const container = renderPiece(sentence);
+      const svg = container.querySelector("svg") as SVGSVGElement;
+      const viewBoxWidth = Number(svg.getAttribute("viewBox")?.split(" ")[2]);
+      // Com poucos tokens, o SVG não amplia: a largura renderizada é a menor entre o quadro e o limite.
+      const renderedWidth = Math.min(670, Number.parseFloat(svg.style.maxWidth) || Number.POSITIVE_INFINITY);
+      const onScreen = (selector: string) =>
+        Number.parseFloat((container.querySelector(selector) as SVGTextElement).style.fontSize) * (renderedWidth / viewBoxWidth);
+
+      expect(onScreen('[data-token="0"] text')).toBeCloseTo(13, 1);
+      expect(onScreen('[data-mark="key"]')).toBeCloseTo(11, 1);
+      expect(onScreen('[data-mark="query"]')).toBeCloseTo(11, 1);
+      expect(onScreen('[data-arc-label="2-1"] text')).toBeCloseTo(11, 1);
+    } finally {
+      rect.mockRestore();
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("fila longa demais para a largura (cena de chat da 05-03#2) vira a lista, legível", () => {
+    vi.stubGlobal(
+      "ResizeObserver",
+      class {
+        observe() {}
+        disconnect() {}
+      },
+    );
+    const rect = vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(() => ({ width: 670, height: 2000 }) as DOMRect);
+    try {
+      const chat = ["<|im_start|>", "system", "\\n", "Você", "é", "um", "assistente", "<|im_end|>", "<|im_start|>", "user", "\\n", "Oi", "<|im_end|>"];
+      const container = renderPiece({ piece: "token-stream", tokens: chat, query: 3 });
+
+      expect(container.querySelector('[data-variant="list"]')).not.toBeNull();
+      expect(container.querySelector("svg")).toBeNull();
+    } finally {
+      rect.mockRestore();
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("a lista que passa da célula da cena em coluna vai para duas colunas, só numa célula larga (10-06#5)", () => {
+    // 10-06#5: lista com 7 linhas de 34 px (286 px com os espaços) numa célula de 253 px; passava 19 px.
+    const prompt: TokenStreamSpec = {
+      piece: "token-stream",
+      tokens: ["[18:42:07]", "[sistema]", "regras", "manual p. 1", "…", "manual p. 40", "pergunta nova"],
+      query: 0,
+      bars: [0, 0, 0, 0, 0, 0, 0],
+    };
+    const layoutWith = (cell: { width: number; height: number }) => {
+      vi.stubGlobal(
+        "ResizeObserver",
+        class {
+          observe() {}
+          disconnect() {}
+        },
+      );
+      // A largura de 160 px não comporta a fila em SVG, então a peça mostra a lista.
+      const rect = vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(() => ({ width: 160, height: 2000 }) as DOMRect);
+      const row = vi.spyOn(HTMLElement.prototype, "offsetHeight", "get").mockImplementation(function (this: HTMLElement) {
+        return this.tagName === "LI" ? 34 : 0;
+      });
+      const width = vi.spyOn(HTMLElement.prototype, "clientWidth", "get").mockReturnValue(cell.width);
+      const height = vi.spyOn(HTMLElement.prototype, "clientHeight", "get").mockReturnValue(cell.height);
+      return () => {
+        for (const spy of [rect, row, width, height]) spy.mockRestore();
+        vi.unstubAllGlobals();
+      };
+    };
+    const columnsIn = (cell: { width: number; height: number }) => {
+      const restore = layoutWith(cell);
+      try {
+        const { container } = render(
+          <div>
+            <TokenStream spec={prompt} transition={{ from: null, animate: false }} reducedMotion />
+          </div>,
+        );
+        return container.querySelector('[data-variant="list"]')?.getAttribute("data-columns");
+      } finally {
+        restore();
+      }
+    };
+
+    expect(columnsIn({ width: 655, height: 253 })).toBe("2");
+    expect(columnsIn({ width: 655, height: 300 })).toBe("1");
+    // A 375 (célula de 309 px), a lista continua em uma coluna: o chip truncaria demais.
+    expect(columnsIn({ width: 309, height: 253 })).toBe("1");
+  });
+
   it("não sobrepõe rótulos de tokens e de arcos com até 12 tokens", () => {
     const tokens = ["Attention", "is", "all", "you", "need", "for", "sequence", "transduction", "with", "long", "range", "deps"];
     const spec: TokenStreamSpec = {

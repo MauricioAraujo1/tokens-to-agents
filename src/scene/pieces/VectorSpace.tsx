@@ -1,21 +1,70 @@
-import { useId } from "react";
+import { useId, useRef } from "react";
 import { DiagramPill } from "../../components/diagrams/DiagramPill";
+import { useSvgTextScale } from "../../hooks/useSvgTextScale";
 import { sceneColor } from "../colors";
 import type { PieceProps, VectorSpaceSpec } from "../types";
-import { layoutVectorSpace, nearestNeighbors, VECTOR_SPACE_SIZE } from "./vectorSpaceLayout";
+import { pillFontFor } from "./pipelineLayout";
+import { getPillSize } from "../../components/diagrams/ragDiagramLayout";
+import { layoutVectorSpace, nearestNeighbors, placeDistancePill, placePointLabels, VECTOR_SPACE_SIZE } from "./vectorSpaceLayout";
+
+const VIEWBOX = { width: VECTOR_SPACE_SIZE, height: VECTOR_SPACE_SIZE };
 
 /** Pontos em 2D (ou 3D isométrico), vetores, distância e vizinhos mais próximos (SCN-01.2). */
 export function VectorSpace({ spec, transition }: PieceProps<VectorSpaceSpec>) {
   const arrowId = `vector-arrow-${useId().replace(/:/g, "")}`;
+  const ref = useRef<SVGSVGElement>(null);
+  const { font } = useSvgTextScale(ref, () => VIEWBOX);
+  const labelFont = pillFontFor(font);
   const { origin, points } = layoutVectorSpace(spec);
   const byId = new Map(points.map((projected) => [projected.point.id, projected]));
   const neighbors = new Set(nearestNeighbors(spec));
   const animate = transition.animate ? "scene-animate" : undefined;
   const distanceFrom = spec.distance && byId.get(spec.distance.from);
   const distanceTo = spec.distance && byId.get(spec.distance.to);
+  const roleOf = (id: string) => (id === spec.query ? "query" : neighbors.has(id) ? "neighbor" : "point");
+  // Linhas que o rótulo evita: eixos, vetores e a distância.
+  const lines = [
+    { from: { x: 0, y: origin.y }, to: { x: VECTOR_SPACE_SIZE, y: origin.y } },
+    { from: { x: origin.x, y: 0 }, to: { x: origin.x, y: VECTOR_SPACE_SIZE } },
+    ...(spec.vectors ?? []).flatMap((vector) => {
+      const start = vector.from === undefined ? origin : byId.get(vector.from);
+      const end = byId.get(vector.to);
+      return start && end ? [{ from: start, to: end }] : [];
+    }),
+    ...(distanceFrom && distanceTo ? [{ from: distanceFrom, to: distanceTo }] : []),
+  ];
+  const marks = points.map(({ point, x, y }) => ({
+    x,
+    y,
+    radius: roleOf(point.id) === "neighbor" ? 11 : roleOf(point.id) === "query" ? 7 : 5,
+    label: point.label,
+  }));
+  // A pílula de distância escolhe o lado primeiro; os rótulos dos pontos desviam dela.
+  const distancePill = spec.distance?.label ? getPillSize(spec.distance.label, labelFont) : undefined;
+  const distancePoint =
+    distanceFrom && distanceTo && distancePill
+      ? placeDistancePill({ x: (distanceFrom.x + distanceTo.x) / 2, y: (distanceFrom.y + distanceTo.y) / 2 }, distancePill, marks)
+      : undefined;
+  const labels = placePointLabels(
+    marks,
+    labelFont,
+    lines,
+    VECTOR_SPACE_SIZE,
+    distancePoint && distancePill
+      ? [
+          {
+            left: distancePoint.x - distancePill.width / 2,
+            right: distancePoint.x + distancePill.width / 2,
+            top: distancePoint.y - distancePill.height / 2,
+            bottom: distancePoint.y + distancePill.height / 2,
+          },
+        ]
+      : [],
+  );
 
   return (
     <svg
+      ref={ref}
       viewBox={`0 0 ${VECTOR_SPACE_SIZE} ${VECTOR_SPACE_SIZE}`}
       aria-hidden="true"
       className="block h-full max-h-full w-full"
@@ -58,18 +107,14 @@ export function VectorSpace({ spec, transition }: PieceProps<VectorSpaceSpec>) {
             strokeDasharray="4 4"
             style={{ stroke: sceneColor("brand"), strokeWidth: 1.6 }}
           />
-          {spec.distance.label && (
-            <DiagramPill
-              x={(distanceFrom.x + distanceTo.x) / 2}
-              y={(distanceFrom.y + distanceTo.y) / 2 - 14}
-              text={spec.distance.label}
-            />
+          {spec.distance.label && distancePoint && (
+            <DiagramPill x={distancePoint.x} y={distancePoint.y} text={spec.distance.label} fontSize={labelFont} />
           )}
         </g>
       )}
 
-      {points.map(({ point, x, y }) => {
-        const role = point.id === spec.query ? "query" : neighbors.has(point.id) ? "neighbor" : "point";
+      {points.map(({ point, x, y }, index) => {
+        const role = roleOf(point.id);
         const color = sceneColor(point.color ?? (role === "query" ? "brand" : role === "neighbor" ? "success" : "muted"));
         return (
           <g key={point.id} data-point={point.id} data-role={role} data-x={x.toFixed(1)} data-y={y.toFixed(1)}>
@@ -82,10 +127,10 @@ export function VectorSpace({ spec, transition }: PieceProps<VectorSpaceSpec>) {
               style={{ fill: color, stroke: "var(--line-strong)", strokeWidth: role === "query" ? 2 : 1.5 }}
             />
             <text
-              x={x + 10}
-              y={y - 8}
-              className={role === "point" ? "font-mono text-[11px] font-medium" : "font-mono text-[11px] font-bold"}
-              style={{ fill: "var(--ink-primary)" }}
+              x={labels[index].x}
+              y={labels[index].y}
+              className={role === "point" ? "font-mono font-medium" : "font-mono font-bold"}
+              style={{ fontSize: labelFont, fill: "var(--ink-primary)" }}
             >
               {point.label}
             </text>

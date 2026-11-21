@@ -1,13 +1,18 @@
-import type { CSSProperties } from "react";
+import { useRef, type CSSProperties } from "react";
 import { ragFlowContent as content } from "../../content/scenes/rag-flow";
+import { useParentWidth } from "../../hooks/useParentWidth";
+import { useSvgTextScale } from "../../hooks/useSvgTextScale";
 import { cn } from "../../lib/utils";
 import { stepIndexForNode } from "../../lib/lesson";
+import { SceneScroll } from "../../scene/SceneScroll";
+import { WIDE_FRAME } from "../../scene/textScale";
 import { DiagramNode } from "./DiagramNode";
 import { DiagramPill } from "./DiagramPill";
 import {
   RAG_CATEGORY_COLOR,
   RAG_EDGES,
   RAG_LEGEND_CATEGORIES,
+  RAG_MIN_SCENE_WIDTH,
   RAG_NODES,
   RAG_VIEWBOX,
   getIsoFloorPath,
@@ -15,6 +20,8 @@ import {
   getRagNodeState,
   getRagStepNodeIds,
   isRagEdgeFlowing,
+  PILL_FONT,
+  type Point,
   type RagEdgeDefinition,
 } from "./ragDiagramLayout";
 
@@ -38,15 +45,28 @@ const EDGE_PATHS = new Map(RAG_EDGES.map((edge) => [edge.id, getRagEdgePath(edge
 export function RagDiagram({ steps, activeStepIndex, isPaused, onSelectStep }: RagDiagramProps) {
   const stepNodeIds = getRagStepNodeIds(steps);
   const activeNodeId = stepNodeIds[activeStepIndex];
+  const ref = useRef<SVGSVGElement>(null);
+  // Pílulas com 11 px na tela em qualquer largura; a geometria isométrica não muda (LEG-01.1).
+  const { font: labelFont } = useSvgTextScale(ref, () => RAG_VIEWBOX, PILL_FONT);
+  const labelPoints = new Map(RAG_EDGES.map((edge) => [edge.id, getRagEdgePath(edge, labelFont, activeNodeId).labelPoint]));
+  // A largura mínima só vale na tela estreita: num quadro largo (1440) a cena cabe e não rola (T22).
+  const stageRef = useRef<HTMLDivElement>(null);
+  const frameWidth = useParentWidth(stageRef);
+  const minWidth = frameWidth !== null && frameWidth >= WIDE_FRAME ? Math.min(RAG_MIN_SCENE_WIDTH, frameWidth) : RAG_MIN_SCENE_WIDTH;
 
   return (
     <figure className="relative m-0 flex flex-1 flex-col">
       {/*
        * A cena ocupa a largura do quadro com a proporção da viewBox, em vez de caber na altura que
-       * sobra (T138). Abaixo de 640 px ela rola na horizontal.
+       * sobra (T138). Abaixo de `RAG_MIN_SCENE_WIDTH` ela rola na horizontal, no mesmo quadro das
+       * peças largas (`SceneScroll`, LEG-01.4): barra visível, foco pelo teclado e gesto que desliza a cena.
        */}
-      <div className="no-scrollbar overflow-x-auto">
-        <div className="relative w-full min-w-[640px]" style={{ aspectRatio: `${RAG_VIEWBOX.width} / ${RAG_VIEWBOX.height}` }}>
+      <SceneScroll label={content.title} contentWidth={minWidth}>
+        <div
+          ref={stageRef}
+          className="relative w-full"
+          style={{ minWidth, aspectRatio: `${RAG_VIEWBOX.width} / ${RAG_VIEWBOX.height}` }}
+        >
           {/* Piso isométrico numa camada estática, alinhada às coordenadas do diagrama. */}
           <svg aria-hidden="true" viewBox={VIEWBOX} className="absolute inset-0 block h-full w-full">
             <path
@@ -58,6 +78,7 @@ export function RagDiagram({ steps, activeStepIndex, isPaused, onSelectStep }: R
             />
           </svg>
           <svg
+            ref={ref}
             viewBox={VIEWBOX}
             role="img"
             aria-labelledby="rag-diagram-title"
@@ -89,12 +110,13 @@ export function RagDiagram({ steps, activeStepIndex, isPaused, onSelectStep }: R
                   state={getRagNodeState(node.id, stepNodeIds, activeStepIndex)}
                   stepLabel={content.stepPill.replace("{n}", String(activeStepIndex + 1))}
                   onSelect={stepIndex >= 0 ? () => onSelectStep(stepIndex) : undefined}
+                  labelFont={labelFont}
                 />
               );
             })}
 
             {RAG_EDGES.map((edge) => (
-              <DiagramEdgeLabel key={edge.id} edge={edge} />
+              <DiagramEdgeLabel key={edge.id} edge={edge} fontSize={labelFont} point={labelPoints.get(edge.id)} />
             ))}
           </svg>
           {/* Os pontos animados ficam numa camada própria: os blocos sombreados não são repintados a cada quadro. */}
@@ -108,7 +130,7 @@ export function RagDiagram({ steps, activeStepIndex, isPaused, onSelectStep }: R
             ))}
           </svg>
         </div>
-      </div>
+      </SceneScroll>
 
       {/* A legenda fica abaixo da cena, no fluxo: sobreposta, ela cobria o bloco "Sem resultado". */}
       <figcaption className="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 pb-3 pt-2 font-mono text-[11px] text-muted">
@@ -184,20 +206,20 @@ function FlowDots({ edge }: { edge: RagEdgeDefinition }) {
   );
 }
 
-function DiagramEdgeLabel({ edge }: { edge: RagEdgeDefinition }) {
+function DiagramEdgeLabel({ edge, fontSize, point }: { edge: RagEdgeDefinition; fontSize: number; point?: Point }) {
   const label = content.edges[edge.id];
-  const geometry = EDGE_PATHS.get(edge.id);
 
-  if (!label || !geometry) {
+  if (!label || !point) {
     return null;
   }
 
   return (
     <DiagramPill
-      x={geometry.labelPoint.x}
-      y={geometry.labelPoint.y}
+      x={point.x}
+      y={point.y}
       text={label}
       tone={edge.variant === "alternative" ? "danger" : "neutral"}
+      fontSize={fontSize}
     />
   );
 }
