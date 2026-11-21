@@ -86,6 +86,11 @@
     width: 100%;
   }
 
+  /* No papel não há rolagem: a peça larga volta a caber na largura da folha (LEG-01.4 é da tela). */
+  .summary-diagram .scene-scroll > svg {
+    min-width: 0 !important;
+  }
+
   .summary-section,
   .summary-diagram,
   .summary-sheet li {
