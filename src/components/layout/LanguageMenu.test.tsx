@@ -135,6 +135,21 @@ describe("LanguageMenu", () => {
     expect(store.getSnapshot().locale).toBeUndefined();
   });
 
+  it("draws every language code at 11 px or more (UI-01.3)", async () => {
+    const { user, trigger } = setup();
+
+    await user.click(trigger);
+
+    const badges = screen.getAllByRole("menuitemradio").map((element) => element.firstElementChild as HTMLElement);
+    expect(badges).toHaveLength(21);
+    for (const badge of badges) {
+      const size = /(?:^|\s)text-\[(\d+(?:\.\d+)?)px\]/.exec(badge.className);
+      expect(size, badge.className).not.toBeNull();
+      expect(Number(size?.[1])).toBeGreaterThanOrEqual(11);
+    }
+    expect(item(/English/).firstElementChild).toHaveTextContent("EN");
+  });
+
   it("is pinned to the screen edges below 640 px so it never spills sideways (RSP-01.5)", async () => {
     const { user, trigger } = setup();
 

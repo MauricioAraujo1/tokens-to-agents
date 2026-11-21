@@ -144,7 +144,7 @@ const ar: Messages = {
   "panel.label": "شرح المرحلة",
   "panel.resize": "تغيير حجم لوحة الشرح",
   "panel.position": "الخطوة {current} / {total}",
-  "panel.keyIdea": "معلومة مفيدة",
+  "panel.keyIdea": "الفكرة الأساسية",
   "panel.lessonDone": "لقد أكملت كل مراحل هذا الدرس.",
   "stepTag.context": "مفهوم",
   "stepTag.mechanism": "آلية العمل",

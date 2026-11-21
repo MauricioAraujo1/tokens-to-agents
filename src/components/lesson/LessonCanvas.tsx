@@ -61,6 +61,7 @@ export function LessonCanvas({ steps, navigation }: LessonCanvasProps) {
             stepIndex={navigation.stepIndex}
             paused={!navigation.isPlaying}
             onSelectStep={navigation.goTo}
+            fitToScreen
           />
         ) : (
           <div className="grid flex-1 place-items-center p-6 text-center">

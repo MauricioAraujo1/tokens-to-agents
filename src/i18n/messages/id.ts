@@ -132,7 +132,7 @@ const id: Messages = {
   "panel.label": "Penjelasan tahapan",
   "panel.resize": "Ubah ukuran panel penjelasan",
   "panel.position": "Langkah {current} / {total}",
-  "panel.keyIdea": "Perlu diketahui",
+  "panel.keyIdea": "Ide kunci",
   "panel.lessonDone": "Anda telah menyelesaikan semua tahapan pelajaran ini.",
   "stepTag.context": "KONSEP",
   "stepTag.mechanism": "MEKANISME",

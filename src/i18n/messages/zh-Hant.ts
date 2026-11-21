@@ -128,7 +128,7 @@ const zhHant: Messages = {
   "panel.label": "步驟說明",
   "panel.resize": "調整說明面板大小",
   "panel.position": "步驟 {current} / {total}",
-  "panel.keyIdea": "小提醒",
+  "panel.keyIdea": "核心思想",
   "panel.lessonDone": "你已完成本課程的所有步驟。",
   "stepTag.context": "概念",
   "stepTag.mechanism": "機制",

@@ -142,7 +142,7 @@ const uk: Messages = {
   "panel.label": "Пояснення етапу",
   "panel.resize": "Змінити розмір панелі пояснень",
   "panel.position": "Крок {current} / {total}",
-  "panel.keyIdea": "Корисно знати",
+  "panel.keyIdea": "Ключова ідея",
   "panel.lessonDone": "Ви завершили всі етапи цього уроку.",
   "stepTag.context": "ПОНЯТТЯ",
   "stepTag.mechanism": "МЕХАНІЗМ",

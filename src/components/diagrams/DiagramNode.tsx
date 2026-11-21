@@ -15,7 +15,9 @@ import { cn } from "../../lib/utils";
 import { FADED_TEXT_OPACITY } from "../../scene/colors";
 import { DiagramPill } from "./DiagramPill";
 import {
+  blockLabelLayout,
   ISO_CELL,
+  PILL_FONT,
   RAG_BLOCK_HALF_WIDTH,
   RAG_BLOCK_HEIGHT,
   RAG_CATEGORY_COLOR,
@@ -27,11 +29,15 @@ import {
   RAG_PLATFORM_THICKNESS,
   getIsoDiamond,
   getRoundedPolygonPath,
-  type DiagramNodeShape,
+  getStepPillOffset,
+  LABEL_PILL_OFFSET,
   type DiagramNodeState,
   type RagNodeDefinition,
   type RagNodeId,
 } from "./ragDiagramLayout";
+
+/** O rótulo em 2 linhas sobe um pouco, para a linha de baixo ficar longe da ponta inferior do hexágono. */
+const WRAPPED_LABEL_LIFT = 3;
 
 interface DiagramNodeProps {
   node: RagNodeDefinition;
@@ -39,6 +45,8 @@ interface DiagramNodeProps {
   /** Texto da pílula do nó ativo, por exemplo "passo 3". */
   stepLabel?: string;
   onSelect?: () => void;
+  /** Fonte das pílulas, em unidades da viewBox (LEG-01.1); sem ela, 11. */
+  labelFont?: number;
 }
 
 const NODE_ICON: Record<RagNodeId, LucideIcon> = {
@@ -78,20 +86,9 @@ const PERSON_POSITIONS = [
 const BLOCK_CORNER_RADIUS = 14;
 const UPCOMING_OPACITY = FADED_TEXT_OPACITY;
 
-const LABEL_PILL_OFFSET: Record<DiagramNodeShape, number> = {
-  block: 0,
-  cylinder: RAG_CYLINDER_HEIGHT + RAG_CYLINDER_RADIUS_Y + 18,
-  platform: RAG_PLATFORM_THICKNESS + RAG_PLATFORM_HALF_WIDTH / 2 + 32,
-};
-
-const ACTIVE_PILL_OFFSET: Record<DiagramNodeShape, number> = {
-  block: RAG_BLOCK_HEIGHT + RAG_BLOCK_HALF_WIDTH / 2 + 22,
-  cylinder: LABEL_PILL_OFFSET.cylinder + 28,
-  platform: LABEL_PILL_OFFSET.platform + 28,
-};
-
-export function DiagramNode({ node, state, stepLabel, onSelect }: DiagramNodeProps) {
+export function DiagramNode({ node, state, stepLabel, onSelect, labelFont = PILL_FONT }: DiagramNodeProps) {
   const { x, y, label, shape } = node;
+  const activePillOffset = getStepPillOffset(shape, labelFont);
   const color = RAG_CATEGORY_COLOR[node.category];
   const isInteractive = onSelect !== undefined;
   const isActive = state === "active";
@@ -128,10 +125,17 @@ export function DiagramNode({ node, state, stepLabel, onSelect }: DiagramNodePro
         {shape === "cylinder" && <CylinderShape x={x} y={y} color={color} isActive={isActive} />}
         {shape === "block" && <BlockShape nodeId={node.id} x={x} y={y} color={color} isActive={isActive} />}
       </g>
-      <NodeContent node={node} />
+      <NodeContent node={node} labelFont={labelFont} />
       {isActive && stepLabel !== undefined && (
         <g key={stepLabel} className="svg-anim-center animate-pop-in">
-          <DiagramPill x={x} y={y - ACTIVE_PILL_OFFSET[shape]} text={stepLabel} icon={NODE_ICON[node.id]} tone="success" />
+          <DiagramPill
+            x={x}
+            y={y - activePillOffset}
+            text={stepLabel}
+            icon={NODE_ICON[node.id]}
+            tone="success"
+            fontSize={labelFont}
+          />
         </g>
       )}
     </g>
@@ -277,12 +281,12 @@ export function PlatformShape({ x, y }: ShapeProps) {
   );
 }
 
-function NodeContent({ node }: { node: RagNodeDefinition }) {
+function NodeContent({ node, labelFont }: { node: RagNodeDefinition; labelFont: number }) {
   const { x, y, label, shape } = node;
   const Icon = NODE_ICON[node.id];
 
   if (shape === "platform") {
-    return <DiagramPill x={x} y={y - LABEL_PILL_OFFSET.platform} text={label.toLowerCase()} icon={Icon} />;
+    return <DiagramPill x={x} y={y - LABEL_PILL_OFFSET.platform} text={label.toLowerCase()} icon={Icon} fontSize={labelFont} />;
   }
 
   if (shape === "cylinder") {
@@ -291,24 +295,32 @@ function NodeContent({ node }: { node: RagNodeDefinition }) {
     return (
       <g>
         <Icon x={x - 12} y={bodyCenter - 6} width={24} height={24} strokeWidth={2} className="text-ink" aria-hidden="true" />
-        <DiagramPill x={x} y={y - LABEL_PILL_OFFSET.cylinder} text={label.toLowerCase()} />
+        <DiagramPill x={x} y={y - LABEL_PILL_OFFSET.cylinder} text={label.toLowerCase()} fontSize={labelFont} />
       </g>
     );
   }
 
   const center = y - RAG_BLOCK_HEIGHT / 2;
+  const { lines, fontSize } = blockLabelLayout(label, labelFont);
 
   return (
     <g>
       <Icon x={x - 12} y={center - 30} width={24} height={24} strokeWidth={2} className="text-ink" aria-hidden="true" />
       <text
         x={x}
-        y={center + 14}
+        y={center + 14 - (lines.length > 1 ? WRAPPED_LABEL_LIFT : 0)}
         textAnchor="middle"
         dominantBaseline="central"
-        className="fill-ink font-mono text-[13px] font-bold"
+        className="fill-ink font-mono font-bold"
+        style={{ fontSize }}
       >
-        {label}
+        {lines.length === 1
+          ? label
+          : lines.map((line, index) => (
+              <tspan key={`${index}-${line}`} x={x} dy={index === 0 ? `${-(lines.length - 1) * 0.55}em` : "1.1em"}>
+                {line}
+              </tspan>
+            ))}
       </text>
     </g>
   );

@@ -1,9 +1,12 @@
+import { useLayoutEffect, useRef, useState, type RefObject } from "react";
 import { MOBILE_QUERY, useMediaQuery } from "../../hooks/useMediaQuery";
+import { useSvgTextScale } from "../../hooks/useSvgTextScale";
 import { useI18n } from "../../i18n/useI18n";
 import { cn } from "../../lib/utils";
 import { sceneColor } from "../colors";
+import { solveSceneFont } from "../textScale";
 import type { PieceProps, TokenStreamSpec } from "../types";
-import { TOKEN_SHADOW_OFFSET, layoutTokenStream } from "./tokenStreamLayout";
+import { TOKEN_FONT, TOKEN_SHADOW_OFFSET, layoutTokenStream, tokenLabelFont } from "./tokenStreamLayout";
 
 type TokenRole = "query" | "key" | "token";
 
@@ -30,6 +33,39 @@ interface TokenStreamListProps {
   spec: TokenStreamSpec;
   accent: string;
   roleOf: (index: number) => TokenRole;
+  /** A lista também é medida: com espaço de novo, a peça volta ao SVG. */
+  listRef?: (element: Element | null) => void;
+}
+
+/** Espaço entre as linhas da lista (`gap-2`), em px. */
+const LIST_ROW_GAP = 8;
+/** Largura mínima da célula para a lista ir para duas colunas: abaixo disso, o chip trunca demais (375). */
+const TWO_COLUMN_MIN_WIDTH = 480;
+
+/**
+ * A lista em uma coluna passa da célula da cena (layout em coluna, a altura da célula é fixa): numa
+ * célula larga, ela vai para duas colunas (10-06#5 passava 19 px). A altura de uma coluna é a soma das
+ * linhas, que não muda com o número de colunas, então a escolha não oscila. Sem ResizeObserver, uma coluna.
+ */
+function useListColumns(ref: RefObject<HTMLUListElement | null>, enabled: boolean, rowCount: number): boolean {
+  const [twoColumns, setTwoColumns] = useState(false);
+
+  useLayoutEffect(() => {
+    const list = ref.current;
+    const cell = list?.parentElement;
+    if (!enabled || !list || !cell || typeof ResizeObserver === "undefined") return;
+    const check = () => {
+      const rows = [...list.children].filter((child): child is HTMLElement => child instanceof HTMLElement);
+      const oneColumn = rows.reduce((sum, row) => sum + row.offsetHeight, 0) + LIST_ROW_GAP * Math.max(0, rows.length - 1);
+      setTwoColumns(cell.clientWidth >= TWO_COLUMN_MIN_WIDTH && cell.clientHeight > 0 && oneColumn > cell.clientHeight + 1);
+    };
+    check();
+    const observer = new ResizeObserver(check);
+    observer.observe(cell);
+    return () => observer.disconnect();
+  }, [ref, enabled, rowCount]);
+
+  return twoColumns;
 }
 
 /**
@@ -37,7 +73,7 @@ interface TokenStreamListProps {
  * menor. A cena em SVG encolhida deixava os rótulos com ~5 px a 375 px (T138). Sem barras nem arcos,
  * os tokens viram chips que quebram linha.
  */
-function TokenStreamList({ spec, accent, roleOf }: TokenStreamListProps) {
+function TokenStreamList({ spec, accent, roleOf, listRef }: TokenStreamListProps) {
   const arcTo = (index: number) =>
     spec.arcs?.find((arc) => arc.to === index && arc.from === spec.query) ?? spec.arcs?.find((arc) => arc.to === index);
   // O número da linha é o rótulo do arco (por exemplo, a pontuação). Só quando a cena não rotula
@@ -51,6 +87,12 @@ function TokenStreamList({ spec, accent, roleOf }: TokenStreamListProps) {
     return { text, index, role: roleOf(index), value, label };
   });
   const hasValues = rows.some((row) => row.value !== undefined);
+  const listElement = useRef<HTMLUListElement | null>(null);
+  const twoColumns = useListColumns(listElement, hasValues, rows.length);
+  const setListRef = (element: HTMLUListElement | null) => {
+    listElement.current = element;
+    listRef?.(element);
+  };
   const chipStyle = (role: TokenRole) => ({
     backgroundColor: role === "query" ? accent : TOKEN_FILL[role],
     color: role === "query" ? "var(--accent-on-brand)" : "var(--ink-primary)",
@@ -63,7 +105,7 @@ function TokenStreamList({ spec, accent, roleOf }: TokenStreamListProps) {
 
   if (!hasValues) {
     return (
-      <ul aria-hidden="true" data-variant="list" className="m-0 flex list-none flex-wrap gap-2 p-0">
+      <ul ref={setListRef} aria-hidden="true" data-variant="list" className="m-0 flex list-none flex-wrap gap-2 p-0">
         {rows.map((row) => (
           <li key={row.index} data-token={row.index} data-role={row.role} className={chipClass(row.role)} style={chipStyle(row.role)}>
             {row.text}
@@ -77,13 +119,19 @@ function TokenStreamList({ spec, accent, roleOf }: TokenStreamListProps) {
   const sorted = [...rows].sort((left, right) => (right.value ?? 0) - (left.value ?? 0));
 
   return (
-    <ul aria-hidden="true" data-variant="list" className="m-0 flex list-none flex-col gap-2 p-0">
+    <ul
+      ref={setListRef}
+      aria-hidden="true"
+      data-variant="list"
+      data-columns={twoColumns ? 2 : 1}
+      className={cn("m-0 list-none p-0", twoColumns ? "columns-2 gap-x-6" : "flex flex-col gap-2")}
+    >
       {sorted.map((row) => (
         <li
           key={row.index}
           data-token={row.index}
           data-role={row.role}
-          className="grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] items-center gap-3"
+          className={cn("grid grid-cols-[minmax(0,2fr)_minmax(0,3fr)] items-center gap-3", twoColumns && "mb-2 break-inside-avoid")}
         >
           <span className={chipClass(row.role)} style={chipStyle(row.role)}>
             {row.text}
@@ -106,21 +154,34 @@ function TokenStreamList({ spec, accent, roleOf }: TokenStreamListProps) {
 export function TokenStream({ spec, transition }: PieceProps<TokenStreamSpec>) {
   const { t } = useI18n();
   const isMobile = useMediaQuery(MOBILE_QUERY);
-  const layout = layoutTokenStream(spec);
+  const ref = useRef<Element | null>(null);
+  const setRef = (element: Element | null) => {
+    ref.current = element;
+  };
+  const sizeAt = (candidate: number) => layoutTokenStream(spec, candidate);
+  // A fila não amplia além do desenho de referência: com poucos tokens, ela fica no centro do quadro.
+  const { font, maxWidth, box } = useSvgTextScale(ref, sizeAt, TOKEN_FONT, undefined, TOKEN_FONT);
+  // Fila longa demais para a largura com as marcas em 11 px (tokens em 13): vira a lista, como no celular.
+  const widthOnly = box && solveSceneFont({ width: box.width, maxHeight: Number.POSITIVE_INFINITY }, sizeAt, TOKEN_FONT);
+  const fitsWidth = !widthOnly || widthOnly.font * widthOnly.scale >= TOKEN_FONT - 0.05;
+  const labelFont = tokenLabelFont(font);
+  const layout = layoutTokenStream(spec, font);
   const accent = sceneColor(spec.color ?? "brand");
   const keys = new Set(spec.keys ?? []);
   const animate = transition.animate ? "scene-animate" : undefined;
   const roleOf = (index: number): TokenRole => (index === spec.query ? "query" : keys.has(index) ? "key" : "token");
 
-  if (isMobile) return <TokenStreamList spec={spec} accent={accent} roleOf={roleOf} />;
+  if (isMobile || !fitsWidth) return <TokenStreamList spec={spec} accent={accent} roleOf={roleOf} listRef={setRef} />;
   const firstToken = layout.tokens[0];
   const lastToken = layout.tokens[layout.tokens.length - 1];
 
   return (
     <svg
+      ref={setRef}
       viewBox={`0 0 ${layout.width} ${layout.height}`}
       aria-hidden="true"
-      className="block h-full max-h-full w-full"
+      className="mx-auto block h-full max-h-full w-full"
+      style={maxWidth === undefined ? undefined : { maxWidth }}
     >
       {layout.arcs.map((arc) => {
         const toKey = roleOf(arc.to) === "key";
@@ -164,8 +225,8 @@ export function TokenStream({ spec, transition }: PieceProps<TokenStreamSpec>) {
                 y={arc.label.y + 0.5}
                 textAnchor="middle"
                 dominantBaseline="central"
-                className="font-mono text-[10px] font-bold"
-                style={{ fill: roleOf(arc.to) === "key" ? "var(--surface-raised)" : "var(--ink-primary)" }}
+                className="font-mono font-bold"
+                style={{ fontSize: labelFont, fill: roleOf(arc.to) === "key" ? "var(--surface-raised)" : "var(--ink-primary)" }}
               >
                 {arc.label.text}
               </text>
@@ -204,8 +265,8 @@ export function TokenStream({ spec, transition }: PieceProps<TokenStreamSpec>) {
               y={token.box.y + token.box.height / 2 + 0.5}
               textAnchor="middle"
               dominantBaseline="central"
-              className={cn("font-mono text-[13px]", role === "token" ? "font-semibold" : "font-bold")}
-              style={{ fill: role === "query" ? "var(--accent-on-brand)" : "var(--ink-primary)" }}
+              className={cn("font-mono", role === "token" ? "font-semibold" : "font-bold")}
+              style={{ fontSize: font, fill: role === "query" ? "var(--accent-on-brand)" : "var(--ink-primary)" }}
             >
               {token.text}
             </text>
@@ -225,8 +286,8 @@ export function TokenStream({ spec, transition }: PieceProps<TokenStreamSpec>) {
               y={layout.markY}
               textAnchor="middle"
               dominantBaseline="central"
-              className="font-mono text-[10px] font-bold"
-              style={{ fill: role === "key" ? KEY_INK : "var(--ink-primary)" }}
+              className="font-mono font-bold"
+              style={{ fontSize: labelFont, fill: role === "key" ? KEY_INK : "var(--ink-primary)" }}
             >
               {`↑ ${t(role === "query" ? "scene.tokenStream.query" : "scene.tokenStream.key")}`}
             </text>

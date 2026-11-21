@@ -132,7 +132,7 @@ const vi: Messages = {
   "panel.label": "Giải thích giai đoạn",
   "panel.resize": "Đổi kích thước bảng giải thích",
   "panel.position": "Bước {current} / {total}",
-  "panel.keyIdea": "Điều nên biết",
+  "panel.keyIdea": "Ý chính",
   "panel.lessonDone": "Bạn đã hoàn thành tất cả các giai đoạn của bài học này.",
   "stepTag.context": "KHÁI NIỆM",
   "stepTag.mechanism": "CƠ CHẾ",

@@ -1,5 +1,6 @@
-import { render } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+import { stubSceneFrame, svgTextOnScreen } from "../../test/sceneFrame";
 import type { MatrixSpec } from "../types";
 import { Matrix } from "./Matrix";
 
@@ -70,6 +71,30 @@ describe("Matrix", () => {
     expect(container.querySelectorAll('[data-highlight="true"]')).toHaveLength(1);
   });
 
+  it("com a escala medida, rótulos e valores ficam com 11 px na tela (LEG-01.1)", () => {
+    vi.stubGlobal(
+      "ResizeObserver",
+      class {
+        observe() {}
+        disconnect() {}
+      },
+    );
+    // 07-07#3: matriz lado a lado, num quadro de 327 px.
+    const rect = vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(() => ({ width: 327, height: 2000 }) as DOMRect);
+    try {
+      const { container } = renderPiece({ ...attention, rows: ["pneu do carro", "roda", "farol"] });
+      const viewBoxWidth = Number(container.querySelector("svg")?.getAttribute("viewBox")?.split(" ")[2]);
+      const scale = 327 / viewBoxWidth;
+      const sizes = [...container.querySelectorAll("text")].map((text) => Number.parseFloat((text as SVGTextElement).style.fontSize) * scale);
+
+      expect(sizes.length).toBeGreaterThan(0);
+      for (const size of sizes) expect(size).toBeCloseTo(11, 1);
+    } finally {
+      rect.mockRestore();
+      vi.unstubAllGlobals();
+    }
+  });
+
   it("com máscara causal, apaga as células acima da diagonal e mantém as demais", () => {
     const { container, cell } = renderPiece({ ...attention, causalMask: true, values: [[1, 1, 1], [1, 1, 1], [1, 1, 1]] });
 
@@ -79,5 +104,52 @@ describe("Matrix", () => {
     expect(cell(0, 2).querySelector("text")).toBeNull();
     expect(cell(2, 0)).not.toHaveAttribute("data-masked");
     expect(cell(2, 0)).toHaveTextContent("1.00");
+  });
+});
+
+describe("Matrix em tela estreita (LEG-01.4)", () => {
+  // 03-10#9: duas matrizes 7 × 7 lado a lado; a 375 cada uma tinha 146 px, e o texto caía para 6,9 px.
+  const words = ["a", "menina", "leu", "o", "livro", "na", "biblioteca"];
+  const heads: MatrixSpec = {
+    piece: "matrix",
+    rows: words,
+    cols: words,
+    values: words.map((_, row) => words.map((__, col) => (row === col ? 0.7 : 0.05))),
+    scale: { min: 0, max: 1 },
+    highlight: { row: 2, col: 1 },
+  };
+
+  it("a 375, a matriz mantém o texto com 11 px e o quadro rola", () => {
+    const restore = stubSceneFrame(146);
+    try {
+      const { container } = renderPiece(heads);
+      const svg = container.querySelector("svg") as SVGSVGElement;
+      const sizes = svgTextOnScreen(container);
+
+      expect(Number.parseFloat(svg.style.minWidth)).toBeGreaterThan(146);
+      expect(container.querySelector(".scene-scroll")).toHaveAttribute("data-scene-scroll", "scroll");
+      expect(screen.getByRole("group", { name: /^Matriz 7 × 7/ })).toHaveAttribute("tabindex", "0");
+      expect(sizes.length).toBeGreaterThan(0);
+      for (const size of sizes) expect(size).toBeGreaterThanOrEqual(10.95);
+    } finally {
+      restore();
+    }
+  });
+
+  it("a 1440, duas matrizes lado a lado (319 px cada) e três (207 px) cabem: nada rola", () => {
+    for (const frame of [319, 207]) {
+      const restore = stubSceneFrame(frame);
+      try {
+        const spec = frame === 319 ? heads : attention;
+        const { container } = renderPiece(spec);
+        const svg = container.querySelector("svg") as SVGSVGElement;
+
+        expect(Number.parseFloat(svg.style.minWidth)).toBeLessThanOrEqual(frame);
+        expect(container.querySelector(".scene-scroll")).toHaveAttribute("data-scene-scroll", "fit");
+        expect(container.querySelector(".scene-scroll")).not.toHaveAttribute("tabindex");
+      } finally {
+        restore();
+      }
+    }
   });
 });

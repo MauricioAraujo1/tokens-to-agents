@@ -131,7 +131,7 @@ const ja: Messages = {
   "panel.label": "ステップの解説",
   "panel.resize": "解説パネルのサイズを変更",
   "panel.position": "ステップ {current} / {total}",
-  "panel.keyIdea": "ポイント",
+  "panel.keyIdea": "キーアイデア",
   "panel.lessonDone": "このレッスンのすべてのステップを完了しました。",
   "stepTag.context": "コンセプト",
   "stepTag.mechanism": "仕組み",

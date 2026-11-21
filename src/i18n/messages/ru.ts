@@ -142,7 +142,7 @@ const ru: Messages = {
   "panel.label": "Объяснение этапа",
   "panel.resize": "Изменить размер панели объяснений",
   "panel.position": "Шаг {current} / {total}",
-  "panel.keyIdea": "Полезно знать",
+  "panel.keyIdea": "Ключевая идея",
   "panel.lessonDone": "Вы завершили все этапы этого урока.",
   "stepTag.context": "ПОНЯТИЕ",
   "stepTag.mechanism": "МЕХАНИЗМ",

@@ -1,68 +1,25 @@
+import { useRef } from "react";
 import { DiagramPill } from "../../components/diagrams/DiagramPill";
-import { getPillWidth } from "../../components/diagrams/ragDiagramLayout";
+import { useSvgTextScale } from "../../hooks/useSvgTextScale";
 import { cn } from "../../lib/utils";
 import { sceneColor } from "../colors";
 import type { ChartSpec, PieceProps } from "../types";
+import { BAR_WIDTH, layoutChart, LINE_POINT_RADIUS, SLOT, TILTED_LABEL_ANGLE } from "./chartLayout";
 
-const SLOT = 44;
-const BAR_WIDTH = 28;
-const PLOT_HEIGHT = 160;
-const TOP = 24;
-const LEFT = 16;
-const LABEL_SPACE = 24;
-const EPSILON = 1e-9;
 const SHADOW_OFFSET = 2;
-const LABEL_CHAR_WIDTH = 6.8;
-/** Folga mínima entre o rótulo reto de uma barra e o da barra vizinha. */
-const LABEL_SLACK = 6;
-const TILTED_LABEL_ANGLE = -35;
-
-/** Índices das barras mantidas pela linha de corte; sem corte, todas. */
-function keptIndexes(spec: ChartSpec): Set<number> {
-  const all = spec.series.map((_, index) => index);
-  if (!spec.cutoff) return new Set(all);
-  const { mode, value } = spec.cutoff;
-  if (mode === "threshold") return new Set(all.filter((index) => spec.series[index].value >= value - EPSILON));
-
-  // top-p: as maiores barras até a soma acumulada chegar a p (a barra que cruza o limite entra).
-  const kept = new Set<number>();
-  let sum = 0;
-  for (const index of [...all].sort((a, b) => spec.series[b].value - spec.series[a].value)) {
-    if (sum >= value - EPSILON) break;
-    kept.add(index);
-    sum += spec.series[index].value;
-  }
-  return kept;
-}
 
 /** Barras ou linhas para distribuições e métricas, com eixo, linha de corte e destaque (SCN-01.2). */
 export function Chart({ spec, transition }: PieceProps<ChartSpec>) {
-  const max = spec.max ?? Math.max(EPSILON, ...spec.series.map((point) => point.value));
-  const heightOf = (value: number) => (Math.min(Math.max(value, 0), max) / max) * PLOT_HEIGHT;
-  const baseline = TOP + PLOT_HEIGHT;
-  const labelWidth = Math.max(0, ...spec.series.map((point) => point.label.length)) * LABEL_CHAR_WIDTH;
-  // Rótulo que não cabe na largura da barra fica inclinado, para não encostar no vizinho.
-  const tiltLabels = labelWidth > SLOT - LABEL_SLACK;
-  const tiltedDrop = Math.ceil(labelWidth * Math.sin((-TILTED_LABEL_ANGLE * Math.PI) / 180));
-  const width = LEFT * 2 + SLOT * spec.series.length;
-  const height = baseline + LABEL_SPACE + (tiltLabels ? tiltedDrop : 0);
+  const ref = useRef<SVGSVGElement>(null);
+  const { font } = useSvgTextScale(ref, (candidate) => layoutChart(spec, candidate));
+  const { width, height, left, plotRight, baseline, labelFont, labelY, tilt, centerX, heightOf, kept, cutoffY, cutoffPill } =
+    layoutChart(spec, font);
   const color = sceneColor(spec.color ?? "brand");
-  const kept = keptIndexes(spec);
   const animate = transition.animate ? "scene-animate" : undefined;
-  const centerX = (index: number) => LEFT + SLOT * (index + 0.5);
-
-  const keptValues = spec.series.filter((_, index) => kept.has(index)).map((point) => point.value);
-  const cutoffValue =
-    spec.cutoff === undefined
-      ? undefined
-      : spec.cutoff.mode === "threshold"
-        ? spec.cutoff.value
-        : Math.min(...keptValues);
-  const cutoffY = cutoffValue === undefined ? undefined : baseline - heightOf(cutoffValue);
 
   return (
-    <svg viewBox={`0 0 ${width} ${height}`} aria-hidden="true" className="block h-full max-h-full w-full">
-      <line x1={LEFT} y1={baseline} x2={width - LEFT} y2={baseline} style={{ stroke: "var(--line-strong)" }} />
+    <svg ref={ref} viewBox={`0 0 ${width} ${height}`} aria-hidden="true" className="block h-full max-h-full w-full">
+      <line x1={left} y1={baseline} x2={left + SLOT * spec.series.length} y2={baseline} style={{ stroke: "var(--line-strong)" }} />
 
       {spec.kind === "line" && (
         <polyline
@@ -122,7 +79,7 @@ export function Chart({ spec, transition }: PieceProps<ChartSpec>) {
                 <circle
                   cx={centerX(index)}
                   cy={baseline - barHeight}
-                  r={highlighted ? 6 : 4}
+                  r={highlighted ? LINE_POINT_RADIUS.highlighted : LINE_POINT_RADIUS.normal}
                   className={animate}
                   style={{ fill: color, stroke: "var(--line-strong)", strokeWidth: highlighted ? 2 : 1 }}
                 />
@@ -131,12 +88,12 @@ export function Chart({ spec, transition }: PieceProps<ChartSpec>) {
             <text
               data-label={index}
               x={centerX(index)}
-              y={baseline + LABEL_SPACE / 2}
-              textAnchor={tiltLabels ? "end" : "middle"}
+              y={labelY}
+              textAnchor={tilt ? "end" : "middle"}
               dominantBaseline="central"
-              transform={tiltLabels ? `rotate(${TILTED_LABEL_ANGLE} ${centerX(index)} ${baseline + LABEL_SPACE / 2})` : undefined}
-              className={cn("font-mono text-[11px]", highlighted && "font-bold")}
-              style={{ fill: "var(--ink-muted)" }}
+              transform={tilt ? `rotate(${TILTED_LABEL_ANGLE} ${centerX(index)} ${labelY})` : undefined}
+              className={cn("font-mono", highlighted && "font-bold")}
+              style={{ fontSize: labelFont, fill: "var(--ink-muted)" }}
             >
               {point.label}
             </text>
@@ -147,21 +104,16 @@ export function Chart({ spec, transition }: PieceProps<ChartSpec>) {
       {cutoffY !== undefined && spec.cutoff && (
         <g data-cutoff={spec.cutoff.mode} data-cutoff-y={cutoffY.toFixed(2)}>
           <line
-            x1={LEFT}
+            x1={left}
             y1={cutoffY}
-            x2={width - LEFT}
+            x2={plotRight}
             y2={cutoffY}
             strokeDasharray="5 4"
             className={animate}
             style={{ stroke: "var(--state-danger)", strokeWidth: 1.6 }}
           />
-          {spec.cutoff.label && (
-            <DiagramPill
-              x={width - LEFT - getPillWidth(spec.cutoff.label) / 2}
-              y={Math.max(13, cutoffY - 14)}
-              text={spec.cutoff.label}
-              tone="danger"
-            />
+          {spec.cutoff.label && cutoffPill && (
+            <DiagramPill x={cutoffPill.x} y={cutoffPill.y} text={spec.cutoff.label} tone="danger" fontSize={labelFont} />
           )}
         </g>
       )}

@@ -1,7 +1,11 @@
 import { render } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
+import { stubSceneFrame, svgTextOnScreen } from "../../test/sceneFrame";
 import type { ClientServerSpec } from "../types";
+import { ARROW_HEAD, rectCrossesPolyline, rectsOverlap, tailOf } from "./blockDiagramLayout";
 import { ClientServer } from "./ClientServer";
+import { layoutClientServer, UTILIZATION_BAR_HEIGHT, UTILIZATION_LABEL_GAP, UTILIZATION_TOP } from "./clientServerLayout";
+import embeddingLesson from "../../content/lessons/08/08-07-embedding-generation";
 
 const system: ClientServerSpec = {
   piece: "client-server",
@@ -98,10 +102,150 @@ describe("ClientServer", () => {
     expect(container.querySelectorAll("[data-connection]")).toHaveLength(3);
   });
 
+  // Caso 12-11#4 da auditoria de 2026-11-20: pílulas de mensagem sobre a pílula "reembolso" e o par oposto na mesma reta.
+  const handoff: ClientServerSpec = {
+    piece: "client-server",
+    nodes: [
+      { id: "user", label: "cliente", role: "client" },
+      { id: "triage", label: "triagem", role: "server" },
+      { id: "refund", label: "reembolso", role: "server" },
+      { id: "orders", label: "pedidos", role: "database" },
+    ],
+    messages: [
+      { from: "user", to: "triage", label: "chegou quebrado" },
+      { from: "triage", to: "refund", label: "transfer_to_reembolso" },
+      { from: "refund", to: "orders", label: "consulta 4821" },
+      { from: "orders", to: "refund", label: "no prazo" },
+      { from: "refund", to: "user", label: "reembolso aberto" },
+    ],
+    active: 1,
+  };
+
+  it("12-11#4: nenhuma pílula cobre outra, em qualquer fonte (COL-01.5)", () => {
+    for (const font of [12, 16, 19]) {
+      const { pills } = layoutClientServer(handoff, font);
+      pills.forEach((pill, index) => {
+        for (const other of pills.slice(index + 1)) {
+          expect(rectsOverlap(pill.rect, other.rect), `@${font}: ${pill.id} × ${other.id}`).toBe(false);
+        }
+      });
+    }
+  });
+
+  it("mensagens opostas entre o mesmo par correm em retas paralelas", () => {
+    const { connections } = layoutClientServer(handoff, 12);
+    const go = connections.find((connection) => connection.id === "refund-orders-2");
+    const back = connections.find((connection) => connection.id === "orders-refund-3");
+    if (!go || !back) throw new Error("caso incompleto");
+    const distance = Math.hypot(go.geometry.start.x - back.geometry.end.x, go.geometry.start.y - back.geometry.end.y);
+
+    expect(distance).toBeGreaterThan(8);
+  });
+
   it("com movimento reduzido, a requisição não anima", () => {
     const { container } = renderPiece(system, false);
 
     expect(container.querySelectorAll(".flow-dot")).toHaveLength(0);
     expect(container.querySelectorAll(".scene-animate")).toHaveLength(0);
+  });
+
+  it("08-07#2: a seta que sai por baixo do nó com barra começa abaixo do rótulo de porcentagem (COL-01.5)", () => {
+    const scene = embeddingLesson.steps[1].scene;
+    const spec = scene.kind === "pieces" ? scene.pieces.find((piece): piece is ClientServerSpec => piece.piece === "client-server") : undefined;
+    if (!spec) throw new Error("caso incompleto");
+    for (const font of [12, 16, 20]) {
+      const { placed, connections, pillFont } = layoutClientServer(spec, font);
+      const byId = new Map(placed.map((item) => [item.node.id, item]));
+      const down = spec.messages.flatMap((message, index) => {
+        const from = byId.get(message.from);
+        const connection = connections.find((candidate) => candidate.id === `${message.from}-${message.to}-${index}`);
+        return from?.node.utilization !== undefined && connection && connection.geometry.end.y > connection.geometry.start.y + 40 ? [{ from, connection }] : [];
+      });
+
+      expect(down.length, `@${font}`).toBeGreaterThan(0);
+      for (const { from, connection } of down) {
+        const labelBottom = from.center.y + UTILIZATION_TOP + UTILIZATION_BAR_HEIGHT + UTILIZATION_LABEL_GAP + 1.6 * pillFont;
+        expect(connection.geometry.start.y, `@${font} ${connection.id}`).toBeGreaterThan(labelBottom);
+      }
+    }
+  });
+
+  it("08-07#2: a seta que desce até o banco vetorial para antes da pílula dele, com a linha mínima à vista (T22)", () => {
+    const scene = embeddingLesson.steps[1].scene;
+    const spec = scene.kind === "pieces" ? scene.pieces.find((piece): piece is ClientServerSpec => piece.piece === "client-server") : undefined;
+    if (!spec) throw new Error("caso incompleto");
+    for (const font of [12, 16, 20, 24]) {
+      const { connections, pills } = layoutClientServer(spec, font);
+      const px = Math.max(1, font / 12);
+      for (const connection of connections) {
+        const { start, end } = connection.geometry;
+        const tail = tailOf([start, end], 24 * px + ARROW_HEAD);
+        // Nenhuma pílula (de nó ou de mensagem) cobre o trecho final nem a ponta.
+        for (const pill of pills) expect(rectCrossesPolyline(pill.rect, tail), `@${font}: ${pill.id} × ${connection.id}`).toBe(false);
+        expect(Math.hypot(end.x - start.x, end.y - start.y), `@${font}: ${connection.id}`).toBeGreaterThanOrEqual(24 * px + ARROW_HEAD);
+      }
+    }
+  });
+
+  it("a 1440, a peça que passaria do quadro encolhe as formas e cabe: não rola (T22)", () => {
+    // 10-13#5: com o teto normal, a largura mínima passava do quadro de 655 px.
+    const replicas: ClientServerSpec = {
+      piece: "client-server",
+      nodes: [
+        { id: "users", label: "20 pedidos/s", role: "client" },
+        { id: "queue", label: "fila", role: "queue", size: 4 },
+        { id: "replicas", label: "3 réplicas", role: "model", utilization: 0.9 },
+        { id: "new", label: "réplica nova", role: "server", utilization: 0.1 },
+      ],
+      messages: [
+        { from: "users", to: "queue", label: "+5 por segundo" },
+        { from: "queue", to: "replicas", label: "15 por segundo" },
+        { from: "queue", to: "new", label: "pronta em 37 s" },
+      ],
+    };
+    const restore = stubSceneFrame(655);
+    try {
+      const { container } = renderPiece(replicas);
+      const svg = container.querySelector("svg") as SVGSVGElement;
+
+      expect(Number.parseFloat(svg.style.minWidth)).toBeLessThanOrEqual(655);
+      expect(container.querySelector(".scene-scroll")).toHaveAttribute("data-scene-scroll", "fit");
+      for (const size of svgTextOnScreen(container)) expect(size).toBeGreaterThanOrEqual(10.95);
+    } finally {
+      restore();
+    }
+  });
+
+  it("a 375, o desenho mantém o texto com pelo menos 11 px e o quadro rola (LEG-01.4)", () => {
+    const restore = stubSceneFrame(309);
+    try {
+      const { container } = renderPiece(system);
+      const svg = container.querySelector("svg") as SVGSVGElement;
+      const frame = container.querySelector(".scene-scroll") as HTMLElement;
+      const sizes = svgTextOnScreen(container);
+
+      expect(Number.parseFloat(svg.style.minWidth)).toBeGreaterThan(309);
+      expect(sizes.length).toBeGreaterThan(0);
+      for (const size of sizes) expect(size).toBeGreaterThanOrEqual(10.95);
+      expect(frame).toHaveAttribute("data-scene-scroll", "scroll");
+      expect(frame).toHaveAttribute("tabindex", "0");
+      expect(frame).toHaveAccessibleName(/^Cliente e servidor: /);
+    } finally {
+      restore();
+    }
+  });
+
+  it("a 1440, o desenho cabe no quadro e não rola", () => {
+    const restore = stubSceneFrame(702);
+    try {
+      const { container } = renderPiece(system);
+      const frame = container.querySelector(".scene-scroll") as HTMLElement;
+
+      expect(frame).toHaveAttribute("data-scene-scroll", "fit");
+      expect(frame).not.toHaveAttribute("tabindex");
+      for (const size of svgTextOnScreen(container)) expect(size).toBeGreaterThanOrEqual(10.95);
+    } finally {
+      restore();
+    }
   });
 });

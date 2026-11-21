@@ -1,5 +1,6 @@
 import type { MouseEvent, ReactNode } from "react";
-import { glossary as defaultGlossary, type GlossaryEntry } from "../../content/glossary";
+import type { GlossaryEntry } from "../../content/glossary";
+import { useGlossary } from "../../hooks/useGlossary";
 import type { MessageKey } from "../../i18n/messages/pt-BR";
 import { useI18n } from "../../i18n/useI18n";
 import { buildPath, type Route } from "../../lib/router";
@@ -29,14 +30,13 @@ interface StepNarrationProps {
   onNavigate?: (route: Route) => void;
 }
 
-export function StepNarration({
-  step,
-  stepIndex,
-  stepCount,
-  glossary = defaultGlossary,
-  onNavigate,
-}: StepNarrationProps) {
+export function StepNarration({ step, stepIndex, stepCount, glossary: glossaryProp, onNavigate }: StepNarrationProps) {
   const { t } = useI18n();
+  // O glossário vem sob demanda, só quando o passo marca algum termo (PERF-01.1). Até chegar, o termo
+  // aparece como texto simples; depois vira o link.
+  const hasTerms = step.body.some((paragraph) => paragraph.includes("[["));
+  const loadedGlossary = useGlossary(glossaryProp === undefined && hasTerms);
+  const glossary = glossaryProp ?? loadedGlossary ?? [];
 
   function renderParagraph(paragraph: string): ReactNode[] {
     const parts: ReactNode[] = [];

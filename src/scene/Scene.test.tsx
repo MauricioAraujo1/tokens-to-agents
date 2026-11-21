@@ -1,7 +1,9 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import type { ReactNode } from "react";
+import { describe, expect, it, vi } from "vitest";
 import { setReducedMotionPreference } from "../test/reducedMotion";
-import { Scene, type SceneStep } from "./Scene";
+import { COLUMN_SCENE_HEIGHT, Scene, type SceneStep } from "./Scene";
+import { MIN_SCENE_ROOM, OVERLAY_GAP, sceneRoom } from "./useSceneRoom";
 import { findPreviousPiece } from "./transition";
 import type { PieceSpec, SceneSpec } from "./types";
 
@@ -81,10 +83,157 @@ describe("Scene", () => {
     expect(scene()).toHaveAccessibleName("Fluxo de tokens: O, gato e sentou (destaque: sentou); Métricas: loss 0.42");
   });
 
+  it("em coluna, divide a altura de uma peça entre as linhas, sem passar da dobra (GEO-01.3)", () => {
+    render(
+      <Scene
+        steps={[{ id: "col", scene: { kind: "pieces", layout: "column", pieces: [tokens, { ...tokens, id: "other" }] } }]}
+        stepIndex={0}
+        paused={false}
+      />,
+    );
+
+    expect(scene()).toHaveAttribute("data-layout", "column");
+    // O jsdom normaliza `minmax(0, 1fr)` para `minmax(0px, 1fr)`.
+    expect(scene().style.gridTemplateRows).toBe("minmax(0px, 1fr) minmax(0px, 1fr)");
+    // A altura é a de uma peça sozinha (58vh) mais o padding; o jsdom reordena os termos do calc.
+    expect(COLUMN_SCENE_HEIGHT).toBe("calc(58vh + 2rem)");
+    expect(scene().style.height).toBe("calc(2rem + 58vh)");
+  });
+
+  it("em coluna, o painel de métricas fica com a altura própria e as peças em SVG dividem o resto", () => {
+    render(
+      <Scene steps={[{ id: "col", scene: { kind: "pieces", layout: "column", pieces: [tokens, metrics] } }]} stepIndex={0} paused={false} />,
+    );
+
+    expect(scene().style.gridTemplateRows).toBe("minmax(0px, 1fr) auto");
+  });
+
+  it("fora da coluna, a cena não fixa linhas nem altura", () => {
+    renderScene(0);
+
+    expect(scene().style.gridTemplateRows).toBe("");
+    expect(scene().style.height).toBe("");
+  });
+
   it("usa a descrição do autor (alt) no lugar da gerada", () => {
     renderScene(2);
 
     expect(scene()).toHaveAccessibleName("Descrição escrita pelo autor");
+  });
+});
+
+describe("Scene na altura que sobra na tela (GEO-01.3)", () => {
+  // 06-07#1 a 1440 × 900: a área que rola (`main`) vai de 76 a 884 px, e o título em 3 linhas leva o
+  // topo da cena a 349 px. Com 58vh (522 px) mais o padding, a cena terminava em 903 px.
+  const layoutAt = ({ sceneTop = 349, overlayBottom = 0 } = {}) => {
+    vi.stubGlobal(
+      "ResizeObserver",
+      class {
+        observe() {}
+        disconnect() {}
+      },
+    );
+    vi.stubGlobal("innerHeight", 900);
+    const rect = vi.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(function (this: Element) {
+      if (this.tagName === "FIGURE") return { top: sceneTop, bottom: sceneTop + 554 } as DOMRect;
+      if (this.classList.contains("absolute")) return { top: sceneTop + 12, bottom: overlayBottom } as DOMRect;
+      if (this.classList.contains("scene-piece")) return { top: sceneTop + 16, bottom: sceneTop + 538 } as DOMRect;
+      if (this.getAttribute("data-testid") === "port") return { top: 76, bottom: 884 } as DOMRect;
+      return { top: 0, bottom: 0 } as DOMRect;
+    });
+    const client = vi.spyOn(HTMLElement.prototype, "clientHeight", "get").mockReturnValue(808);
+    return () => {
+      rect.mockRestore();
+      client.mockRestore();
+      vi.unstubAllGlobals();
+    };
+  };
+  const inPort = (node: ReactNode) => (
+    <div data-testid="port" style={{ overflowY: "auto" }}>
+      {node}
+    </div>
+  );
+
+  it("a altura é a do topo da cena até o fim da área visível, com um piso", () => {
+    expect(sceneRoom(349, 884)).toBe(535);
+    expect(sceneRoom(800, 884)).toBe(MIN_SCENE_ROOM);
+  });
+
+  it("na aula, a cena mede o espaço e troca o teto de 58vh por ele", () => {
+    const restore = layoutAt();
+    try {
+      render(inPort(<Scene steps={[steps[2]]} stepIndex={0} paused={false} fitToScreen />));
+
+      expect(scene()).toHaveAttribute("data-fit", "room");
+      expect(scene().style.getPropertyValue("--scene-room")).toBe("535px");
+    } finally {
+      restore();
+    }
+  });
+
+  it("em coluna, a cena ocupa a altura medida, e não 58vh mais o padding", () => {
+    const restore = layoutAt();
+    try {
+      render(
+        inPort(
+          <Scene
+            steps={[{ id: "col", scene: { kind: "pieces", layout: "column", pieces: [tokens, metrics] } }]}
+            stepIndex={0}
+            paused={false}
+            fitToScreen
+          />,
+        ),
+      );
+
+      expect(scene().style.height).toBe("535px");
+      expect(scene().style.gridTemplateRows).toBe("minmax(0px, 1fr) auto");
+    } finally {
+      restore();
+    }
+  });
+
+  it("fora da aula (resumo), a cena não mede nada e fica com o teto de 58vh", () => {
+    const restore = layoutAt();
+    try {
+      render(inPort(<Scene steps={[steps[2]]} stepIndex={0} paused={false} />));
+
+      expect(scene()).not.toHaveAttribute("data-fit");
+      expect(scene().style.getPropertyValue("--scene-room")).toBe("");
+    } finally {
+      restore();
+    }
+  });
+
+  it("no overlay, a peça de baixo desce até abaixo do painel sobreposto (06-06#2)", () => {
+    // O painel termina 140 px abaixo do topo da cena; a peça de baixo começa no padding, a 16 px.
+    const restore = layoutAt({ overlayBottom: 349 + 140 });
+    try {
+      const { container } = render(
+        inPort(
+          <Scene
+            steps={[{ id: "over", scene: { kind: "pieces", layout: "overlay", pieces: [tokens, metrics] } }]}
+            stepIndex={0}
+            paused={false}
+            fitToScreen
+          />,
+        ),
+      );
+      const base = container.querySelector('[data-piece="token-stream"]') as HTMLElement;
+
+      expect(base.style.paddingTop).toBe(`${140 - 16 + OVERLAY_GAP}px`);
+      expect(base.style.getPropertyValue("--scene-offset")).toBe(`${140 - 16 + OVERLAY_GAP}px`);
+      expect(container.querySelector('[data-piece="metrics-panel"]')).not.toHaveAttribute("style");
+    } finally {
+      restore();
+    }
+  });
+
+  it("sem medida (jsdom puro), o overlay não recua a peça", () => {
+    const { container } = render(
+      <Scene steps={[{ id: "over", scene: { kind: "pieces", layout: "overlay", pieces: [tokens, metrics] } }]} stepIndex={0} paused={false} />,
+    );
+
+    expect(container.querySelector('[data-piece="token-stream"]')).not.toHaveAttribute("style");
   });
 });
 

@@ -132,7 +132,8 @@ export function App() {
           />
         )}
 
-        <main className="flex min-w-0 flex-1 flex-col overflow-y-auto">
+        {/* A calha da barra fica reservada: a barra que aparece e some não muda a largura da cena (00-04#1). */}
+        <main className="flex min-w-0 flex-1 flex-col overflow-y-auto [scrollbar-gutter:stable]">
           {route.name === "home" ? (
             <HomePage onNavigate={handleLessonNavigate} />
           ) : route.name === "lesson" ? (

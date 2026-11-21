@@ -1,9 +1,18 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { catalog } from "../content/catalog";
 import { glossary } from "../content/glossary";
 import ragLesson from "../content/lessons/08/08-02-rag-architecture";
+import type { LessonContent } from "../types/content";
 import { flattenLessons } from "./course";
-import { buildSearchIndex, loadFullSearchIndex, MAX_SEARCH_RESULTS, searchAll, searchLessons } from "./search";
+import {
+  buildSearchIndex,
+  createSearchIndexLoader,
+  loadFullSearchIndex,
+  MAX_SEARCH_RESULTS,
+  searchAll,
+  searchLessons,
+  type SearchIndex,
+} from "./search";
 
 const entries = flattenLessons(catalog);
 const index = buildSearchIndex({ catalog, glossary, lessons: [ragLesson] });
@@ -70,6 +79,84 @@ describe("searchAll", () => {
       expect.objectContaining({ label: "Os documentos são comparados por similaridade" }),
     );
   }, FULL_INDEX_TIMEOUT_MS);
+});
+
+describe("índice sob demanda (PERF-01.2, PERF-01.3)", () => {
+  const lessonModules = import.meta.glob<{ default: LessonContent[] }>("../content/lessons/*/index.ts");
+  const conceptModules = Object.fromEntries(
+    Object.entries(lessonModules).map(([path, load]) => [/lessons\/(\d+)\//.exec(path)?.[1] ?? path, load]),
+  );
+  const QUERIES = ["embedding", "atencao", "similaridade", "rag chunk", "cosseno", "bm25", "agente ferramenta", "lora"];
+  const keysOf = (query: string, searchIndex: SearchIndex) =>
+    searchAll(query, searchIndex, Number.POSITIVE_INFINITY).map((result) => result.key);
+
+  it("com tudo carregado, as mesmas consultas dão os mesmos resultados do índice montado de uma vez", async () => {
+    const allLessons = (await Promise.all(Object.values(lessonModules).map((load) => load()))).flatMap((module) => module.default);
+    const eager = buildSearchIndex({ catalog, glossary, lessons: allLessons });
+    const progress = vi.fn();
+    const loader = createSearchIndexLoader({
+      catalog,
+      loadedGlossary: () => glossary,
+      loadGlossary: async () => glossary,
+      conceptModules,
+    });
+
+    const lazy = await loader.loadFull(progress);
+
+    for (const query of QUERIES) {
+      expect(keysOf(query, lazy), query).toEqual(keysOf(query, eager));
+      expect(searchAll(query, lazy), query).toEqual(searchAll(query, eager));
+    }
+    // Um aviso pelo glossário e um por módulo de conceitos.
+    expect(progress).toHaveBeenCalledTimes(1 + Object.keys(conceptModules).length);
+    expect(await loadFullSearchIndex()).toEqual(lazy);
+  }, FULL_INDEX_TIMEOUT_MS);
+
+  it("antes de carregar, o índice só tem as aulas; o glossário e os conceitos chegam depois", async () => {
+    let loaded: typeof glossary | null = null;
+    const loader = createSearchIndexLoader({
+      catalog,
+      loadedGlossary: () => loaded,
+      loadGlossary: async () => (loaded = glossary),
+      conceptModules: { "08": async () => ({ default: [ragLesson] }) },
+    });
+
+    expect(loader.current().glossary).toEqual([]);
+    expect(loader.current().concept).toEqual([]);
+    expect(searchAll("chunking", loader.current()).map((result) => result.lesson.id)).toContain("08-05");
+
+    expect((await loader.loadGlossary()).glossary.length).toBeGreaterThan(0);
+    expect(loader.current().concept).toEqual([]);
+
+    await loader.loadFull();
+    expect(searchAll("embedding", loader.current())).toEqual(searchAll("embedding", index));
+  });
+
+  it("se o carregamento falhar, a busca segue com as aulas, sem erro, e tenta de novo depois", async () => {
+    let attempts = 0;
+    const loader = createSearchIndexLoader({
+      catalog,
+      loadedGlossary: () => null,
+      loadGlossary: () => Promise.reject(new TypeError("Failed to fetch dynamically imported module")),
+      conceptModules: {
+        "08": () => {
+          attempts += 1;
+          return attempts === 1 ? Promise.reject(new TypeError("Failed to fetch")) : Promise.resolve({ default: [ragLesson] });
+        },
+      },
+    });
+
+    const afterFailure = await loader.loadFull();
+
+    expect(afterFailure.concept).toEqual([]);
+    expect(afterFailure.glossary).toEqual([]);
+    expect(searchAll("chunking", afterFailure).map((result) => result.lesson.id)).toContain("08-05");
+    expect(searchAll("bm25", afterFailure).map((result) => result.group)).toEqual(["lesson"]);
+
+    const retried = await loader.loadFull();
+    expect(attempts).toBe(2);
+    expect(retried.concept.map((entry) => entry.result.lesson.id)).toContain("08-02");
+  });
 });
 
 describe("searchLessons", () => {

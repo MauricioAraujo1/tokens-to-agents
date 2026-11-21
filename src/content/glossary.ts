@@ -1,4 +1,5 @@
 import type { LessonId } from "../types/content";
+import { registerGlossary } from "./glossaryStore";
 
 // Glossário dos termos técnicos em inglês (CNT-01.2). Os passos das aulas marcam
 // os termos como [[termo|id]], e a busca indexa o termo e a explicação (SRCH-01.2).
@@ -353,3 +354,6 @@ const baseGlossary: GlossaryEntry[] = [
 const moduleGlossaries = import.meta.glob<GlossaryEntry[]>("./glossary/*.ts", { eager: true, import: "default" });
 
 export const glossary: GlossaryEntry[] = [...baseGlossary, ...Object.values(moduleGlossaries).flat()];
+
+// O app só importa este módulo por import dinâmico (`loadGlossary`); avaliado, ele se registra no store.
+registerGlossary(glossary);

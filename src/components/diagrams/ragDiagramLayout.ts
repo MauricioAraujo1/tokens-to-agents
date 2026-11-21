@@ -108,6 +108,25 @@ const SHAPE_SILHOUETTE_HALF_WIDTH: Record<DiagramNodeShape, number> = {
   platform: RAG_PLATFORM_HALF_WIDTH / 2,
 };
 
+/** Distância da base do nó até o centro da pílula do rótulo (o bloco escreve o rótulo na face). */
+export const LABEL_PILL_OFFSET: Record<DiagramNodeShape, number> = {
+  block: 0,
+  cylinder: RAG_CYLINDER_HEIGHT + RAG_CYLINDER_RADIUS_Y + 18,
+  platform: RAG_PLATFORM_THICKNESS + RAG_PLATFORM_HALF_WIDTH / 2 + 32,
+};
+
+const BLOCK_STEP_PILL_OFFSET = RAG_BLOCK_HEIGHT + RAG_BLOCK_HALF_WIDTH / 2 + 22;
+/** Espaço entre a pílula do rótulo e a do passo, na pílula de referência. */
+const STEP_PILL_GAP = 28;
+
+/**
+ * Distância da base do nó até o centro da pílula "passo N" do nó ativo. Ela fica acima da pílula do
+ * rótulo; o espaço entre as duas cresce com a pílula.
+ */
+export function getStepPillOffset(shape: DiagramNodeShape, labelFont: number = PILL_FONT): number {
+  return shape === "block" ? BLOCK_STEP_PILL_OFFSET : LABEL_PILL_OFFSET[shape] + STEP_PILL_GAP * Math.max(1, labelFont / PILL_FONT);
+}
+
 // Folga até o conteúdo desenhado: em cima, a pílula "passo N" da plataforma do usuário; nos lados, o
 // brilho do bloco ativo. Margens maiores só encolhem a cena no quadro da aula (T138).
 const VIEWBOX_MARGIN = { top: 140, right: 35, bottom: 45, left: 25 } as const;
@@ -181,26 +200,99 @@ export function findRagNode(nodeId: RagNodeId): RagNodeGeometry {
   return node;
 }
 
-export function getPillWidth(text: string, hasIcon = false): number {
-  return text.length * PILL_CHAR_WIDTH + PILL_PADDING + (hasIcon ? PILL_ICON_SPACE : 0);
+/** Fonte e altura da pílula de rótulo no desenho de referência; a pílula cresce junto com a fonte. */
+export const PILL_FONT = 11;
+export const PILL_HEIGHT = 22;
+
+export function getPillWidth(text: string, hasIcon = false, fontSize: number = PILL_FONT): number {
+  return ((text.length * PILL_CHAR_WIDTH + PILL_PADDING + (hasIcon ? PILL_ICON_SPACE : 0)) * fontSize) / PILL_FONT;
 }
 
-/** Conexão reta entre dois centros, encurtada para não invadir os nós. */
+/** Largura e altura da pílula para o texto e a fonte dados (LEG-01.3). */
+export function getPillSize(text: string, fontSize: number = PILL_FONT, hasIcon = false): { width: number; height: number } {
+  return { width: getPillWidth(text, hasIcon, fontSize), height: (PILL_HEIGHT * fontSize) / PILL_FONT };
+}
+
+/** Linha mínima que uma conexão com recuo próprio mantém visível, quando a distância permite. */
+export const EDGE_MIN_VISIBLE = 24;
+/** Folga entre a borda da caixa e a ponta da seta. */
+export const BOX_EDGE_GAP = 8;
+
+/** Recuo de cada ponta da conexão, a partir do centro: o mesmo nas duas, ou um para cada. */
+export type EdgeClearance = number | { start: number; end: number };
+
+/** Largura útil da face do bloco para o rótulo. */
+const BLOCK_LABEL_WIDTH = 2 * RAG_BLOCK_HALF_WIDTH - 8;
+/** Largura útil do rótulo em 2 linhas: a linha de baixo não encosta no contorno ("Sem resultado", T22). */
+const BLOCK_LABEL_WRAPPED_WIDTH = 2 * RAG_BLOCK_HALF_WIDTH - 20;
+/** Avanço de um caractere da fonte mono em negrito, em em. */
+const BLOCK_LABEL_CHAR_EM = 0.62;
+
+/**
+ * Rótulo na face do bloco: 13 para cada 11 da pílula, como no design; rótulo de duas palavras que não
+ * cabe quebra em 2 linhas, e a fonte só diminui o que for preciso para caber na face (a geometria
+ * isométrica não muda).
+ */
+export function blockLabelLayout(label: string, labelFont: number): { lines: string[]; fontSize: number } {
+  const preferred = (labelFont * 13) / PILL_FONT;
+  const fits = (lines: string[]) => Math.max(...lines.map((line) => line.length)) * BLOCK_LABEL_CHAR_EM * preferred <= BLOCK_LABEL_WIDTH;
+  const words = label.split(" ");
+  const lines = fits([label]) || words.length < 2 ? [label] : [words.slice(0, 1).join(" "), words.slice(1).join(" ")];
+  const longest = Math.max(...lines.map((line) => line.length));
+  // A segunda linha desce para onde a face do hexágono já se estreita: ela tem menos largura útil.
+  const width = lines.length > 1 ? BLOCK_LABEL_WRAPPED_WIDTH : BLOCK_LABEL_WIDTH;
+  return { lines, fontSize: Math.min(preferred, width / (longest * BLOCK_LABEL_CHAR_EM)) };
+}
+
+/** Distância do centro de uma caixa até a borda dela na direção de `toward`, mais a folga. */
+export function getBoxClearance(
+  half: { width: number; height: number },
+  center: Point,
+  toward: Point,
+  gap: number = BOX_EDGE_GAP,
+): number {
+  const deltaX = Math.abs(toward.x - center.x);
+  const deltaY = Math.abs(toward.y - center.y);
+  const length = Math.hypot(deltaX, deltaY);
+  if (length === 0) return 0;
+  const reachX = deltaX === 0 ? Number.POSITIVE_INFINITY : (half.width * length) / deltaX;
+  const reachY = deltaY === 0 ? Number.POSITIVE_INFINITY : (half.height * length) / deltaY;
+  return Math.min(reachX, reachY) + gap;
+}
+
+/** Recuos das duas pontas. Sem recuo próprio, vale o da RAG; com ele, sobram ao menos 24 de linha. */
+function resolveClearance(clearance: EdgeClearance | undefined, distance: number): { start: number; end: number } {
+  if (clearance === undefined) {
+    const fixed = Math.min(RAG_NODE_CLEARANCE, distance / 2);
+    return { start: fixed, end: fixed };
+  }
+  const { start, end } = typeof clearance === "number" ? { start: clearance, end: clearance } : clearance;
+  const room = Math.max(0, distance - EDGE_MIN_VISIBLE);
+  const total = start + end;
+  const ratio = total > room ? room / total : 1;
+  return { start: start * ratio, end: end * ratio };
+}
+
+/**
+ * Conexão reta entre dois centros, encurtada para não invadir os nós. O recuo padrão é o da RAG (80);
+ * as peças de caixas passam o próprio (GEO-01.1).
+ */
 export function getRagEdgeGeometry(
   from: Point,
   to: Point,
   labelOffset: Point = DEFAULT_LABEL_OFFSET,
+  clearance?: EdgeClearance,
 ): RagEdgeGeometry {
   const deltaX = to.x - from.x;
   const deltaY = to.y - from.y;
   const distance = Math.hypot(deltaX, deltaY);
   const unitX = distance === 0 ? 0 : deltaX / distance;
   const unitY = distance === 0 ? 0 : deltaY / distance;
-  const clearance = Math.min(RAG_NODE_CLEARANCE, distance / 2);
+  const { start, end } = resolveClearance(clearance, distance);
 
   return {
-    start: { x: from.x + unitX * clearance, y: from.y + unitY * clearance },
-    end: { x: to.x - unitX * clearance, y: to.y - unitY * clearance },
+    start: { x: from.x + unitX * start, y: from.y + unitY * start },
+    end: { x: to.x - unitX * end, y: to.y - unitY * end },
     labelPoint: {
       x: (from.x + to.x) / 2 + labelOffset.x,
       y: (from.y + to.y) / 2 + labelOffset.y,
@@ -235,14 +327,59 @@ export function getRagEdgeRoute(from: GridPoint, to: GridPoint): GridPoint[] {
   return isStraight ? [from, to] : [from, { i: to.i, j: from.j }, to];
 }
 
-export function getRagEdgePath(edge: RagEdgeDefinition): RagEdgePath {
+/** Seta da cena RAG; `labelFont` é a fonte da pílula, que afasta o rótulo da linha (LEG-01.3). */
+/**
+ * Seta da cena RAG; `labelFont` é a fonte da pílula, que afasta o rótulo da linha (LEG-01.3). Com
+ * `activeNodeId`, as pílulas só reservam o lugar da pílula "passo N" do nó ativo, a única que aparece,
+ * e ficam mais perto das suas setas (08-02).
+ */
+export function getRagEdgePath(edge: RagEdgeDefinition, labelFont: number = PILL_FONT, activeNodeId?: RagNodeId): RagEdgePath {
+  const points = getRagEdgePoints(edge);
+  const label = ragFlowContent.edges[edge.id] ?? "";
+
+  return {
+    points,
+    path: getRoundedPolylinePath(points, EDGE_CORNER_RADIUS),
+    labelPoint:
+      (labelFont > PILL_FONT && placeEdgeLabels(labelFont, activeNodeId).get(edge.id)) || getLabelPoint(points, edge, label, labelFont),
+  };
+}
+
+const placedLabels = new Map<string, Map<string, Point>>();
+/** Fontes guardadas; o quadro muda de largura aos poucos, e cada largura dá uma fonte. */
+const PLACED_LABELS_CACHE = 8;
+
+/**
+ * Pílulas das setas na ordem de `RAG_EDGES`: cada uma desvia dos nós e das pílulas já postas, para
+ * nenhuma cobrir a outra quando crescem com a fonte (LEG-01.3).
+ */
+function placeEdgeLabels(labelFont: number, activeNodeId?: RagNodeId): Map<string, Point> {
+  const key = `${labelFont}|${activeNodeId ?? "*"}`;
+  const cached = placedLabels.get(key);
+  if (cached) return cached;
+  const placed: Box[] = [];
+  const points = new Map<string, Point>();
+  for (const edge of RAG_EDGES) {
+    const label = ragFlowContent.edges[edge.id];
+    if (!label) continue;
+    const center = getLabelPoint(getRagEdgePoints(edge), edge, label, labelFont, placed, activeNodeId);
+    const size = getPillSize(label, labelFont);
+    placed.push({ left: center.x - size.width / 2, right: center.x + size.width / 2, top: center.y - size.height / 2, bottom: center.y + size.height / 2 });
+    points.set(edge.id, center);
+  }
+  if (placedLabels.size >= PLACED_LABELS_CACHE) placedLabels.clear();
+  placedLabels.set(key, points);
+  return points;
+}
+
+function getRagEdgePoints(edge: RagEdgeDefinition): Point[] {
   const from = findRagNode(edge.from);
   const to = findRagNode(edge.to);
   const route = getRagEdgeRoute(from, to).map(gridToScreen);
   const lastIndex = route.length - 1;
   const firstWaypoint = route[1];
   const lastWaypoint = route[lastIndex - 1];
-  const points = route.map((point, index) => {
+  return route.map((point, index) => {
     if (index === 0) {
       return lift(moveAlongScreen(from, firstWaypoint, getEndpointReach(from.shape, from, firstWaypoint)));
     }
@@ -253,12 +390,6 @@ export function getRagEdgePath(edge: RagEdgeDefinition): RagEdgePath {
 
     return lift(point);
   });
-
-  return {
-    points,
-    path: getRoundedPolylinePath(points, EDGE_CORNER_RADIUS),
-    labelPoint: getLabelPoint(points, edge, ragFlowContent.edges[edge.id] ?? ""),
-  };
 }
 
 export function getRoundedPolylinePath(points: Point[], radius: number): string {
@@ -290,23 +421,175 @@ function findLongestSegment(points: Point[]): number {
 }
 
 /** Pílula afastada da seta pela normal do trecho, para não cruzar a linha. */
-function getLabelPoint(points: Point[], edge: RagEdgeDefinition, label: string): Point {
-  const segment = Math.min(edge.labelSegment ?? findLongestSegment(points), points.length - 2);
-  const start = points[segment];
-  const end = points[segment + 1];
-
-  const length = Math.hypot(end.x - start.x, end.y - start.y) || 1;
-  const direction = { x: (end.x - start.x) / length, y: (end.y - start.y) / length };
-  const sign = edge.labelSide === "right" ? -1 : 1;
-  const normal = { x: direction.y * sign, y: -direction.x * sign };
-  const halfWidth = getPillWidth(label) / 2;
-  const distance = Math.abs(normal.x) * halfWidth + Math.abs(normal.y) * PILL_HALF_HEIGHT + LABEL_CLEARANCE;
-
-  return {
-    x: Number(((start.x + end.x) / 2 + normal.x * distance).toFixed(2)),
-    y: Number(((start.y + end.y) / 2 + normal.y * distance).toFixed(2)),
-  };
+interface Box {
+  left: number;
+  right: number;
+  top: number;
+  bottom: number;
 }
+
+function getLabelPoint(
+  points: Point[],
+  edge: RagEdgeDefinition,
+  label: string,
+  labelFont: number,
+  placed: Box[] = [],
+  activeNodeId?: RagNodeId,
+): Point {
+  const preferredSegment = Math.min(edge.labelSegment ?? findLongestSegment(points), points.length - 2);
+  const preferred = edge.labelSide === "right" ? -1 : 1;
+  const halfWidth = getPillWidth(label, false, labelFont) / 2;
+  const halfHeight = (PILL_HALF_HEIGHT * labelFont) / PILL_FONT;
+  const at = (t: number, sign: number = preferred, away: number = 0, segment: number = preferredSegment) => {
+    const start = points[segment];
+    const end = points[segment + 1];
+    const length = Math.hypot(end.x - start.x, end.y - start.y) || 1;
+    const normal = { x: ((end.y - start.y) / length) * sign, y: (-(end.x - start.x) / length) * sign };
+    const distance = Math.abs(normal.x) * halfWidth + Math.abs(normal.y) * halfHeight + LABEL_CLEARANCE + away;
+    return {
+      x: Number((start.x + (end.x - start.x) * t + normal.x * distance).toFixed(2)),
+      y: Number((start.y + (end.y - start.y) * t + normal.y * distance).toFixed(2)),
+    };
+  };
+  // Com a pílula maior que a de referência, ela anda pelo trecho até sair de cima dos blocos e das
+  // pílulas já postas; sem lugar livre do seu lado, tenta o outro lado da seta e os outros trechos dela,
+  // depois um pouco mais longe e, por fim, fica onde cobre menos.
+  if (labelFont <= PILL_FONT) return at(0.5);
+  const segments = [preferredSegment, ...points.slice(1).map((_, index) => index).filter((index) => index !== preferredSegment)];
+  const obstacles: Array<Box & { outline?: Point[] }> = [...getRagNodeObstacles(labelFont, activeNodeId), ...placed];
+  // Área coberta das caixas que a pílula cruza; uma silhueta só conta quando a pílula cruza o contorno.
+  const coveredArea = (center: Point) =>
+    obstacles.reduce((sum, box) => {
+      const pill = { left: center.x - halfWidth, right: center.x + halfWidth, top: center.y - halfHeight, bottom: center.y + halfHeight };
+      const width = Math.min(pill.right, box.right) - Math.max(pill.left, box.left);
+      const height = Math.min(pill.bottom, box.bottom) - Math.max(pill.top, box.top);
+      if (!(width > 0 && height > 0)) return sum;
+      return box.outline && !boxCrossesOutline(pill, box.outline) ? sum : sum + width * height;
+    }, 0);
+  const candidates = LABEL_AWAY.flatMap((away) =>
+    segments.flatMap((segment) => [preferred, -preferred].flatMap((sign) => LABEL_STOPS.map((t) => at(t, sign, away * halfHeight, segment)))),
+  );
+  return (
+    candidates.find((center) => coveredArea(center) === 0) ??
+    candidates.reduce((best, center) => (coveredArea(center) < coveredArea(best) ? center : best), candidates[0])
+  );
+}
+
+/**
+ * Largura mínima da cena, em px. Num quadro mais estreito, ela rola (T138, LEG-01.4): as pílulas com
+ * 11 px na tela crescem em relação aos blocos à medida que a cena encolhe, e abaixo disso não há lugar
+ * para todas sem cobrir um bloco ou outra pílula.
+ */
+export const RAG_MIN_SCENE_WIDTH = 700;
+
+/** Rótulo mais longo da pílula "passo N" (até 10 passos), para reservar o lugar dela em todo nó. */
+const STEP_PILL_SAMPLE = "passo 10";
+
+/**
+ * Área que cada nó ocupa, para as pílulas das setas desviarem: a silhueta, a pílula do rótulo
+ * (plataforma e cilindro) e o lugar da pílula "passo N", que aparece quando o nó fica ativo.
+ */
+export interface RagObstacle extends Box {
+  id: RagNodeId;
+  /** Contorno convexo da silhueta, quando a área não é um retângulo (os cantos da caixa ficam livres). */
+  outline?: Point[];
+}
+
+/** Contorno convexo de cada forma, a partir do centro da base (mesmas medidas do desenho). */
+function getNodeOutline(node: RagNodeGeometry): Point[] {
+  const { x, y } = node;
+  if (node.shape === "block") {
+    const half = RAG_BLOCK_HALF_WIDTH;
+    const top = y - RAG_BLOCK_HEIGHT;
+    return [
+      { x, y: top - half / 2 },
+      { x: x + half, y: top },
+      { x: x + half, y },
+      { x, y: y + half / 2 },
+      { x: x - half, y },
+      { x: x - half, y: top },
+    ];
+  }
+  if (node.shape === "cylinder") {
+    const rx = RAG_CYLINDER_RADIUS_X;
+    const ry = RAG_CYLINDER_RADIUS_Y;
+    const top = y - RAG_CYLINDER_HEIGHT;
+    const lean = Math.SQRT1_2;
+    return [
+      { x, y: top - ry },
+      { x: x + rx * lean, y: top - ry * lean },
+      { x: x + rx, y: top },
+      { x: x + rx, y },
+      { x: x + rx * lean, y: y + ry * lean },
+      { x, y: y + ry },
+      { x: x - rx * lean, y: y + ry * lean },
+      { x: x - rx, y },
+      { x: x - rx, y: top },
+      { x: x - rx * lean, y: top - ry * lean },
+    ];
+  }
+  const half = RAG_PLATFORM_HALF_WIDTH;
+  const top = y - RAG_PLATFORM_THICKNESS;
+  return [
+    { x, y: top - half / 2 },
+    { x: x + half, y: top },
+    { x: x + half, y },
+    { x, y: y + half / 2 },
+    { x: x - half, y },
+    { x: x - half, y: top },
+  ];
+}
+
+/** Se o retângulo cruza o polígono convexo (teorema do eixo separador). */
+export function boxCrossesOutline(box: Box, outline: Point[]): boolean {
+  const corners = [
+    { x: box.left, y: box.top },
+    { x: box.right, y: box.top },
+    { x: box.right, y: box.bottom },
+    { x: box.left, y: box.bottom },
+  ];
+  const axes = [{ x: 1, y: 0 }, { x: 0, y: 1 }, ...outline.map((point, index) => {
+    const next = outline[(index + 1) % outline.length];
+    return { x: next.y - point.y, y: point.x - next.x };
+  })];
+  return axes.every((axis) => {
+    const project = (points: Point[]) => points.map((point) => point.x * axis.x + point.y * axis.y);
+    const a = project(corners);
+    const b = project(outline);
+    return Math.min(...a) < Math.max(...b) && Math.min(...b) < Math.max(...a);
+  });
+}
+
+/** Com `activeNodeId`, só o nó ativo reserva o lugar da pílula "passo N"; sem ele, todos reservam. */
+export function getRagNodeObstacles(labelFont: number = PILL_FONT, activeNodeId?: RagNodeId): RagObstacle[] {
+  const pillHalfHeight = (PILL_HALF_HEIGHT * labelFont) / PILL_FONT;
+  const stepHalfWidth = getPillWidth(STEP_PILL_SAMPLE, true, labelFont) / 2;
+  const around = (id: RagNodeId, x: number, y: number, halfWidth: number, halfHeight: number): RagObstacle => ({
+    id,
+    left: x - halfWidth,
+    right: x + halfWidth,
+    top: y - halfHeight,
+    bottom: y + halfHeight,
+  });
+  return RAG_NODES.flatMap((node) => {
+    const outline = getNodeOutline(node);
+    const xs = outline.map((point) => point.x);
+    const ys = outline.map((point) => point.y);
+    const body: RagObstacle = { id: node.id, left: Math.min(...xs), right: Math.max(...xs), top: Math.min(...ys), bottom: Math.max(...ys), outline };
+    const steps =
+      activeNodeId === undefined || activeNodeId === node.id
+        ? [around(node.id, node.x, node.y - getStepPillOffset(node.shape, labelFont), stepHalfWidth, pillHalfHeight)]
+        : [];
+    if (node.shape === "block") return [body, ...steps];
+    const labelHalf = getPillWidth(ragFlowContent.nodes[node.id].toLowerCase(), node.shape === "platform", labelFont) / 2;
+    return [body, ...steps, around(node.id, node.x, node.y - LABEL_PILL_OFFSET[node.shape], labelHalf, pillHalfHeight)];
+  });
+}
+
+/** Até as pontas: na seta curta, a pílula grande só fica junto dela perto de uma das pontas (08-02). */
+const LABEL_STOPS = [0.5, 0.4, 0.6, 0.3, 0.7, 0.2, 0.8, 0.1, 0.9, 0, 1];
+/** Afastamentos extras da pílula em relação à seta, em meias alturas de pílula. */
+const LABEL_AWAY = [0, 1, 2, 3, 4];
 
 export function getRagViewBox(): ViewBox {
   const routePoints = RAG_EDGES.flatMap((edge) => getRagEdgePath(edge).points);
