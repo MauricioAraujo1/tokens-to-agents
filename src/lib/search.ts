@@ -1,5 +1,6 @@
 import { catalog as defaultCatalog } from "../content/catalog";
-import { glossary as defaultGlossary, type GlossaryEntry } from "../content/glossary";
+import type { GlossaryEntry } from "../content/glossary";
+import { getLoadedGlossary, loadGlossary } from "../content/glossaryStore";
 import type { LessonContent, LessonMeta, ModuleMeta } from "../types/content";
 import { flattenLessons, type LessonLocation } from "./course";
 import { normalizeText } from "./utils";
@@ -33,7 +34,7 @@ export type SearchIndex = Record<SearchGroup, SearchEntry[]>;
 
 interface SearchSources {
   catalog: ModuleMeta[];
-  glossary: GlossaryEntry[];
+  glossary: readonly GlossaryEntry[];
   /** Aulas já carregadas; os títulos dos passos viram conceitos. */
   lessons?: LessonContent[];
 }
@@ -107,9 +108,6 @@ export function buildSearchIndex({ catalog, glossary, lessons = [] }: SearchSour
   return { lesson: lessonEntries, concept: conceptEntries, glossary: glossaryEntries };
 }
 
-/** Índice com o que já vem no bundle: catálogo e glossário. */
-export const baseSearchIndex: SearchIndex = buildSearchIndex({ catalog: defaultCatalog, glossary: defaultGlossary });
-
 /**
  * Busca em aulas, conceitos e glossário, sem acento e sem diferenciar maiúsculas.
  * Os grupos dividem o limite em rodízio, para que nenhum grupo encontrado fique de fora;
@@ -117,7 +115,7 @@ export const baseSearchIndex: SearchIndex = buildSearchIndex({ catalog: defaultC
  */
 export function searchAll(
   query: string,
-  index: SearchIndex = baseSearchIndex,
+  index: SearchIndex = currentSearchIndex(),
   limit: number = MAX_SEARCH_RESULTS,
 ): SearchResult[] {
   const terms = termsOf(query);
@@ -147,21 +145,107 @@ export function searchAll(
   return matches.flatMap((results, group) => results.slice(0, taken[group]));
 }
 
-const lessonModules = import.meta.glob<{ default: LessonContent[] }>("../content/lessons/*/index.ts");
-let fullIndex: Promise<SearchIndex> | undefined;
+/** Carrega as aulas de um módulo; os títulos dos passos viram conceitos. */
+export type ConceptModuleLoader = () => Promise<{ default: LessonContent[] }>;
+
+interface SearchIndexSources {
+  catalog: ModuleMeta[];
+  /** Glossário já carregado, se houver (síncrono). */
+  loadedGlossary: () => readonly GlossaryEntry[] | null;
+  /** Carrega o glossário sob demanda. */
+  loadGlossary: () => Promise<readonly GlossaryEntry[]>;
+  /** Um carregador por módulo, pelo id do módulo ("00"…"17"). */
+  conceptModules: Record<string, ConceptModuleLoader>;
+}
+
+export interface SearchIndexLoader {
+  /** O melhor índice com o que já chegou: aulas sempre; glossário e conceitos quando carregados. */
+  current: () => SearchIndex;
+  /** Carrega o glossário e devolve o índice atual; uma falha deixa o índice como estava. */
+  loadGlossary: () => Promise<SearchIndex>;
+  /**
+   * Carrega o glossário e os conceitos, módulo a módulo; `onProgress` recebe o índice a cada módulo
+   * que chega. Nunca rejeita: um módulo que falha fica de fora (e é tentado de novo na próxima
+   * chamada), e a busca segue com as aulas (PERF-01.3).
+   */
+  loadFull: (onProgress?: (index: SearchIndex) => void) => Promise<SearchIndex>;
+}
 
 /**
- * Índice completo: acrescenta os títulos dos passos (conceitos) das aulas. Os chunks
- * das aulas são do próprio site; se algum falhar, a busca segue com o índice base.
+ * Índice da busca montado sob demanda (PERF-01.2): o bundle inicial só tem o catálogo (aulas). O
+ * glossário e os conceitos chegam por import dinâmico, e o índice com tudo carregado é o mesmo de
+ * `buildSearchIndex` com todas as aulas, na mesma ordem (módulos e aulas do catálogo).
  */
-export function loadFullSearchIndex(): Promise<SearchIndex> {
-  fullIndex ??= Promise.all(Object.values(lessonModules).map((load) => load().then((module) => module.default)))
-    .then((modules) =>
-      buildSearchIndex({ catalog: defaultCatalog, glossary: defaultGlossary, lessons: modules.flat() }),
-    )
-    .catch(() => {
-      fullIndex = undefined;
-      return baseSearchIndex;
-    });
-  return fullIndex;
+export function createSearchIndexLoader({ catalog, loadedGlossary, loadGlossary: fetchGlossary, conceptModules }: SearchIndexSources): SearchIndexLoader {
+  const conceptsByModule = new Map<string, LessonContent[]>();
+  const pendingModules = new Map<string, Promise<void>>();
+  let cached: { glossary: readonly GlossaryEntry[] | null; modules: number; index: SearchIndex } | undefined;
+
+  const current = (): SearchIndex => {
+    const glossary = loadedGlossary();
+    if (cached && cached.glossary === glossary && cached.modules === conceptsByModule.size) return cached.index;
+    const lessons = catalog.flatMap((module) => conceptsByModule.get(module.id) ?? []);
+    const index = buildSearchIndex({ catalog, glossary: glossary ?? [], lessons });
+    cached = { glossary, modules: conceptsByModule.size, index };
+    return index;
+  };
+
+  const loadGlossaryIndex = () =>
+    fetchGlossary().then(
+      () => current(),
+      () => current(),
+    );
+
+  const loadModule = (moduleId: string, load: ConceptModuleLoader): Promise<void> => {
+    if (conceptsByModule.has(moduleId)) return Promise.resolve();
+    let pending = pendingModules.get(moduleId);
+    if (!pending) {
+      pending = load().then(
+        (module) => {
+          conceptsByModule.set(moduleId, module.default);
+        },
+        () => undefined,
+      );
+      pending.finally(() => pendingModules.delete(moduleId));
+      pendingModules.set(moduleId, pending);
+    }
+    return pending;
+  };
+
+  const loadFull = async (onProgress?: (index: SearchIndex) => void): Promise<SearchIndex> => {
+    const glossary = loadGlossaryIndex().then((index) => onProgress?.(index));
+    const modules = Object.entries(conceptModules).map(([moduleId, load]) =>
+      loadModule(moduleId, load).then(() => onProgress?.(current())),
+    );
+    await Promise.all([glossary, ...modules]);
+    return current();
+  };
+
+  return { current, loadGlossary: loadGlossaryIndex, loadFull };
 }
+
+const lessonModules = import.meta.glob<{ default: LessonContent[] }>("../content/lessons/*/index.ts");
+
+/** `../content/lessons/08/index.ts` → `08`. */
+function moduleIdOf(path: string): string {
+  return /lessons\/([^/]+)\/index\.ts$/.exec(path)?.[1] ?? path;
+}
+
+const defaultLoader = createSearchIndexLoader({
+  catalog: defaultCatalog,
+  loadedGlossary: getLoadedGlossary,
+  loadGlossary,
+  conceptModules: Object.fromEntries(Object.entries(lessonModules).map(([path, load]) => [moduleIdOf(path), load])),
+});
+
+/** Índice com o que já chegou ao navegador: aulas, e glossário e conceitos quando carregados. */
+export const currentSearchIndex = defaultLoader.current;
+
+/** Carrega o glossário (não os conceitos) e devolve o índice atual. */
+export const loadGlossarySearchIndex = defaultLoader.loadGlossary;
+
+/**
+ * Índice completo: acrescenta o glossário e os títulos dos passos (conceitos) das aulas, módulo a
+ * módulo. Os chunks são do próprio site; se algum falhar, a busca segue com o que chegou.
+ */
+export const loadFullSearchIndex = defaultLoader.loadFull;

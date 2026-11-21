@@ -2,8 +2,9 @@ import { CornerDownLeft, Search } from "lucide-react";
 import { useEffect, useId, useMemo, useState, type KeyboardEvent } from "react";
 import { useI18n } from "../../i18n/useI18n";
 import {
-  baseSearchIndex,
+  currentSearchIndex,
   loadFullSearchIndex,
+  loadGlossarySearchIndex,
   MIN_QUERY_LENGTH,
   SEARCH_GROUPS,
   searchAll,
@@ -26,7 +27,7 @@ export function SearchDialog({ onSelectLesson, onClose }: SearchDialogProps) {
   const groupIdPrefix = useId();
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
-  const [index, setIndex] = useState(baseSearchIndex);
+  const [index, setIndex] = useState(currentSearchIndex);
   const results = useMemo(() => searchAll(query, index), [query, index]);
   const selectedIndex = Math.min(activeIndex, Math.max(results.length - 1, 0));
   const isQueryTooShort = normalizeText(query).replace(/\s+/g, "").length < MIN_QUERY_LENGTH;
@@ -41,14 +42,29 @@ export function SearchDialog({ onSelectLesson, onClose }: SearchDialogProps) {
     [opener],
   );
 
-  // Os conceitos (títulos de passo) chegam com os chunks das aulas; até lá, aulas e glossário.
+  // A busca abre com as aulas, que vêm no bundle, e pede o glossário na hora (PERF-01.2).
   useEffect(() => {
     let isCurrent = true;
-    loadFullSearchIndex().then((full) => isCurrent && setIndex(full));
+    loadGlossarySearchIndex().then(() => isCurrent && setIndex(currentSearchIndex()));
     return () => {
       isCurrent = false;
     };
   }, []);
+
+  // Os conceitos (títulos de passo) só são baixados quando há uma consulta, e entram módulo a módulo.
+  // Se algum módulo falhar, a busca segue com as aulas e o que já chegou, sem erro (PERF-01.3).
+  const wantsConcepts = !isQueryTooShort;
+  useEffect(() => {
+    if (!wantsConcepts) return;
+    let isCurrent = true;
+    const refresh = () => {
+      if (isCurrent) setIndex(currentSearchIndex());
+    };
+    loadFullSearchIndex(refresh).then(refresh);
+    return () => {
+      isCurrent = false;
+    };
+  }, [wantsConcepts]);
 
   function handleInputKeyDown(event: KeyboardEvent<HTMLInputElement>) {
     if (event.key === "ArrowDown") {
