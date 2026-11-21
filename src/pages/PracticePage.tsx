@@ -100,12 +100,16 @@ export function PracticePage({
             const isCurrent = module.id === moduleId;
             const isPublished = hasQuiz(module.id);
             const best = progress.quizBest[module.id as ModuleId];
+            const name = `${module.id} ${module.title}`;
 
             return (
               <li key={module.id} data-module={module.id}>
+                {/* O nome pode ser truncado na lista: o `title` mostra o nome inteiro, e o nome
+                    acessível vem do texto completo, não do que cabe na tela (UI-01.1). */}
                 <a
                   href={buildPath(route)}
                   onClick={follow(route)}
+                  title={name}
                   aria-current={isCurrent ? "page" : undefined}
                   className={cn(
                     "flex w-full items-center justify-between gap-3 rounded-[5px] border-[1.5px] px-2 text-xs leading-4 transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-line-strong",
@@ -114,9 +118,8 @@ export function PracticePage({
                       : "border-transparent py-[3px] text-ink hover:bg-sunken",
                   )}
                 >
-                  <span className="min-w-0 truncate">
-                    {module.id} {module.title}
-                  </span>
+                  <span className="min-w-0 truncate">{name}</span>
+                  {/* Espaço entre o nome e a nota no nome acessível; no flex, ele não aparece na tela. */}{" "}
                   {isPublished ? (
                     <span className="shrink-0 text-[11px]">
                       <span aria-hidden="true">{formatScore(best)}</span>

@@ -128,7 +128,7 @@ const he: Messages = {
   "panel.label": "הסבר השלב",
   "panel.resize": "שינוי גודל חלונית ההסבר",
   "panel.position": "שלב {current} / {total}",
-  "panel.keyIdea": "כדאי לדעת",
+  "panel.keyIdea": "רעיון מרכזי",
   "panel.lessonDone": "השלמת את כל השלבים בשיעור הזה.",
   "stepTag.context": "מושג",
   "stepTag.mechanism": "מנגנון",

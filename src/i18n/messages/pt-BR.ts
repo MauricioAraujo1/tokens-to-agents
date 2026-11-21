@@ -134,7 +134,7 @@ const ptBR = {
   "panel.label": "Explicação da etapa",
   "panel.resize": "Redimensionar painel da explicação",
   "panel.position": "Passo {current} / {total}",
-  "panel.keyIdea": "Bom saber",
+  "panel.keyIdea": "Ideia-chave",
   "panel.lessonDone": "Você concluiu todas as etapas desta aula.",
   "stepTag.context": "CONCEITO",
   "stepTag.mechanism": "MECANISMO",

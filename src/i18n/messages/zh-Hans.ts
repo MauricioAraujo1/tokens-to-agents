@@ -128,7 +128,7 @@ const zhHans: Messages = {
   "panel.label": "步骤讲解",
   "panel.resize": "调整讲解面板大小",
   "panel.position": "步骤 {current} / {total}",
-  "panel.keyIdea": "小贴士",
+  "panel.keyIdea": "核心思想",
   "panel.lessonDone": "你已完成本课程的所有步骤。",
   "stepTag.context": "概念",
   "stepTag.mechanism": "机制",

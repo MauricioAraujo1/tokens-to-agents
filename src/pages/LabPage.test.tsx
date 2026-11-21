@@ -80,6 +80,35 @@ describe("LabPage (LAB-01.1, LAB-01.3)", () => {
     expect(load).not.toHaveBeenCalled();
   });
 
+  it("sem item na URL, o painel central mostra cards dos 8 playgrounds e dos 5 projetos (UI-01.2)", async () => {
+    const { onNavigate, user } = renderLab();
+
+    const overview = screen.getByRole("region", { name: "Laboratório" });
+    const cards = within(overview).getAllByRole("link");
+    expect(cards).toHaveLength(13);
+
+    const playgroundCards = within(within(overview).getByRole("list", { name: "Playgrounds" })).getAllByRole("link");
+    expect(playgroundCards.map((card) => card.getAttribute("href"))).toEqual(playgrounds.map((entry) => `/lab/playground/${entry.id}`));
+    expect(playgroundCards[1]).toHaveTextContent("02Temperatura e amostragem");
+
+    const projectCards = within(within(overview).getByRole("list", { name: "Projetos guiados" })).getAllByRole("link");
+    expect(projectCards.map((card) => card.getAttribute("href"))).toEqual(projectCatalog.map((project) => `/lab/project/${project.id}`));
+    expect(projectCards[1]).toHaveTextContent("02RAG Knowledge Assistant");
+    expect(projectCards[0]).toHaveTextContent("em produção");
+    expect(projectCards[1]).not.toHaveTextContent("em produção");
+
+    await user.click(playgroundCards[3]);
+    expect(onNavigate).toHaveBeenCalledWith({ name: "lab", playgroundId: "embedding-space" });
+    await user.click(projectCards[1]);
+    expect(onNavigate).toHaveBeenCalledWith({ name: "lab", projectId: "02" });
+  });
+
+  it("com um item aberto, os cards da apresentação somem", () => {
+    renderLab({ playgroundId: "sampling" });
+
+    expect(document.querySelector("[data-lab-card]")).toBeNull();
+  });
+
   it("/lab/playground/:id abre o playground, marca o item atual e mantém um único h1", () => {
     renderLab({ playgroundId: "sampling" });
 

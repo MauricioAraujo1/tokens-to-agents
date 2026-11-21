@@ -132,7 +132,7 @@ const nl: Messages = {
   "panel.label": "Uitleg van de stap",
   "panel.resize": "Grootte van het uitlegpaneel aanpassen",
   "panel.position": "Stap {current} / {total}",
-  "panel.keyIdea": "Goed om te weten",
+  "panel.keyIdea": "Kernidee",
   "panel.lessonDone": "Je hebt alle stappen van deze les voltooid.",
   "stepTag.context": "CONCEPT",
   "stepTag.mechanism": "MECHANISME",

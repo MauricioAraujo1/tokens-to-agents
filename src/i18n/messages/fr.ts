@@ -134,7 +134,7 @@ const fr: Messages = {
   "panel.label": "Explication de l'étape",
   "panel.resize": "Redimensionner le panneau d'explication",
   "panel.position": "Étape {current} / {total}",
-  "panel.keyIdea": "Bon à savoir",
+  "panel.keyIdea": "Idée clé",
   "panel.lessonDone": "Vous avez terminé toutes les étapes de cette leçon.",
   "stepTag.context": "CONCEPT",
   "stepTag.mechanism": "MÉCANISME",

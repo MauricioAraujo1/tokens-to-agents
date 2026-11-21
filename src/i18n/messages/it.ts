@@ -132,7 +132,7 @@ const it: Messages = {
   "panel.label": "Spiegazione della fase",
   "panel.resize": "Ridimensiona il pannello di spiegazione",
   "panel.position": "Passaggio {current} / {total}",
-  "panel.keyIdea": "Buono a sapersi",
+  "panel.keyIdea": "Idea chiave",
   "panel.lessonDone": "Hai completato tutte le fasi di questa lezione.",
   "stepTag.context": "CONCETTO",
   "stepTag.mechanism": "MECCANISMO",

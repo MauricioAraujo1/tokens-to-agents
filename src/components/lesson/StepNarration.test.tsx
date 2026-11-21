@@ -73,7 +73,7 @@ describe("StepNarration (LES-01.1, CNT-01.2)", () => {
   it("mostra a ideia-chave num callout", () => {
     render(<StepNarration step={step} stepIndex={0} stepCount={10} />);
 
-    expect(screen.getByRole("region", { name: "Bom saber" })).toHaveTextContent(
+    expect(screen.getByRole("region", { name: "Ideia-chave" })).toHaveTextContent(
       "Use o mesmo modelo na indexação e na consulta.",
     );
   });
@@ -81,6 +81,6 @@ describe("StepNarration (LES-01.1, CNT-01.2)", () => {
   it("passo sem ideia-chave não mostra o callout", () => {
     render(<StepNarration step={{ ...step, keyIdea: undefined }} stepIndex={0} stepCount={10} />);
 
-    expect(screen.queryByRole("region", { name: "Bom saber" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("region", { name: "Ideia-chave" })).not.toBeInTheDocument();
   });
 });

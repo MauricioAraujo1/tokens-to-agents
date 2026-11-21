@@ -151,7 +151,8 @@ export function LanguageMenu() {
                       <span
                         aria-hidden="true"
                         className={cn(
-                          "grid size-7 shrink-0 place-items-center rounded-md border border-line-strong text-[9px] font-bold",
+                          // Código com pelo menos 11 px (UI-01.3); "EN" e "简" cabem na caixa de 28 px.
+                          "grid size-7 shrink-0 place-items-center rounded-md border border-line-strong text-[11px] leading-none font-bold",
                           isSelected ? "bg-brand text-on-brand" : "bg-surface text-ink",
                         )}
                       >

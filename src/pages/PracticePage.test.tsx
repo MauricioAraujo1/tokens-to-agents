@@ -71,6 +71,17 @@ describe("PracticePage (PRAC-01.1)", () => {
     expect(links[0]).toHaveAttribute("href", "/practice/00");
   });
 
+  it("o nome que a lista trunca fica inteiro no title e no nome acessível (UI-01.1)", () => {
+    renderPractice();
+
+    const evaluation = items()[16];
+    expect(evaluation).toHaveAttribute("title", "16 Evaluation, Safety & Observability");
+    expect(evaluation).toHaveAccessibleName(/^16 Evaluation, Safety & Observability /);
+    for (const [index, link] of items().entries()) {
+      expect(link).toHaveAttribute("title", `${catalog[index].id} ${catalog[index].title}`);
+    }
+  });
+
   it("módulo sem quiz publicado aparece como em produção", () => {
     renderPractice();
 

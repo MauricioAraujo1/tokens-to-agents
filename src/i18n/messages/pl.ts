@@ -142,7 +142,7 @@ const pl: Messages = {
   "panel.label": "Wyjaśnienie etapu",
   "panel.resize": "Zmień rozmiar panelu wyjaśnień",
   "panel.position": "Krok {current} / {total}",
-  "panel.keyIdea": "Warto wiedzieć",
+  "panel.keyIdea": "Kluczowa idea",
   "panel.lessonDone": "Ukończono wszystkie etapy tej lekcji.",
   "stepTag.context": "POJĘCIE",
   "stepTag.mechanism": "MECHANIZM",

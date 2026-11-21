@@ -131,7 +131,7 @@ const en: Messages = {
   "panel.label": "Step explanation",
   "panel.resize": "Resize explanation panel",
   "panel.position": "Step {current} / {total}",
-  "panel.keyIdea": "Good to know",
+  "panel.keyIdea": "Key idea",
   "panel.lessonDone": "You have completed every step of this lesson.",
   "stepTag.context": "CONCEPT",
   "stepTag.mechanism": "MECHANISM",

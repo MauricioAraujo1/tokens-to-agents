@@ -131,7 +131,7 @@ const ko: Messages = {
   "panel.label": "단계 설명",
   "panel.resize": "설명 패널 크기 조절",
   "panel.position": "단계 {current} / {total}",
-  "panel.keyIdea": "알아 두면 좋아요",
+  "panel.keyIdea": "핵심 아이디어",
   "panel.lessonDone": "이 레슨의 모든 단계를 완료했습니다.",
   "stepTag.context": "개념",
   "stepTag.mechanism": "작동 원리",

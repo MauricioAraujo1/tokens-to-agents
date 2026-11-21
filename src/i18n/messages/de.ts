@@ -132,7 +132,7 @@ const de: Messages = {
   "panel.label": "Erklärung des Schritts",
   "panel.resize": "Größe des Erklärungsfensters ändern",
   "panel.position": "Schritt {current} / {total}",
-  "panel.keyIdea": "Gut zu wissen",
+  "panel.keyIdea": "Kernidee",
   "panel.lessonDone": "Du hast alle Schritte dieser Lektion abgeschlossen.",
   "stepTag.context": "KONZEPT",
   "stepTag.mechanism": "MECHANISMUS",

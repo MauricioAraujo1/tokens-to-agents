@@ -1,4 +1,4 @@
-import { CircleDot, FlaskConical, Menu, Moon, Search, SquareMenu, Sun, TextAlignJustify, type LucideIcon } from "lucide-react";
+import { CircleDot, FlaskConical, Menu, Moon, Search, SquareMenu, TextAlignJustify, type LucideIcon } from "lucide-react";
 import { APP_SECTIONS } from "../../data/sections";
 import { useI18n } from "../../i18n/useI18n";
 import { cn } from "../../lib/utils";
@@ -122,7 +122,8 @@ export function AppHeader({
           title={nextThemeLabel}
           onClick={onToggleTheme}
         >
-          {theme === "light" ? <Moon size={15} aria-hidden="true" /> : <Sun size={15} aria-hidden="true" />}
+          {/* Previews 01 e 02: a mesma lua, em tom suave, nos dois temas; o rótulo diz o tema seguinte. */}
+          <Moon size={15} strokeWidth={1.75} aria-hidden="true" className="text-muted" />
         </button>
       </div>
     </header>

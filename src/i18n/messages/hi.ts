@@ -131,7 +131,7 @@ const hi: Messages = {
   "panel.label": "चरण की व्याख्या",
   "panel.resize": "व्याख्या पैनल का आकार बदलें",
   "panel.position": "चरण {current} / {total}",
-  "panel.keyIdea": "जानने लायक",
+  "panel.keyIdea": "मुख्य विचार",
   "panel.lessonDone": "आपने इस पाठ के सभी चरण पूरे कर लिए हैं।",
   "stepTag.context": "अवधारणा",
   "stepTag.mechanism": "कार्यप्रणाली",

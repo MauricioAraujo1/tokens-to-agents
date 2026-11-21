@@ -46,6 +46,54 @@ function ListSection({ id, title, children }: { id: string; title: string; child
   );
 }
 
+/** Grupo de cards da apresentação. Uma lista com título, não uma região: as regiões ficam com a lista lateral. */
+function OverviewGroup({ id, title, children }: { id: string; title: string; children: ReactNode }) {
+  return (
+    <div className="flex flex-col gap-2.5">
+      <h2 id={id} className="text-[11px] font-bold uppercase leading-[14px] tracking-[1px] text-ink">
+        {title}
+      </h2>
+      <ul aria-labelledby={id} className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+        {children}
+      </ul>
+    </div>
+  );
+}
+
+interface LabCardProps {
+  kind: "playground" | "project";
+  number: string;
+  title: string;
+  href: string;
+  onOpen: (event: MouseEvent<HTMLAnchorElement>) => void;
+  note?: string;
+}
+
+/** Card de playground ou de projeto, como o `ModuleCard` da Home (preview 07): faixa, número e título. */
+function LabCard({ kind, number, title, href, onOpen, note }: LabCardProps) {
+  return (
+    <li data-lab-card={kind}>
+      <a
+        href={href}
+        onClick={onOpen}
+        className={cn(
+          "flex h-full w-full flex-col gap-2 overflow-hidden rounded-[7px] border border-line-strong bg-surface pb-3 text-start transition-[transform,box-shadow] duration-200 hover:-translate-y-1 hover:shadow-press-lg motion-reduce:transition-none motion-reduce:hover:translate-y-0",
+          "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-line-strong",
+        )}
+      >
+        <span aria-hidden="true" className={cn("h-2 w-full shrink-0", kind === "playground" ? "bg-brand" : "bg-info")} />
+        <span className="flex flex-1 flex-col gap-1.5 px-3 pt-1">
+          <span className="flex items-start justify-between gap-2">
+            <span className="text-[11px] font-bold text-muted">{number}</span>
+            {note && <span className="text-[11px] text-muted">{note}</span>}
+          </span>
+          <span className="text-[13px] font-bold leading-[17px] text-ink">{title}</span>
+        </span>
+      </a>
+    </li>
+  );
+}
+
 /**
  * Aba Laboratório: a lista dos playgrounds (LAB-01.1) e dos projetos guiados (LAB-01.3), e o item da URL.
  * Um id desconhecido em `/lab/playground/:id` ou `/lab/project/:id` vira a página "não encontrado" (NAV-01.4).
@@ -128,13 +176,47 @@ export function LabPage({
     }
     body = <div className={PANEL_CLASS}>{projectBody}</div>;
   } else {
+    // Sem item escolhido, o painel apresenta os playgrounds e os projetos em cards, no padrão da Home (UI-01.2).
     body = (
-      <section aria-labelledby="lab-title" className={PANEL_CLASS}>
-        <h1 id="lab-title" className="text-2xl font-bold leading-[31px] text-ink">
-          {t("sections.laboratorio.label")}
-        </h1>
-        <p className="text-[13px] leading-[1.6] text-muted">{t("lab.intro")}</p>
-        <p className="text-[10.5px] leading-[14px] text-muted">{t("lab.offline")}</p>
+      <section aria-labelledby="lab-title" className={cn(PANEL_CLASS, "gap-5")}>
+        <div className="flex flex-col gap-3">
+          <h1 id="lab-title" className="text-2xl font-bold leading-[31px] text-ink">
+            {t("sections.laboratorio.label")}
+          </h1>
+          <p className="text-[13px] leading-[1.6] text-muted">{t("lab.intro")}</p>
+          <p className="text-[10.5px] leading-[14px] text-muted">{t("lab.offline")}</p>
+        </div>
+        <OverviewGroup id="lab-overview-playgrounds" title={t("lab.playgrounds")}>
+          {playgrounds.map((entry, index) => {
+            const route: Route = { name: "lab", playgroundId: entry.id };
+            return (
+              <LabCard
+                key={entry.id}
+                kind="playground"
+                number={String(index + 1).padStart(2, "0")}
+                title={entry.title}
+                href={buildPath(route)}
+                onOpen={follow(route)}
+              />
+            );
+          })}
+        </OverviewGroup>
+        <OverviewGroup id="lab-overview-projects" title={t("lab.projects")}>
+          {projects.map((entry) => {
+            const route: Route = { name: "lab", projectId: entry.id };
+            return (
+              <LabCard
+                key={entry.id}
+                kind="project"
+                number={entry.id}
+                title={entry.title}
+                href={buildPath(route)}
+                onOpen={follow(route)}
+                note={hasProject(entry.id) ? undefined : t("practice.inProduction")}
+              />
+            );
+          })}
+        </OverviewGroup>
       </section>
     );
   }

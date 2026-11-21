@@ -132,7 +132,7 @@ const tr: Messages = {
   "panel.label": "Aşamanın açıklaması",
   "panel.resize": "Açıklama panelini yeniden boyutlandır",
   "panel.position": "Adım {current} / {total}",
-  "panel.keyIdea": "Bilmekte fayda var",
+  "panel.keyIdea": "Ana fikir",
   "panel.lessonDone": "Bu dersin tüm aşamalarını tamamladınız.",
   "stepTag.context": "KAVRAM",
   "stepTag.mechanism": "MEKANİZMA",

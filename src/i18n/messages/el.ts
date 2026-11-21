@@ -132,7 +132,7 @@ const el: Messages = {
   "panel.label": "Επεξήγηση σταδίου",
   "panel.resize": "Αλλαγή μεγέθους πίνακα επεξήγησης",
   "panel.position": "Βήμα {current} / {total}",
-  "panel.keyIdea": "Καλό να ξέρετε",
+  "panel.keyIdea": "Βασική ιδέα",
   "panel.lessonDone": "Ολοκληρώσατε όλα τα στάδια αυτού του μαθήματος.",
   "stepTag.context": "ΕΝΝΟΙΑ",
   "stepTag.mechanism": "ΜΗΧΑΝΙΣΜΟΣ",
